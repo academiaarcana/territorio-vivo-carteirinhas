@@ -5,6 +5,7 @@ import { getSession, onAuthChange } from './services/auth.js';
 import { renderPublicPage, mountPublicPage } from './pages/public.js';
 import { renderLoginPage, mountLoginPage, renderSignupPage, mountSignupPage, renderRecoveryPage, mountRecoveryPage } from './pages/auth.js';
 import { renderDashboard, mountDashboard } from './pages/dashboard.js';
+import { renderTerritoryPage, mountTerritoryPage } from './pages/territory.js';
 import { renderCardsPage, mountCardsPage } from './pages/cards.js';
 import { renderFivePage, mountFivePage } from './pages/five.js';
 import { renderIndicatorsPage, mountIndicatorsPage } from './pages/indicators.js';
@@ -17,6 +18,7 @@ registerRoute('/entrar', { guestOnly: true, render: renderLoginPage, mount: moun
 registerRoute('/criar-conta', { guestOnly: true, render: renderSignupPage, mount: mountSignupPage });
 registerRoute('/recuperar-senha', { render: renderRecoveryPage, mount: mountRecoveryPage });
 registerRoute('/app/inicio', { auth: true, render: renderDashboard, mount: mountDashboard });
+registerRoute('/app/territorio', { auth: true, render: renderTerritoryPage, mount: mountTerritoryPage });
 registerRoute('/app/carteirinhas', { auth: true, render: renderCardsPage, mount: mountCardsPage });
 registerRoute('/app/5-minutos', { auth: true, render: renderFivePage, mount: mountFivePage });
 registerRoute('/app/indicadores', { auth: true, render: renderIndicatorsPage, mount: mountIndicatorsPage });
