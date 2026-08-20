@@ -11,7 +11,7 @@ const required = [
   'src/main.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js',
   'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/data/cards.js','src/data/education.js',
   'src/pages/public.js','src/pages/auth.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
-  'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css',
+  'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css',
   'scripts/validate-security-contract.mjs'
 ];
 
@@ -36,7 +36,16 @@ for (const legacy of ['app.js','enhancements.js','multiunit.js','network-context
 }
 if (!index.includes('type="module"') || !index.includes('src/main.js')) errors.push('index.html não inicia a arquitetura V2 por módulo.');
 if (!index.includes('@supabase/supabase-js')) errors.push('Biblioteca Supabase não está carregada no index.html.');
-if (index.includes('aria-live="polite"') && index.includes('id="app" aria-live')) errors.push('A raiz inteira do SPA não deve ser uma live region.');
+if (!index.includes('src/styles/structural.css')) errors.push('Camada estrutural de acessibilidade não está carregada.');
+if (index.includes('id="app" aria-live')) errors.push('A raiz inteira do SPA não deve ser uma live region.');
+
+const layout = fs.readFileSync(path.join(root, 'src/core/layout.js'), 'utf8');
+if (!layout.includes('skip-link')) errors.push('Shell autenticado precisa de skip link.');
+if (!layout.includes('aria-current')) errors.push('Navegação autenticada precisa indicar página atual.');
+
+const structural = fs.readFileSync(path.join(root, 'src/styles/structural.css'), 'utf8');
+if (!structural.includes(':focus-visible')) errors.push('Camada estrutural precisa definir foco de teclado visível.');
+if (!structural.includes('prefers-reduced-motion')) errors.push('Camada estrutural precisa respeitar redução de movimento.');
 
 const appFiles = walk(src).filter((file) => file.endsWith('.js')).concat([path.join(root, 'config.js'), path.join(root, 'index.html')]);
 const appText = appFiles.filter(fs.existsSync).map((file) => fs.readFileSync(file,'utf8')).join('\n');
