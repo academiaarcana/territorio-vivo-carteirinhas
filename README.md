@@ -1,57 +1,71 @@
-# Território Vivo — Carteirinhas da UBS
+# Território Vivo — UBS Madre Tereza de Calcutá
 
-Aplicação web simples para preencher, visualizar e imprimir carteirinhas da Atenção Primária em papel A4.
+Plataforma web para apoiar territorialização, geração de carteirinhas, rotina dos **5 minutos do território**, indicadores e educação em saúde na Atenção Primária.
 
-## Primeira versão
+## Publicação
 
-O protótipo inicial contém a carteirinha **“Minha ACS e Minha Equipe”** com:
+O Território Vivo é mantido separado do projeto Academia Arcana.
 
-- preenchimento dos dados da ACS, microárea e contato;
-- dados da UBS e da Equipe 02;
-- profissionais de referência;
-- visualização da frente e do verso;
-- impressão de **2 ou 4 unidades por folha A4**;
-- **modo econômico de toner**;
-- **modo leitura fácil**;
-- salvamento opcional dos dados da equipe apenas no dispositivo;
-- nenhuma base de dados de pacientes.
+- **Frontend:** GitHub Pages
+- **Backend:** Supabase Free, projeto `territorio-vivo-carteirinhas`
+- **Vercel:** não é necessária para este repositório
+- **Endereço previsto:** `https://academiaarcana.github.io/territorio-vivo-carteirinhas/`
+
+O workflow `.github/workflows/pages.yml` publica automaticamente a branch `main` no GitHub Pages.
+
+## Contas e acesso
+
+Cada ACS pode criar a própria conta com nome, e-mail, senha e microárea.
+
+A conta `macedotaynara@outlook.com` é reconhecida pelo banco como **master/admin**. Todas as demais contas recebem o papel **ACS**. Essa regra é aplicada no banco por trigger e não depende apenas da interface.
+
+A conta master possui um painel para visualizar e atualizar os dados profissionais dos perfis cadastrados.
 
 ## Privacidade
 
-A aplicação foi pensada para não criar um prontuário paralelo. Nesta versão, os dados digitados não são enviados para servidor. O navegador só grava os dados da equipe quando o usuário escolhe explicitamente a opção de salvar no dispositivo.
+O sistema não foi desenhado como prontuário e não mantém uma base paralela de pacientes.
 
-## Como testar
+- O Supabase guarda apenas dados profissionais/de equipe necessários ao funcionamento da plataforma.
+- Dados preenchidos nos geradores de carteirinhas são temporários por padrão.
+- Informações clínicas ou sociais sensíveis não devem ser colocadas em carteirinhas familiares sem necessidade assistencial clara.
+- Row Level Security (RLS) limita o acesso dos ACS ao próprio perfil; a conta master possui a permissão administrativa necessária para gestão dos perfis da equipe.
 
-Abra `index.html` em um navegador ou publique a pasta como site estático, por exemplo com GitHub Pages.
+## Funcionalidades atuais
 
-Para testar a impressão:
+- Login com e-mail e senha.
+- Autocadastro das ACS.
+- Recuperação de senha.
+- Perfil profissional reutilizado nas carteirinhas.
+- Painel master de gestão dos perfis.
+- Biblioteca de carteirinhas para família, território e gestão.
+- Impressão A4 com 2, 4 ou 8 unidades.
+- Modos leitura fácil e econômico.
+- Rotina dos 5 minutos do território.
+- Indicadores da microárea.
+- Educação em saúde: mapa da pressão e orientação geral sobre uso de insulina.
+- Impressão e PDF dos materiais educativos.
 
-1. Preencha os campos.
-2. Escolha 2 ou 4 carteirinhas por A4.
-3. Ative, se necessário, o modo econômico ou leitura fácil.
-4. Clique em **Imprimir frente** ou **Imprimir verso**.
-5. Na janela da impressora, mantenha o papel A4 e a escala em 100% sempre que possível.
+## Segurança do Supabase
 
-## Próximos modelos planejados
+As migrações estão em `supabase/migrations/`.
 
-- Bem-vindo ao Meu Território
-- O que Mudou no Território?
-- Quem Precisa de um Olhar Prioritário?
-- Risco, Recurso ou Potencialidade?
-- Nota Rápida do ACS
-- Guia de Bolso — 5 Minutos do Território
-- Decisão dos 5 Minutos
-- Indicadores da Microárea
-- Indicadores da Equipe
-- Sistema × Território
+O projeto utiliza RLS e funções administrativas protegidas. O campo `role` também é validado pelo banco para impedir que um usuário comum transforme a própria conta em administradora.
+
+## Configuração de autenticação
+
+Para confirmação de e-mail e recuperação de senha em produção, o Supabase deve aceitar o endereço do GitHub Pages como URL de redirecionamento:
+
+`https://academiaarcana.github.io/territorio-vivo-carteirinhas/`
+
+No painel do Supabase, isso fica em **Authentication → URL Configuration**. O frontend já envia esse endereço como `emailRedirectTo`/`redirectTo` quando está publicado nessa URL.
 
 ## Diretrizes do projeto
 
-- sempre imprimir em papel A4;
-- funcionar bem em preto e branco e impressora a toner;
+- funcionar bem em papel A4 e impressão preto e branco;
+- economizar papel e toner;
 - não depender de cor para transmitir informação;
-- prever versões de leitura fácil para pessoas com baixa escolaridade ou dificuldade de compreensão;
-- evitar excesso de texto e siglas;
-- usar ícones simples e campos grandes;
-- evitar dados clínicos ou sociais sensíveis em materiais entregues às famílias;
-- oferecer versões econômicas para períodos de escassez de papel ou toner.
+- oferecer leitura fácil;
+- registrar apenas o necessário;
+- evitar uma segunda burocracia para o ACS;
+- transformar achados do território em decisão, ação e reavaliação;
+- avaliar a ferramenta, não o trabalhador.
