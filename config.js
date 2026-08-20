@@ -29,18 +29,22 @@ window.TERRITORIO_VIVO_CONFIG = {
       <div class="privacy-banner"><strong>Cadastro de acesso.</strong> Informe apenas seus dados profissionais. Dados de pacientes não são cadastrados aqui.</div>
       <label>Nome completo<input id="signupName" type="text" autocomplete="name" required /></label>
       <label>E-mail<input id="signupEmail" type="email" autocomplete="email" required /></label>
-      <label>Unidade de saúde
-        <select id="signupUnit" required>
-          <option value="">Carregando unidades…</option>
-        </select>
+      <label>Município
+        <select id="signupMunicipality" required><option value="">Carregando…</option></select>
       </label>
-      <label>Equipe / identificação <span style="font-weight:400">(se souber)</span>
-        <input id="signupTeam" type="text" placeholder="Ex.: Equipe 02 ou código da eSF" />
+      <label>Unidade de saúde / ponto de atendimento
+        <select id="signupUnit" required><option value="">Selecione o município primeiro</option></select>
+      </label>
+      <label>Equipe
+        <select id="signupTeamSelect"><option value="">Selecione a unidade primeiro</option></select>
+      </label>
+      <label id="signupTeamCustomWrap" hidden>Nome da equipe <span style="font-weight:400">(para confirmação)</span>
+        <input id="signupTeamCustom" type="text" maxlength="120" placeholder="Ex.: Equipe 03 ou eSF Rural" />
       </label>
       <label>Microárea
         <input id="signupMicroarea" type="text" maxlength="40" placeholder="Ex.: 08" required />
       </label>
-      <p id="signupContextHint" class="form-status">A unidade e a microárea ajudam o sistema a preencher automaticamente as carteirinhas.</p>
+      <p id="signupContextHint" class="form-status">A unidade, equipe e microárea ajudam o sistema a preencher automaticamente as carteirinhas.</p>
       <label>Senha<input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required /></label>
       <label>Repita a senha<input id="signupPassword2" type="password" autocomplete="new-password" minlength="8" required /></label>
       <button class="button primary wide" type="submit">Criar conta</button>
@@ -49,48 +53,93 @@ window.TERRITORIO_VIVO_CONFIG = {
     </form>`;
   button.insertAdjacentElement('afterend', panel);
 
+  const municipalitySelect = panel.querySelector('#signupMunicipality');
   const unitSelect = panel.querySelector('#signupUnit');
+  const teamSelect = panel.querySelector('#signupTeamSelect');
+  const teamCustomWrap = panel.querySelector('#signupTeamCustomWrap');
+  const teamCustom = panel.querySelector('#signupTeamCustom');
   const emailInput = panel.querySelector('#signupEmail');
   const microareaInput = panel.querySelector('#signupMicroarea');
   const contextHint = panel.querySelector('#signupContextHint');
 
-  async function loadUnits(){
-    const { data, error } = await registrationClient
-      .from('health_units')
-      .select('cnes,short_name,neighborhood,unit_type')
-      .eq('is_active', true)
-      .order('display_order', { ascending: true });
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
+  async function loadMunicipalities(){
+    const { data, error } = await registrationClient.from('municipalities').select('code,name,state_code').eq('active',true).order('name');
     if (error || !data?.length) {
-      unitSelect.innerHTML = '<option value="">Selecione sua unidade</option>';
+      municipalitySelect.innerHTML = '<option value="110018">Pimenta Bueno — RO</option>';
+      municipalitySelect.value = '110018';
+      await loadUnits();
       return;
     }
+    municipalitySelect.innerHTML = data.map((item) => `<option value="${escapeHtml(item.code)}">${escapeHtml(item.name)} — ${escapeHtml(item.state_code)}</option>`).join('');
+    if (data.some((item) => item.code === '110018')) municipalitySelect.value = '110018';
+    await loadUnits();
+  }
 
+  async function loadUnits(){
+    const municipality = municipalitySelect.value;
+    unitSelect.innerHTML = '<option value="">Carregando unidades…</option>';
+    teamSelect.innerHTML = '<option value="">Selecione a unidade primeiro</option>';
+    teamCustomWrap.hidden = true;
+    let query = registrationClient.from('health_units').select('cnes,short_name,neighborhood,unit_type,data_status').eq('is_active',true).order('display_order',{ascending:true});
+    if (municipality) query = query.eq('municipality_code',municipality);
+    const { data, error } = await query;
+    if (error || !data?.length) {
+      unitSelect.innerHTML = '<option value="">Nenhuma unidade cadastrada</option>';
+      return;
+    }
     unitSelect.innerHTML = '<option value="">Selecione sua unidade</option>' + data.map((unit) => {
-      const place = unit.neighborhood ? ` — ${unit.neighborhood}` : '';
-      return `<option value="${unit.cnes}">${unit.short_name}${place}</option>`;
+      const place = unit.neighborhood ? ` — ${escapeHtml(unit.neighborhood)}` : '';
+      const review = unit.data_status === 'needs_review' ? ' • dados a confirmar' : '';
+      return `<option value="${escapeHtml(unit.cnes)}">${escapeHtml(unit.short_name)}${place}${review}</option>`;
     }).join('');
+  }
+
+  async function loadTeams(){
+    const unitCnes = unitSelect.value;
+    teamCustomWrap.hidden = true;
+    teamCustom.value = '';
+    if (!unitCnes) {
+      teamSelect.innerHTML = '<option value="">Selecione a unidade primeiro</option>';
+      return;
+    }
+    const { data } = await registrationClient.from('teams').select('id,name,ine,verification_status').eq('unit_cnes',unitCnes).eq('active',true).order('name');
+    const teams = data || [];
+    teamSelect.innerHTML = '<option value="">Equipe ainda não informada</option>' + teams.map((team) => {
+      const ine = team.ine ? ` • INE ${escapeHtml(team.ine)}` : '';
+      const status = team.verification_status === 'confirmed' ? '' : ' • a confirmar';
+      return `<option value="${escapeHtml(team.id)}" data-name="${escapeHtml(team.name)}">${escapeHtml(team.name)}${ine}${status}</option>`;
+    }).join('') + '<option value="__other__">Minha equipe não aparece na lista</option>';
+  }
+
+  function syncTeamCustom(){
+    teamCustomWrap.hidden = teamSelect.value !== '__other__';
+    if (!teamCustomWrap.hidden) teamCustom.focus();
   }
 
   function syncMasterFields(){
     const isMaster = emailInput.value.trim().toLowerCase() === MASTER_EMAIL;
+    municipalitySelect.required = !isMaster;
     unitSelect.required = !isMaster;
     microareaInput.required = !isMaster;
     if (isMaster) {
-      contextHint.textContent = 'Conta master: unidade, equipe e microárea são opcionais.';
+      contextHint.textContent = 'Conta master: município, unidade, equipe e microárea são opcionais.';
       microareaInput.placeholder = 'Opcional para a conta master';
     } else {
-      contextHint.textContent = 'A unidade e a microárea ajudam o sistema a preencher automaticamente as carteirinhas.';
+      contextHint.textContent = 'A unidade, equipe e microárea ajudam o sistema a preencher automaticamente as carteirinhas.';
       microareaInput.placeholder = 'Ex.: 08';
     }
   }
 
+  municipalitySelect.addEventListener('change', loadUnits);
+  unitSelect.addEventListener('change', loadTeams);
+  teamSelect.addEventListener('change', syncTeamCustom);
   emailInput.addEventListener('input', syncMasterFields);
-  loadUnits();
+  loadMunicipalities();
 
   const showLogin = () => { panel.hidden = true; loginForm.hidden = false; button.hidden = false; };
   const showSignup = () => { panel.hidden = false; loginForm.hidden = true; button.hidden = true; syncMasterFields(); };
-
   button.addEventListener('click', showSignup);
   panel.querySelector('#cancelSignup').addEventListener('click', showLogin);
 
@@ -99,25 +148,20 @@ window.TERRITORIO_VIVO_CONFIG = {
     const status = panel.querySelector('#signupStatus');
     const name = panel.querySelector('#signupName').value.trim();
     const email = emailInput.value.trim().toLowerCase();
+    const municipalityCode = municipalitySelect.value;
     const unitCnes = unitSelect.value;
-    const teamName = panel.querySelector('#signupTeam').value.trim();
+    const selectedTeamOption = teamSelect.selectedOptions[0];
+    const teamId = teamSelect.value && teamSelect.value !== '__other__' ? teamSelect.value : null;
+    const teamName = teamSelect.value === '__other__' ? teamCustom.value.trim() : (selectedTeamOption?.dataset.name || '');
     const microarea = microareaInput.value.trim();
     const password = panel.querySelector('#signupPassword').value;
     const password2 = panel.querySelector('#signupPassword2').value;
     const isMaster = email === MASTER_EMAIL;
 
-    if (!isMaster && !unitCnes) {
-      status.textContent = 'Selecione a unidade de saúde onde você atua.';
-      return;
-    }
-    if (!isMaster && !microarea) {
-      status.textContent = 'Informe sua microárea.';
-      return;
-    }
-    if (password !== password2) {
-      status.textContent = 'As senhas não são iguais.';
-      return;
-    }
+    if (!isMaster && !unitCnes) { status.textContent = 'Selecione a unidade de saúde onde você atua.'; return; }
+    if (!isMaster && !microarea) { status.textContent = 'Informe sua microárea.'; return; }
+    if (teamSelect.value === '__other__' && !teamName) { status.textContent = 'Informe o nome da sua equipe para que a conta master possa confirmá-la.'; return; }
+    if (password !== password2) { status.textContent = 'As senhas não são iguais.'; return; }
 
     status.textContent = 'Criando sua conta…';
     const redirectUrl = `${window.location.origin}${window.location.pathname}`;
@@ -125,24 +169,15 @@ window.TERRITORIO_VIVO_CONFIG = {
       email,
       password,
       options: {
-        data: {
-          full_name: name,
-          unit_cnes: unitCnes || null,
-          team_name: teamName,
-          microarea
-        },
+        data: { full_name:name, municipality_code:municipalityCode || null, unit_cnes:unitCnes || null, team_id:teamId, team_name:teamName, microarea },
         emailRedirectTo: redirectUrl
       }
     });
 
-    if (error) {
-      status.textContent = 'Não foi possível criar a conta. Verifique os dados e tente novamente.';
-      return;
-    }
-
+    if (error) { status.textContent = 'Não foi possível criar a conta. Verifique os dados e tente novamente.'; return; }
     if (data?.session) {
       status.textContent = 'Conta criada. Entrando…';
-      setTimeout(() => window.location.reload(), 500);
+      setTimeout(() => window.location.reload(),500);
     } else {
       status.textContent = 'Conta criada. Confira seu e-mail para confirmar o cadastro e depois faça login.';
     }
@@ -150,10 +185,16 @@ window.TERRITORIO_VIVO_CONFIG = {
 })();
 
 (function loadTerritorioVivoEnhancements(){
-  if (document.querySelector('script[data-tv-enhancements]')) return;
-  const script = document.createElement('script');
-  script.src = 'enhancements.js';
-  script.async = false;
-  script.dataset.tvEnhancements = 'true';
-  document.head.appendChild(script);
+  const scripts = [
+    ['enhancements.js','tv-enhancements'],
+    ['multiunit.js','tv-multiunit']
+  ];
+  scripts.forEach(([src,key]) => {
+    if (document.querySelector(`script[data-${key}]`)) return;
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = false;
+    script.setAttribute(`data-${key}`,'true');
+    document.head.appendChild(script);
+  });
 })();
