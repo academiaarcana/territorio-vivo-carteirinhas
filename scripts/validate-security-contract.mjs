@@ -9,7 +9,8 @@ const mustExist = [
   'src/core/permissions.js',
   'supabase/migrations/012_unit_admin_roles_and_policies.sql',
   'supabase/migrations/013_harden_unit_admin_and_territory_scope.sql',
-  'supabase/migrations/014_restrict_territory_point_reads_by_unit.sql'
+  'supabase/migrations/014_restrict_territory_point_reads_by_unit.sql',
+  'supabase/migrations/015_protect_unit_admin_institutional_scope.sql'
 ];
 
 for (const file of mustExist) {
@@ -22,7 +23,7 @@ expect(permissions, 'isManagement', 'frontend precisa centralizar acesso de gest
 expect(permissions, 'canManageTerritoryPoint', 'frontend precisa centralizar gestão territorial');
 
 const main = read('src/main.js');
-expect(main, "management: true", 'rota de gestão deve exigir nível de gestão');
+expect(main, 'management: true', 'rota de gestão deve exigir nível de gestão');
 
 const migration12 = read('supabase/migrations/012_unit_admin_roles_and_policies.sql');
 expect(migration12, "role in ('acs','unit_admin','admin')", 'constraint de papéis deve conter os três níveis');
@@ -37,6 +38,11 @@ expect(migration13, 'unit_cnes = private.current_unit_cnes()', 'escrita territor
 const migration14 = read('supabase/migrations/014_restrict_territory_point_reads_by_unit.sql');
 expect(migration14, 'territory_points_select_by_scope', 'leitura territorial precisa de policy de escopo');
 expect(migration14, 'unit_cnes = private.current_unit_cnes()', 'leitura territorial não deve vazar para outras UBS');
+
+const migration15 = read('supabase/migrations/015_protect_unit_admin_institutional_scope.sql');
+expect(migration15, 'protect_health_unit_structure', 'alterações estruturais da UBS precisam de trigger protetor');
+expect(migration15, 'new.is_active is distinct from old.is_active', 'unit_admin não pode ativar/desativar UBS via API');
+expect(migration15, 'new.municipality_code is distinct from old.municipality_code', 'unit_admin não pode mover UBS entre municípios');
 
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
