@@ -36,6 +36,9 @@
       .eq('id',session.user.id).maybeSingle();
     if (!profile) return;
 
+    const microareaField = $('#profileMicroarea');
+    if (microareaField) microareaField.value = profile.microarea || '';
+
     let municipality = null;
     let unit = null;
     if (profile.municipality_code) {
@@ -54,10 +57,6 @@
       microarea: profile.microarea || ''
     };
     applyContext();
-  }
-
-  function contextLine(){
-    return [context.unit,context.team,context.microarea ? `Microárea ${context.microarea}` : ''].filter(Boolean).join(' • ') || 'Atenção Primária';
   }
 
   function printHeader(){
