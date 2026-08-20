@@ -42,7 +42,7 @@ jobs:
           grep -q "@supabase/supabase-js" index.html
           grep -q "public-site.js" config.js
           grep -q "network-context.js" config.js
-          ! grep -R "service_role" . --exclude-dir=.git
+          ! grep -R "service_role" . --exclude-dir=.git --exclude-dir=.github
 
       - name: Testar catálogo público do Supabase
         shell: bash
