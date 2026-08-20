@@ -3,236 +3,122 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Território Vivo — gerador de carteirinhas da UBS para preenchimento e impressão em A4." />
-  <title>Território Vivo — Carteirinhas da UBS</title>
+  <meta name="theme-color" content="#0b5a6d" />
+  <meta name="description" content="Território Vivo — plataforma da UBS para carteirinhas, territorialização, indicadores e educação em saúde." />
+  <title>Território Vivo — UBS</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="site-header">
-    <div>
-      <p class="eyebrow">Território Vivo</p>
-      <h1>Carteirinhas da UBS</h1>
-      <p class="subtitle">Preencha, visualize e imprima em papel A4.</p>
+  <div id="authView" class="auth-view">
+    <div class="auth-decoration" aria-hidden="true">
+      <div class="blob blob-a"></div><div class="blob blob-b"></div><div class="grid-lines"></div>
+      <div class="territory-pins"><span>⌂</span><span>+</span><span>●</span><span>⌖</span><span>♡</span></div>
     </div>
-    <div class="brand-badges" aria-label="Identidade institucional">
-      <span class="brand-badge">SUS</span>
-      <span class="brand-badge">Saúde da Família</span>
-      <span class="brand-badge">Pimenta Bueno</span>
-    </div>
-  </header>
-
-  <main class="app-shell">
-    <section class="panel form-panel" aria-labelledby="config-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Modelo 01</p>
-          <h2 id="config-title">Minha ACS e Minha Equipe</h2>
-        </div>
-        <span class="status-pill">Família • leitura simples</span>
+    <section class="auth-card" aria-labelledby="login-title">
+      <div class="auth-brand">
+        <div class="brand-symbol">TV</div>
+        <div><p class="eyebrow">UBS Madre Tereza de Calcutá</p><h1>Território Vivo</h1></div>
       </div>
-
-      <p class="helper">Esta carteirinha é para a família guardar como referência da equipe. Não é crachá funcional e não contém validade, matrícula ou dados clínicos.</p>
-
-      <form id="card-form" autocomplete="off">
-        <fieldset>
-          <legend>Referência territorial</legend>
-          <label>
-            Minha ACS
-            <input id="acs" name="acs" type="text" placeholder="Nome da ACS" />
-          </label>
-
-          <div class="two-col">
-            <label>
-              Microárea
-              <select id="microarea" name="microarea">
-                <option value="">Selecione</option>
-                <option value="08">08</option>
-                <option value="09">09</option>
-                <option value="10">10</option>
-              </select>
-            </label>
-            <label>
-              Telefone / contato
-              <input id="acsPhone" name="acsPhone" type="tel" placeholder="(69) 00000-0000" />
-            </label>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Unidade e equipe</legend>
-          <label>
-            Unidade de Saúde
-            <input id="unit" name="unit" type="text" value="UBS Madre Tereza de Calcutá" />
-          </label>
-
-          <div class="two-col">
-            <label>
-              Equipe
-              <input id="team" name="team" type="text" value="Equipe 02" />
-            </label>
-            <label>
-              Telefone da UBS
-              <input id="unitPhone" name="unitPhone" type="tel" placeholder="Telefone institucional" />
-            </label>
-          </div>
-
-          <label>
-            Endereço da UBS
-            <input id="address" name="address" type="text" placeholder="Endereço da unidade" />
-          </label>
-
-          <label>
-            Horário de atendimento
-            <input id="hours" name="hours" type="text" placeholder="Ex.: segunda a sexta, 7h às 17h" />
-          </label>
-        </fieldset>
-
-        <fieldset>
-          <legend>Profissionais de referência</legend>
-          <label>
-            Médica(o)
-            <input id="doctor" name="doctor" type="text" placeholder="Nome" />
-          </label>
-          <label>
-            Enfermeira(o)
-            <input id="nurse" name="nurse" type="text" placeholder="Nome" />
-          </label>
-          <label>
-            Técnica(o) de enfermagem
-            <input id="tech" name="tech" type="text" placeholder="Nome" />
-          </label>
-        </fieldset>
-
-        <fieldset>
-          <legend>Impressão</legend>
-          <div class="two-col">
-            <label>
-              Aproveitamento da folha A4
-              <select id="perPage" name="perPage">
-                <option value="2">2 por A4 — leitura fácil</option>
-                <option value="4" selected>4 por A4 — padrão</option>
-              </select>
-            </label>
-            <label class="check-line">
-              <input id="economyMode" type="checkbox" />
-              <span>Modo econômico de toner</span>
-            </label>
-          </div>
-          <label class="check-line">
-            <input id="easyRead" type="checkbox" />
-            <span>Leitura fácil — fonte maior e menos informação por bloco</span>
-          </label>
-        </fieldset>
-
-        <div class="actions">
-          <button type="button" class="button secondary" id="saveTeam">Salvar dados da equipe neste dispositivo</button>
-          <button type="button" class="button ghost" id="clearSaved">Apagar dados salvos</button>
-        </div>
-
-        <div class="privacy-note" role="note">
-          <strong>Privacidade:</strong> esta versão não envia informações para servidor. Os dados só são salvos no dispositivo se você clicar em “Salvar dados da equipe”.
-        </div>
+      <p class="auth-intro">Uma área de trabalho simples para o ACS organizar informações, gerar carteirinhas e apoiar o cuidado no território.</p>
+      <form id="loginForm" class="stack" autocomplete="on">
+        <label>E-mail institucional ou cadastrado<input id="loginEmail" type="email" autocomplete="username" placeholder="acs@exemplo.com" required /></label>
+        <label>Senha<input id="loginPassword" type="password" autocomplete="current-password" placeholder="Sua senha" required /></label>
+        <button class="button primary wide" type="submit">Entrar</button>
       </form>
+      <button id="demoAccess" class="button soft wide" type="button">Entrar no modo demonstração</button>
+      <p id="authStatus" class="form-status" aria-live="polite"></p>
+      <div class="privacy-banner"><strong>Privacidade por padrão.</strong> O perfil do ACS pode ser salvo no sistema. Dados digitados para carteirinhas não precisam ser armazenados.</div>
     </section>
+  </div>
 
-    <section class="panel preview-panel" aria-labelledby="preview-title">
-      <div class="section-heading preview-heading">
-        <div>
-          <p class="eyebrow">Visualização</p>
-          <h2 id="preview-title">Frente e verso</h2>
-        </div>
-        <div class="actions compact">
-          <button type="button" class="button" id="printFront">Imprimir frente</button>
-          <button type="button" class="button" id="printBack">Imprimir verso</button>
-        </div>
+  <div id="appView" class="app-view" hidden>
+    <aside class="sidebar">
+      <div class="sidebar-brand"><div class="brand-symbol small">TV</div><div><strong>Território Vivo</strong><span>Equipe 02</span></div></div>
+      <nav class="nav-list" aria-label="Navegação principal">
+        <button class="nav-item active" data-section="dashboard"><span>⌂</span>Início</button>
+        <button class="nav-item" data-section="cards"><span>▣</span>Carteirinhas</button>
+        <button class="nav-item" data-section="five"><span>5′</span>5 minutos</button>
+        <button class="nav-item" data-section="indicators"><span>▥</span>Indicadores</button>
+        <button class="nav-item" data-section="education"><span>✚</span>Educação em saúde</button>
+        <button class="nav-item" data-section="profile"><span>●</span>Meu perfil</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="mini-profile"><span class="avatar" id="sideAvatar">A</span><div><strong id="sideName">ACS</strong><span id="sideMicroarea">Microárea —</span></div></div>
+        <button id="logoutBtn" class="text-button">Sair</button>
       </div>
+    </aside>
 
-      <div id="previewArea" class="preview-area">
-        <article class="card card-front" id="frontPreview" aria-label="Frente da carteirinha">
-          <div class="card-topbar">
-            <div class="institution-mark">
-              <div class="city-mark" aria-hidden="true">PB</div>
-              <div>
-                <strong>Secretaria Municipal de Saúde</strong>
-                <span>Pimenta Bueno — RO</span>
-              </div>
-            </div>
-            <div class="sus-mark" aria-label="SUS">SUS</div>
-          </div>
+    <main class="main-shell">
+      <header class="topbar">
+        <div><p class="eyebrow">Atenção Primária • Pimenta Bueno — RO</p><h1 id="pageTitle">Bom trabalho no território</h1></div>
+        <div class="top-actions"><span class="online-pill"><i></i><span id="connectionLabel">Modo local</span></span><button class="button soft" data-section-jump="profile">Atualizar meu perfil</button></div>
+      </header>
 
-          <div class="card-title-block">
-            <h3>Minha ACS e Minha Equipe</h3>
-            <p><span data-bind="unit">UBS Madre Tereza de Calcutá</span> • <span data-bind="team">Equipe 02</span></p>
-          </div>
+      <section id="dashboard" class="app-section active-section">
+        <div class="hero-card">
+          <div class="hero-copy"><span class="section-tag">Território Vivo</span><h2>Informação que circula vira cuidado.</h2><p>Use o sistema para organizar a rotina sem transformar o ACS em digitador: preencha só o necessário, imprima, leve para a reunião e transforme o achado em decisão.</p><div class="hero-actions"><button class="button primary" data-section-jump="cards">Criar uma carteirinha</button><button class="button ghost-light" data-section-jump="five">Abrir 5 minutos</button></div></div>
+          <div class="territory-illustration" aria-hidden="true"><div class="map-shape"><span class="pin p1">+</span><span class="pin p2">⌂</span><span class="pin p3">●</span><span class="route r1"></span><span class="route r2"></span></div></div>
+        </div>
 
-          <div class="front-body">
-            <div class="reference-list">
-              <div class="info-row"><span class="mono-icon">●</span><span class="label">Minha ACS</span><strong data-bind="acs">________________</strong></div>
-              <div class="info-row"><span class="mono-icon">⌖</span><span class="label">Microárea</span><strong data-bind="microarea">__</strong></div>
-              <div class="info-row"><span class="mono-icon">☎</span><span class="label">Telefone / contato</span><strong data-bind="acsPhone">________________</strong></div>
-            </div>
-            <div class="family-symbol" aria-hidden="true">
-              <div class="family-house">+</div>
-              <span>Saúde da Família</span>
-            </div>
-          </div>
+        <div class="quick-grid">
+          <article class="quick-card"><div class="quick-icon">▣</div><div><strong>Carteirinhas</strong><p>Formulários prontos, versão leitura fácil, econômica e impressão em A4.</p></div><button data-section-jump="cards">Abrir →</button></article>
+          <article class="quick-card"><div class="quick-icon">5′</div><div><strong>5 minutos do território</strong><p>Leve uma mudança, uma pessoa, um risco ou uma potencialidade para decisão da equipe.</p></div><button data-section-jump="five">Abrir →</button></article>
+          <article class="quick-card"><div class="quick-icon">▥</div><div><strong>Indicadores</strong><p>Veja números como apoio ao planejamento, nunca como ranking de ACS.</p></div><button data-section-jump="indicators">Abrir →</button></article>
+          <article class="quick-card"><div class="quick-icon">✚</div><div><strong>Educação em saúde</strong><p>Materiais separados por tema para apoiar orientações simples e seguras.</p></div><button data-section-jump="education">Abrir →</button></article>
+        </div>
 
-          <div class="unit-strip">
-            <div><small>Sua UBS</small><strong data-bind="unit">UBS Madre Tereza de Calcutá</strong></div>
-            <div><small>Sua equipe</small><strong data-bind="team">Equipe 02</strong></div>
-          </div>
-        </article>
+        <div class="dashboard-row">
+          <article class="panel soft-panel"><div class="panel-title"><div><span class="section-tag">Atalho</span><h3>Dados que entram automaticamente</h3></div><button class="text-button" data-section-jump="profile">Editar perfil</button></div><div class="profile-summary" id="profileSummary"></div></article>
+          <article class="panel"><div class="panel-title"><div><span class="section-tag">Princípio</span><h3>Menos burocracia, mais utilidade</h3></div></div><ul class="check-list"><li>Dados da equipe preenchidos uma única vez.</li><li>Campos do usuário ficam temporários até imprimir ou baixar.</li><li>Modo econômico para gastar menos papel e toner.</li><li>Leitura fácil para pessoas com baixa alfabetização.</li></ul></article>
+        </div>
+      </section>
 
-        <article class="card card-back" id="backPreview" aria-label="Verso da carteirinha">
-          <div class="back-header">
-            <div>
-              <p class="mini-kicker">Sua referência no território</p>
-              <h3>Minha ACS e Minha Equipe</h3>
-            </div>
-            <span class="sus-mark small">SUS</span>
-          </div>
+      <section id="cards" class="app-section">
+        <div class="section-intro"><div><span class="section-tag">Biblioteca</span><h2>Carteirinhas da UBS</h2><p>Escolha o objetivo. O formulário abre somente os campos necessários.</p></div><div class="filters"><button class="chip active" data-card-filter="all">Todas</button><button class="chip" data-card-filter="family">Família</button><button class="chip" data-card-filter="territory">Território</button><button class="chip" data-card-filter="management">Gestão</button></div></div>
+        <div id="templateGrid" class="template-grid"></div>
+      </section>
 
-          <div class="back-grid">
-            <div class="back-main">
-              <dl class="details-list">
-                <div><dt>UBS</dt><dd data-bind="unit">UBS Madre Tereza de Calcutá</dd></div>
-                <div><dt>Equipe</dt><dd data-bind="team">Equipe 02</dd></div>
-                <div><dt>Microárea</dt><dd data-bind="microarea">__</dd></div>
-                <div><dt>ACS</dt><dd data-bind="acs">________________</dd></div>
-                <div><dt>Telefone da ACS</dt><dd data-bind="acsPhone">________________</dd></div>
-                <div><dt>Telefone da UBS</dt><dd data-bind="unitPhone">________________</dd></div>
-                <div><dt>Endereço</dt><dd data-bind="address">________________</dd></div>
-                <div><dt>Horário</dt><dd data-bind="hours">________________</dd></div>
-              </dl>
+      <section id="five" class="app-section">
+        <div class="section-intro"><div><span class="section-tag">Reunião rápida</span><h2>5 minutos do território</h2><p>Uma rotina curta para fazer a informação chegar à equipe e voltar ao território como ação.</p></div></div>
+        <div class="five-layout">
+          <article class="panel five-guide"><div class="guide-number">5′</div><h3>O que vale levar hoje?</h3><div class="guide-options"><span>□ O que mudou?</span><span>□ Quem precisa de atenção?</span><span>□ Apareceu algum risco?</span><span>□ Existe recurso ou parceiro novo?</span><span>□ Algum dado precisa atualizar?</span></div><div class="decision-strip"><b>DECIDIR:</b><span>Atualizar</span><span>Visitar</span><span>Buscar</span><span>Notificar</span><span>Articular</span><span>Acompanhar</span></div></article>
+          <article class="panel"><div class="panel-title"><div><span class="section-tag">Nota rápida</span><h3>Levar para a reunião</h3></div></div><form id="fiveForm" class="form-grid"><label>Microárea<input id="fiveMicroarea" readonly /></label><label>Quem / onde<input id="fiveWhere" placeholder="Pessoa, família ou ponto do território" /></label><label class="full">O que mudou?<textarea id="fiveWhat" rows="3" placeholder="Registre só o essencial"></textarea></label><label class="full">O que precisa ser decidido?<textarea id="fiveDecision" rows="3"></textarea></label><div class="full actions"><button type="button" id="printFive" class="button primary">Imprimir nota</button><button type="button" id="clearFive" class="button soft">Limpar</button></div></form></article>
+        </div>
+      </section>
 
-              <div class="team-box">
-                <strong>Profissionais de referência</strong>
-                <p><span>Médica(o):</span> <b data-bind="doctor">________________</b></p>
-                <p><span>Enfermeira(o):</span> <b data-bind="nurse">________________</b></p>
-                <p><span>Técnica(o):</span> <b data-bind="tech">________________</b></p>
-              </div>
-            </div>
+      <section id="indicators" class="app-section">
+        <div class="section-intro"><div><span class="section-tag">Planejamento</span><h2>Indicadores da microárea</h2><p>Registre números para enxergar necessidades e mudanças. O objetivo é orientar ação, não comparar profissionais.</p></div></div>
+        <div class="indicator-layout">
+          <article class="panel"><div class="panel-title"><div><h3>Carteirinha de indicadores</h3><p class="muted">Preencha os valores disponíveis para a sua microárea.</p></div></div><form id="indicatorForm" class="indicator-form"></form><div class="actions"><button id="printIndicators" type="button" class="button primary">Imprimir</button><button id="downloadIndicators" type="button" class="button soft">Baixar PDF</button></div></article>
+          <article class="panel focus-panel"><span class="section-tag">Perguntas melhores</span><h3>O número sozinho não explica o território.</h3><label>O sistema mostra<textarea id="systemShows" rows="3"></textarea></label><label>No território observamos<textarea id="territoryShows" rows="3"></textarea></label><label>O que ainda não sabemos<textarea id="unknownShows" rows="3"></textarea></label><label>Próxima ação<textarea id="nextAction" rows="3"></textarea></label></article>
+        </div>
+      </section>
 
-            <aside class="when-box">
-              <h4>Quando procurar sua equipe</h4>
-              <ul>
-                <li><span>+</span> Orientações de saúde</li>
-                <li><span>✓</span> Acompanhamento familiar</li>
-                <li><span>✦</span> Vacinação e prevenção</li>
-                <li><span>□</span> Agendamentos e encaminhamentos</li>
-              </ul>
-              <p class="simple-message">Em caso de dúvida, procure sua ACS ou a UBS.</p>
-            </aside>
-          </div>
+      <section id="education" class="app-section">
+        <div class="section-intro"><div><span class="section-tag">Materiais de apoio</span><h2>Educação em saúde</h2><p>Conteúdos curtos para apoiar a conversa com a população. Sempre devem ser adaptados à orientação individual da equipe.</p></div></div>
+        <div class="education-grid">
+          <article class="education-card pressure-card"><div class="education-icon">♥</div><span class="section-tag">Pressão arterial</span><h3>Mapa da pressão</h3><p>Um guia visual simples para entender valores de pressão e saber quando conversar com a equipe.</p><button class="button soft" data-education="pressure">Abrir material</button></article>
+          <article class="education-card insulin-card"><div class="education-icon">✚</div><span class="section-tag">Diabetes</span><h3>Como usar insulina</h3><p>Passos visuais para aplicação com seringa ou caneta, armazenamento e descarte seguro.</p><button class="button soft" data-education="insulin">Abrir material</button></article>
+          <article class="education-card"><div class="education-icon">◉</div><span class="section-tag">Em breve</span><h3>Outros temas</h3><p>Vacinação, saúde da criança, tabagismo, alimentação, sinais de alerta e outros materiais.</p><button class="button soft" disabled>Em construção</button></article>
+        </div>
+        <article id="educationDetail" class="panel education-detail" hidden></article>
+      </section>
 
-          <footer class="card-footer">Secretaria Municipal de Saúde • Pimenta Bueno — RO</footer>
-        </article>
-      </div>
-    </section>
-  </main>
+      <section id="profile" class="app-section">
+        <div class="section-intro"><div><span class="section-tag">Preencher uma vez</span><h2>Meu perfil e minha equipe</h2><p>Esses dados serão reutilizados automaticamente em todas as carteirinhas compatíveis.</p></div></div>
+        <article class="panel profile-panel"><form id="profileForm" class="profile-form"><fieldset><legend>Minha referência</legend><div class="form-grid"><label>Nome completo<input id="profileName" required /></label><label>Microárea<select id="profileMicroarea"><option value="">Selecione</option><option>08</option><option>09</option><option>10</option></select></label><label>Telefone / contato institucional<input id="profilePhone" /></label></div></fieldset><fieldset><legend>Unidade</legend><div class="form-grid"><label>UBS<input id="profileUnit" /></label><label>Equipe<input id="profileTeam" /></label><label>Telefone da UBS<input id="profileUnitPhone" /></label><label class="full">Endereço<input id="profileAddress" /></label><label class="full">Horário de atendimento<input id="profileHours" /></label></div></fieldset><fieldset><legend>Profissionais de referência</legend><div class="form-grid"><label>Médica(o)<input id="profileDoctor" /></label><label>Enfermeira(o)<input id="profileNurse" /></label><label>Técnica(o) de enfermagem<input id="profileTech" /></label></div></fieldset><div class="actions"><button class="button primary" type="submit">Salvar meu perfil</button><span id="profileStatus" class="form-status" aria-live="polite"></span></div></form></article>
+      </section>
+    </main>
+  </div>
 
-  <section id="printRoot" class="print-root" aria-hidden="true"></section>
+  <dialog id="cardDialog" class="dialog-shell"><div class="dialog-header"><div><span class="section-tag">Gerador</span><h2 id="dialogTitle">Carteirinha</h2><p id="dialogDescription"></p></div><button id="closeDialog" class="icon-button" aria-label="Fechar">×</button></div><div class="dialog-grid"><form id="dynamicCardForm" class="panel form-panel"></form><div class="panel preview-panel"><div class="preview-toolbar"><strong>Pré-visualização</strong><div><label class="mini-control">Unidades/A4<select id="printCount"><option value="2">2</option><option value="4" selected>4</option><option value="8">8</option></select></label><label class="check-line"><input id="easyRead" type="checkbox" />Leitura fácil</label><label class="check-line"><input id="economyMode" type="checkbox" />Econômica</label></div></div><div id="cardPreview" class="card-preview"></div><div class="actions"><button id="downloadCard" type="button" class="button soft">Baixar PDF</button><button id="printCard" type="button" class="button primary">Imprimir A4</button></div><p class="privacy-inline">Os campos desta carteirinha não são salvos no banco de dados.</p></div></div></dialog>
 
+  <div id="printRoot" class="print-root" aria-hidden="true"></div>
+  <div id="toastRegion" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
