@@ -24,6 +24,25 @@ jobs:
       - name: Baixar repositório
         uses: actions/checkout@v4
 
+      - name: Validar JavaScript
+        run: |
+          node --check app.js
+          node --check config.js
+          node --check enhancements.js
+          node --check multiunit.js
+          node --check network-context.js
+          node --check public-site.js
+
+      - name: Validar arquivos essenciais
+        run: |
+          test -f index.html
+          test -f styles.css
+          test -f public-site.css
+          test -f .nojekyll
+          grep -q "@supabase/supabase-js" index.html
+          grep -q "public-site.js" config.js
+          ! grep -R "service_role" . --exclude-dir=.git
+
       - name: Configurar Pages
         uses: actions/configure-pages@v5
         with:
