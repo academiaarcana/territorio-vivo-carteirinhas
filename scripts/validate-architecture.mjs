@@ -9,9 +9,9 @@ const errors = [];
 const required = [
   'index.html','config.js','package.json',
   'src/main.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js',
-  'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/data/cards.js','src/data/education.js',
+  'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/data/cards.js','src/data/education.js','src/data/indicators.js',
   'src/pages/public.js','src/pages/auth.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
-  'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css',
+  'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css',
   'scripts/validate-security-contract.mjs'
 ];
 
@@ -37,6 +37,7 @@ for (const legacy of ['app.js','enhancements.js','multiunit.js','network-context
 if (!index.includes('type="module"') || !index.includes('src/main.js')) errors.push('index.html não inicia a arquitetura V2 por módulo.');
 if (!index.includes('@supabase/supabase-js')) errors.push('Biblioteca Supabase não está carregada no index.html.');
 if (!index.includes('src/styles/structural.css')) errors.push('Camada estrutural de acessibilidade não está carregada.');
+if (!index.includes('src/styles/print-structural.css')) errors.push('Camada estrutural de impressão não está carregada.');
 if (index.includes('id="app" aria-live')) errors.push('A raiz inteira do SPA não deve ser uma live region.');
 
 const layout = fs.readFileSync(path.join(root, 'src/core/layout.js'), 'utf8');
@@ -47,6 +48,11 @@ const structural = fs.readFileSync(path.join(root, 'src/styles/structural.css'),
 if (!structural.includes(':focus-visible')) errors.push('Camada estrutural precisa definir foco de teclado visível.');
 if (!structural.includes('prefers-reduced-motion')) errors.push('Camada estrutural precisa respeitar redução de movimento.');
 
+const printCss = fs.readFileSync(path.join(root, 'src/styles/print-structural.css'), 'utf8');
+if (!printCss.includes('count-12')) errors.push('Impressão econômica precisa suportar 12 mini-cartões por A4.');
+const printJs = fs.readFileSync(path.join(root, 'src/utils/print.js'), 'utf8');
+if (!printJs.includes('[2, 4, 8, 12]')) errors.push('Utilitário de impressão precisa aceitar 2, 4, 8 e 12 por A4.');
+
 const appFiles = walk(src).filter((file) => file.endsWith('.js')).concat([path.join(root, 'config.js'), path.join(root, 'index.html')]);
 const appText = appFiles.filter(fs.existsSync).map((file) => fs.readFileSync(file,'utf8')).join('\n');
 if (/service[_-]?role/i.test(appText)) errors.push('Referência proibida a service role encontrada no frontend.');
@@ -55,7 +61,17 @@ const cardsModule = await import(pathToFileUrl(path.join(root, 'src/data/cards.j
 const ids = cardsModule.cardTemplates.map((item) => item.id);
 const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
 if (duplicates.length) errors.push(`IDs de carteirinhas duplicados: ${[...new Set(duplicates)].join(', ')}`);
-if (ids.length < 16) errors.push('Biblioteca de carteirinhas encolheu abaixo da base mínima homologada.');
+if (ids.length < 23) errors.push('Biblioteca de carteirinhas está abaixo do conjunto funcional V2 esperado.');
+const categories = new Set(cardsModule.cardCategories.map((item) => item.id));
+for (const template of cardsModule.cardTemplates) {
+  if (!categories.has(template.category)) errors.push(`Carteirinha ${template.id} usa categoria inexistente: ${template.category}`);
+  if (![2,4,8,12].includes(template.defaultCount)) errors.push(`Carteirinha ${template.id} possui defaultCount inválido.`);
+}
+
+const indicatorsModule = await import(pathToFileUrl(path.join(root, 'src/data/indicators.js')));
+if (!indicatorsModule.indicatorDefinitions?.length) errors.push('Definições de indicadores ausentes.');
+const indicatorIds = indicatorsModule.indicatorDefinitions.map((item) => item.id);
+if (new Set(indicatorIds).size !== indicatorIds.length) errors.push('IDs de indicadores duplicados.');
 
 const educationModule = await import(pathToFileUrl(path.join(root, 'src/data/education.js')));
 const educationIds = educationModule.educationTopics.map((item) => item.id);
@@ -71,7 +87,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Arquitetura V2 OK: ${jsFiles.length} módulos JS, ${ids.length} carteirinhas, ${educationIds.length} temas educativos.`);
+console.log(`Arquitetura V2 OK: ${jsFiles.length} módulos JS, ${ids.length} carteirinhas, ${indicatorIds.length} indicadores, ${educationIds.length} temas educativos.`);
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
