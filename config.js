@@ -188,6 +188,7 @@ window.TERRITORIO_VIVO_CONFIG = {
   const scripts = [
     ['enhancements.js','tv-enhancements'],
     ['multiunit.js','tv-multiunit'],
+    ['network-context.js','tv-network-context'],
     ['public-site.js','tv-public-site']
   ];
   scripts.forEach(([src,key]) => {
