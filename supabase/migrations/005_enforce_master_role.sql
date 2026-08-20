@@ -4,7 +4,7 @@ create or replace function public.enforce_profile_role()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, auth
 as $$
 declare
   account_email text;
