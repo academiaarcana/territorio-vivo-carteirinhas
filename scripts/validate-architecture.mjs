@@ -9,7 +9,7 @@ const errors = [];
 const required = [
   'index.html','config.js','src/main.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js',
   'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/data/cards.js','src/data/education.js',
-  'src/pages/public.js','src/pages/auth.js','src/pages/dashboard.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
+  'src/pages/public.js','src/pages/auth.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
   'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css'
 ];
 
