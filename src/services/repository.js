@@ -152,3 +152,48 @@ export async function createUnit(payload) {
   assertNoError(error);
   return data;
 }
+
+export async function listTerritoryPoints({ municipalityCode = null, unitCnes = null, teamId = null, status = null } = {}) {
+  let query = supabase.from('territory_points').select('*').order('observed_on', { ascending: false }).order('created_at', { ascending: false });
+  if (municipalityCode) query = query.eq('municipality_code', municipalityCode);
+  if (unitCnes) query = query.eq('unit_cnes', unitCnes);
+  if (teamId) query = query.eq('team_id', teamId);
+  if (status) query = query.eq('status', status);
+  const { data, error } = await query;
+  assertNoError(error);
+  return data || [];
+}
+
+export async function createTerritoryPoint(payload) {
+  const clean = {
+    municipality_code: payload.municipality_code,
+    unit_cnes: payload.unit_cnes || null,
+    team_id: payload.team_id || null,
+    kind: payload.kind,
+    name: payload.name.trim(),
+    description: payload.description?.trim() || '',
+    address: payload.address?.trim() || '',
+    latitude: payload.latitude ? Number(payload.latitude) : null,
+    longitude: payload.longitude ? Number(payload.longitude) : null,
+    observed_on: payload.observed_on || new Date().toISOString().slice(0, 10),
+    status: payload.status || 'active',
+    source_label: payload.source_label?.trim() || 'Observação territorial',
+    source_note: payload.source_note?.trim() || ''
+  };
+  const { data, error } = await supabase.from('territory_points').insert(clean).select('*').single();
+  assertNoError(error);
+  return data;
+}
+
+export async function updateTerritoryPoint(pointId, patch) {
+  const allowed = ['kind','name','description','address','latitude','longitude','observed_on','status','source_label','source_note','municipality_code','unit_cnes','team_id'];
+  const clean = Object.fromEntries(Object.entries(patch).filter(([key]) => allowed.includes(key)));
+  const { data, error } = await supabase.from('territory_points').update(clean).eq('id', pointId).select('*').single();
+  assertNoError(error);
+  return data;
+}
+
+export async function deleteTerritoryPoint(pointId) {
+  const { error } = await supabase.from('territory_points').delete().eq('id', pointId);
+  assertNoError(error);
+}
