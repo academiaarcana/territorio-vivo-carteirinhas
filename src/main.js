@@ -24,13 +24,13 @@ registerRoute('/app/5-minutos', { auth: true, render: renderFivePage, mount: mou
 registerRoute('/app/indicadores', { auth: true, render: renderIndicatorsPage, mount: mountIndicatorsPage });
 registerRoute('/app/educacao', { auth: true, render: renderEducationPage, mount: mountEducationPage });
 registerRoute('/app/perfil', { auth: true, render: renderProfilePage, mount: mountProfilePage });
-registerRoute('/app/gestao', { auth: true, admin: true, render: renderAdminPage, mount: mountAdminPage });
+registerRoute('/app/gestao', { auth: true, management: true, render: renderAdminPage, mount: mountAdminPage });
 setNotFoundRenderer(() => '<main class="standalone"><h1>Página não encontrada</h1><p><a href="#/">Voltar ao início</a></p></main>');
 
 async function bootstrap() {
   const root = document.querySelector('#app');
   if (!root) throw new Error('Elemento #app não encontrado.');
-  root.innerHTML = '<main class="standalone"><p>Carregando Território Vivo…</p></main>';
+  root.innerHTML = '<main class="standalone"><h1>Território Vivo</h1><p>Carregando ambiente…</p></main>';
 
   let session = null;
   try {
@@ -42,17 +42,24 @@ async function bootstrap() {
     setState({ booting: false, lastError: error });
   }
 
-  normalizeAuthCallbackHash(session);
+  normalizeAuthCallbackRoute(session);
 
   onAuthChange(async (event, nextSession) => {
     try {
       if (event === 'PASSWORD_RECOVERY') {
         if (nextSession) await hydrateSession(nextSession);
+        clearRecoveryMarker();
         await navigate('/recuperar-senha', { replace: true });
         return;
       }
+
       if (nextSession) {
         await hydrateSession(nextSession);
+        if (hasRecoveryMarker()) {
+          clearRecoveryMarker();
+          await navigate('/recuperar-senha', { replace: true });
+          return;
+        }
         if (['/entrar','/criar-conta','/'].includes(currentPath())) await navigate('/app/inicio', { replace: true });
         else await renderCurrentRoute();
       } else {
@@ -68,13 +75,27 @@ async function bootstrap() {
   await startRouter();
 }
 
-function normalizeAuthCallbackHash(session) {
-  const raw = location.hash.replace(/^#/, '');
-  if (!raw) return;
-  const looksLikeSupabaseCallback = raw.includes('access_token=') || raw.includes('refresh_token=') || raw.includes('error_description=');
-  if (!looksLikeSupabaseCallback) return;
-  const target = session ? '#/app/inicio' : '#/entrar';
-  history.replaceState(null, '', `${location.pathname}${location.search}${target}`);
+function hasRecoveryMarker() {
+  return new URLSearchParams(location.search).get('recovery') === '1';
+}
+
+function clearRecoveryMarker() {
+  const url = new URL(location.href);
+  url.searchParams.delete('recovery');
+  history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+}
+
+function normalizeAuthCallbackRoute(session) {
+  const rawHash = location.hash.replace(/^#/, '');
+  const callback = rawHash.includes('access_token=') || rawHash.includes('refresh_token=') || rawHash.includes('error_description=');
+  const recovery = hasRecoveryMarker();
+
+  if (!callback && !(recovery && session)) return;
+
+  const url = new URL(location.href);
+  if (recovery) url.searchParams.delete('recovery');
+  const target = recovery && session ? '#/recuperar-senha' : session ? '#/app/inicio' : '#/entrar';
+  history.replaceState(null, '', `${url.pathname}${url.search}${target}`);
 }
 
 bootstrap().catch((error) => {
