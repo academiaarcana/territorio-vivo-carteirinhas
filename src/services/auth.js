@@ -1,4 +1,5 @@
 import { supabase, appConfig } from './supabase.js';
+import { hydrateSession, clearSession } from '../core/session.js';
 
 export async function getSession() {
   const { data, error } = await supabase.auth.getSession();
@@ -13,6 +14,7 @@ export function onAuthChange(callback) {
 export async function signIn(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
   if (error) throw error;
+  if (data.session) await hydrateSession(data.session);
   return data;
 }
 
@@ -34,12 +36,14 @@ export async function signUp(payload) {
     }
   });
   if (error) throw error;
+  if (data.session) await hydrateSession(data.session);
   return data;
 }
 
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+  clearSession();
 }
 
 export async function sendPasswordReset(email) {
