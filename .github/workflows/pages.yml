@@ -41,7 +41,23 @@ jobs:
           test -f .nojekyll
           grep -q "@supabase/supabase-js" index.html
           grep -q "public-site.js" config.js
+          grep -q "network-context.js" config.js
           ! grep -R "service_role" . --exclude-dir=.git
+
+      - name: Testar catálogo público do Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          SUPABASE_URL=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabaseUrl:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+          SUPABASE_KEY=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabasePublishableKey:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+          for TABLE in municipalities health_units teams; do
+            CODE=$(curl --silent --show-error --output "/tmp/${TABLE}.json" --write-out "%{http_code}" \
+              "${SUPABASE_URL}/rest/v1/${TABLE}?select=*&limit=20" \
+              -H "apikey: ${SUPABASE_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_KEY}")
+            test "${CODE}" = "200"
+          done
+          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK:',m.length,'município(s),',u.length,'unidade(s),',t.length,'equipe(s)')"
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
