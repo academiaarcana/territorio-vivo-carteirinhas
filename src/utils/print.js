@@ -2,15 +2,23 @@ import { slugify } from '../lib/dom.js';
 
 export function printHtml(html, { className = '', title = 'Território Vivo' } = {}) {
   const root = ensurePrintRoot();
-  root.innerHTML = `<section class="print-document ${className}">${html}</section>`;
   const previousTitle = document.title;
+  root.innerHTML = `<section class="print-document ${className}">${html}</section>`;
   document.title = title;
+
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    root.innerHTML = '';
+    document.title = previousTitle;
+    window.removeEventListener('afterprint', cleanup);
+  };
+
+  window.addEventListener('afterprint', cleanup, { once: true });
   requestAnimationFrame(() => {
     window.print();
-    setTimeout(() => {
-      root.innerHTML = '';
-      document.title = previousTitle;
-    }, 400);
+    setTimeout(cleanup, 5000);
   });
 }
 
@@ -26,14 +34,16 @@ export async function downloadPdf(html, { className = '', title = 'Território V
   wrapper.style.left = '-200vw';
   wrapper.style.top = '0';
   wrapper.style.width = '210mm';
+  wrapper.setAttribute('aria-hidden', 'true');
   document.body.appendChild(wrapper);
   try {
     await window.html2pdf().set({
       margin,
       filename: filename || `${slugify(title)}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] }
     }).from(wrapper).save();
   } finally {
     wrapper.remove();
@@ -41,7 +51,8 @@ export async function downloadPdf(html, { className = '', title = 'Território V
 }
 
 export function repeatForSheet(cardHtml, count = 4) {
-  const safeCount = [2, 4, 8].includes(Number(count)) ? Number(count) : 4;
+  const numeric = Number(count);
+  const safeCount = [2, 4, 8, 12].includes(numeric) ? numeric : 4;
   return `<div class="card-sheet count-${safeCount}">${Array.from({ length: safeCount }, () => `<div class="sheet-slot">${cardHtml}</div>`).join('')}</div>`;
 }
 
