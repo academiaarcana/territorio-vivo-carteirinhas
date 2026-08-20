@@ -5,6 +5,7 @@ import { signOut } from '../services/auth.js';
 
 const navItems = [
   ['/app/inicio', 'Início'],
+  ['/app/territorio', 'Território e rede'],
   ['/app/carteirinhas', 'Carteirinhas'],
   ['/app/5-minutos', '5 minutos'],
   ['/app/indicadores', 'Indicadores'],
