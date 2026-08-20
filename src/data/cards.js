@@ -3,6 +3,7 @@ export const cardCategories = [
   { id: 'family', label: 'Família' },
   { id: 'territory', label: 'Território' },
   { id: 'meeting', label: '5 minutos' },
+  { id: 'indicator', label: 'Indicadores' },
   { id: 'management', label: 'Gestão' }
 ];
 
@@ -14,6 +15,12 @@ export const cardTemplates = [
     description: 'Referência simples para a família saber quem acompanha seu território.',
     defaultCount: 4, fields: [field('note', 'Recado opcional', 'textarea')],
     note: 'Guarde esta carteirinha. Ela mostra quem é sua referência na unidade de saúde.'
+  },
+  {
+    id: 'ubs-card', category: 'family', title: 'Minha Carteirinha da Unidade',
+    description: 'Referência rápida da unidade, equipe e contato institucional.', defaultCount: 4,
+    fields: [field('reference','Nome / referência opcional'), field('message','Recado da unidade','textarea')],
+    note: 'Esta carteirinha é apenas uma referência de contato. Não substitui documentos ou prontuário.'
   },
   {
     id: 'welcome', category: 'family', title: 'Bem-vindo ao Meu Território',
@@ -55,13 +62,25 @@ export const cardTemplates = [
     id: 'priority', category: 'territory', title: 'Quem Precisa de um Olhar Prioritário?',
     description: 'Sinalização breve para discussão da equipe.', defaultCount: 4,
     fields: [field('reference','Pessoa / família / referência'), field('reason','Motivo','select',{ options:['Pessoa idosa com dificuldade','Pessoa com deficiência/barreira funcional','Gestante ou puérpera','Criança/adolescente em vulnerabilidade','Condição crônica sem acompanhamento','Saúde mental/álcool/tabaco','Barreira de acesso','Necessita visita domiciliar','Outra necessidade'] }), field('now','O que precisa ser feito agora','textarea'), field('responsible','Responsável pelo retorno')],
-    note: 'Não é diagnóstico. É uma sinalização para organizar o cuidado.'
+    note: 'Não é diagnóstico. É uma sinalização temporária para organizar o cuidado.'
   },
   {
     id: 'risk-resource', category: 'territory', title: 'Risco, Recurso ou Potencialidade?',
     description: 'Classifique um achado territorial e pense no próximo passo.', defaultCount: 4,
     fields: [field('location','Local / referência'), field('classification','Classificação','select',{ options:['Risco','Ponto de atenção','Potencialidade','Recurso da rede','Precisa articulação intersetorial'] }), field('description','O que foi observado','textarea'), field('action','Possível ação / parceria','textarea')],
     note: 'Nem todo achado é problema: recursos e potencialidades também devem circular na equipe.'
+  },
+  {
+    id: 'territory-partner', category: 'territory', title: 'Parceiro do Território',
+    description: 'Registre uma referência comunitária ou institucional útil à articulação da equipe.', defaultCount: 4,
+    fields: [field('partner','Parceiro / recurso'), field('location','Local / referência'), field('support','Como pode apoiar o território','textarea'), field('next','Próxima articulação','textarea')],
+    note: 'Use dados institucionais ou comunitários; não registre informações pessoais desnecessárias.'
+  },
+  {
+    id: 'critical-point', category: 'territory', title: 'Ponto Crítico do Território',
+    description: 'Sinalize uma barreira ou problema ambiental/estrutural para discussão e articulação.', defaultCount: 4,
+    fields: [field('location','Local / referência'), field('problem','O que foi observado','textarea'), field('impact','Como afeta acesso/cuidado','textarea'), field('action','Ação ou articulação possível','textarea')],
+    note: 'Use para situações territoriais não pessoais. Não inclua nome ou condição clínica de moradores.'
   },
   {
     id: 'quick-note', category: 'territory', title: 'Nota Rápida do ACS',
@@ -82,6 +101,12 @@ export const cardTemplates = [
     note: 'Registre somente o necessário para que a pendência não se perca.'
   },
   {
+    id: 'five-pocket-guide', category: 'meeting', title: 'Guia de Bolso: 5 Minutos do Território',
+    description: 'Roteiro compacto para lembrar o fluxo da reunião rápida.', defaultCount: 8,
+    fields: [field('focus','Foco de hoje','select',{ options:['O que mudou?','Quem precisa de atenção?','Risco ou barreira','Recurso ou potencialidade','Dado que precisa atualizar'] }), field('note','Anotação opcional','textarea')],
+    note: 'Trazer → decidir → definir responsável → agir → revisar na próxima reunião.'
+  },
+  {
     id: 'five-note', category: 'meeting', title: 'Nota para os 5 Minutos',
     description: 'Leve um achado para decisão rápida da equipe.', defaultCount: 4,
     fields: [field('where','Quem / onde'), field('finding','Achado / mudança','textarea'), field('decision','O que precisa ser decidido','textarea')],
@@ -92,6 +117,24 @@ export const cardTemplates = [
     description: 'Registre o que foi decidido e quando será revisto.', defaultCount: 4,
     fields: [field('finding','Achado / situação','textarea'), field('decision','Decisão da equipe','textarea'), field('responsible','Responsável'), field('review','Revisar quando','date')],
     note: 'A informação ganha sentido quando volta ao território como ação.'
+  },
+  {
+    id: 'indicator-microarea', category: 'indicator', title: 'Indicadores da Minha Microárea',
+    description: 'Resumo compacto dos números mais úteis para planejamento local.', defaultCount: 2,
+    fields: [field('population','População ativa','number'), field('families','Famílias','number'), field('elderly','Pessoas idosas','number'), field('pregnant','Gestantes','number'), field('hypertension','Hipertensão','number'), field('diabetes','Diabetes','number'), field('updates','Cadastros para atualizar','number')],
+    note: 'Indicadores orientam perguntas e ações. Não devem ser usados como ranking de profissionais.'
+  },
+  {
+    id: 'indicator-team', category: 'indicator', title: 'Indicadores da Equipe',
+    description: 'Síntese temporária para discussão da situação da equipe.', defaultCount: 2,
+    fields: [field('period','Período / referência'), field('population','População ativa','number'), field('families','Famílias','number'), field('priority','Situações prioritárias','number'), field('activeSearch','Buscas ativas pendentes','number'), field('gap','Principal lacuna de informação','textarea')],
+    note: 'Leia o número junto com o território e registre a próxima ação necessária.'
+  },
+  {
+    id: 'indicator-focus', category: 'indicator', title: 'Indicador em Foco',
+    description: 'Transforme um único indicador em pergunta, interpretação e próxima ação.', defaultCount: 4,
+    fields: [field('indicator','Indicador'), field('value','Valor atual'), field('meaning','O que esse número pode estar mostrando','textarea'), field('unknown','O que ainda não sabemos','textarea'), field('action','Próxima ação','textarea')],
+    note: 'Evite interpretar ausência de registro como ausência de necessidade.'
   },
   {
     id: 'system-territory', category: 'management', title: 'Sistema × Território',
