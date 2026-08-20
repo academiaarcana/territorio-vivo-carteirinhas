@@ -3,7 +3,6 @@ import { isManagement, isMaster } from './permissions.js';
 
 const routes = new Map();
 let renderNotFound = () => '<main class="standalone"><h1>Página não encontrada</h1></main>';
-let rendering = false;
 
 export function registerRoute(path, definition) {
   routes.set(normalize(path), definition);
@@ -32,46 +31,36 @@ export function currentPath() {
 }
 
 export async function renderCurrentRoute() {
-  if (rendering) return;
   const root = document.querySelector('#app');
   if (!root) return;
 
-  rendering = true;
-  try {
-    const path = currentPath();
-    const route = routes.get(path);
-    if (!route) {
-      root.innerHTML = renderNotFound();
-      focusPageHeading(root);
-      return;
-    }
-
-    const state = getState();
-    if (route.auth && !state.session) {
-      await navigate('/entrar', { replace: true });
-      return;
-    }
-    if (route.guestOnly && state.session) {
-      await navigate('/app/inicio', { replace: true });
-      return;
-    }
-    if (route.management && !isManagement(state.profile)) {
-      await navigate('/app/inicio', { replace: true });
-      return;
-    }
-    if (route.master && !isMaster(state.profile)) {
-      await navigate('/app/inicio', { replace: true });
-      return;
-    }
-
-    root.dataset.route = path;
-    root.innerHTML = await route.render({ path, state });
-    await route.mount?.({ root, path, state });
-    window.scrollTo({ top: 0, behavior: 'auto' });
+  const path = currentPath();
+  const route = routes.get(path);
+  if (!route) {
+    root.innerHTML = renderNotFound();
     focusPageHeading(root);
-  } finally {
-    rendering = false;
+    return;
   }
+
+  const state = getState();
+  if (route.auth && !state.session) {
+    return navigate('/entrar', { replace: true });
+  }
+  if (route.guestOnly && state.session) {
+    return navigate('/app/inicio', { replace: true });
+  }
+  if (route.management && !isManagement(state.profile)) {
+    return navigate('/app/inicio', { replace: true });
+  }
+  if (route.master && !isMaster(state.profile)) {
+    return navigate('/app/inicio', { replace: true });
+  }
+
+  root.dataset.route = path;
+  root.innerHTML = await route.render({ path, state });
+  await route.mount?.({ root, path, state });
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  focusPageHeading(root);
 }
 
 export function startRouter() {
