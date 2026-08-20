@@ -12,6 +12,7 @@ window.TERRITORIO_VIVO_CONFIG = {
   if (!authCard || !loginForm || document.querySelector('#signupPanel')) return;
 
   const MASTER_EMAIL = 'macedotaynara@outlook.com';
+  const registrationClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabasePublishableKey);
 
   const button = document.createElement('button');
   button.type = 'button';
@@ -28,14 +29,18 @@ window.TERRITORIO_VIVO_CONFIG = {
       <div class="privacy-banner"><strong>Cadastro de acesso.</strong> Informe apenas seus dados profissionais. Dados de pacientes não são cadastrados aqui.</div>
       <label>Nome completo<input id="signupName" type="text" autocomplete="name" required /></label>
       <label>E-mail<input id="signupEmail" type="email" autocomplete="email" required /></label>
-      <label>Microárea
-        <select id="signupMicroarea">
-          <option value="">Não se aplica / conta master</option>
-          <option value="08">08</option>
-          <option value="09">09</option>
-          <option value="10">10</option>
+      <label>Unidade de saúde
+        <select id="signupUnit" required>
+          <option value="">Carregando unidades…</option>
         </select>
       </label>
+      <label>Equipe / identificação <span style="font-weight:400">(se souber)</span>
+        <input id="signupTeam" type="text" placeholder="Ex.: Equipe 02 ou código da eSF" />
+      </label>
+      <label>Microárea
+        <input id="signupMicroarea" type="text" maxlength="40" placeholder="Ex.: 08" required />
+      </label>
+      <p id="signupContextHint" class="form-status">A unidade e a microárea ajudam o sistema a preencher automaticamente as carteirinhas.</p>
       <label>Senha<input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required /></label>
       <label>Repita a senha<input id="signupPassword2" type="password" autocomplete="new-password" minlength="8" required /></label>
       <button class="button primary wide" type="submit">Criar conta</button>
@@ -44,9 +49,47 @@ window.TERRITORIO_VIVO_CONFIG = {
     </form>`;
   button.insertAdjacentElement('afterend', panel);
 
-  const registrationClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabasePublishableKey);
+  const unitSelect = panel.querySelector('#signupUnit');
+  const emailInput = panel.querySelector('#signupEmail');
+  const microareaInput = panel.querySelector('#signupMicroarea');
+  const contextHint = panel.querySelector('#signupContextHint');
+
+  async function loadUnits(){
+    const { data, error } = await registrationClient
+      .from('health_units')
+      .select('cnes,short_name,neighborhood,unit_type')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true });
+
+    if (error || !data?.length) {
+      unitSelect.innerHTML = '<option value="">Selecione sua unidade</option>';
+      return;
+    }
+
+    unitSelect.innerHTML = '<option value="">Selecione sua unidade</option>' + data.map((unit) => {
+      const place = unit.neighborhood ? ` — ${unit.neighborhood}` : '';
+      return `<option value="${unit.cnes}">${unit.short_name}${place}</option>`;
+    }).join('');
+  }
+
+  function syncMasterFields(){
+    const isMaster = emailInput.value.trim().toLowerCase() === MASTER_EMAIL;
+    unitSelect.required = !isMaster;
+    microareaInput.required = !isMaster;
+    if (isMaster) {
+      contextHint.textContent = 'Conta master: unidade, equipe e microárea são opcionais.';
+      microareaInput.placeholder = 'Opcional para a conta master';
+    } else {
+      contextHint.textContent = 'A unidade e a microárea ajudam o sistema a preencher automaticamente as carteirinhas.';
+      microareaInput.placeholder = 'Ex.: 08';
+    }
+  }
+
+  emailInput.addEventListener('input', syncMasterFields);
+  loadUnits();
+
   const showLogin = () => { panel.hidden = true; loginForm.hidden = false; button.hidden = false; };
-  const showSignup = () => { panel.hidden = false; loginForm.hidden = true; button.hidden = true; };
+  const showSignup = () => { panel.hidden = false; loginForm.hidden = true; button.hidden = true; syncMasterFields(); };
 
   button.addEventListener('click', showSignup);
   panel.querySelector('#cancelSignup').addEventListener('click', showLogin);
@@ -55,16 +98,22 @@ window.TERRITORIO_VIVO_CONFIG = {
     event.preventDefault();
     const status = panel.querySelector('#signupStatus');
     const name = panel.querySelector('#signupName').value.trim();
-    const email = panel.querySelector('#signupEmail').value.trim().toLowerCase();
-    const microarea = panel.querySelector('#signupMicroarea').value;
+    const email = emailInput.value.trim().toLowerCase();
+    const unitCnes = unitSelect.value;
+    const teamName = panel.querySelector('#signupTeam').value.trim();
+    const microarea = microareaInput.value.trim();
     const password = panel.querySelector('#signupPassword').value;
     const password2 = panel.querySelector('#signupPassword2').value;
+    const isMaster = email === MASTER_EMAIL;
 
-    if (email !== MASTER_EMAIL && !microarea) {
-      status.textContent = 'Selecione sua microárea: 08, 09 ou 10.';
+    if (!isMaster && !unitCnes) {
+      status.textContent = 'Selecione a unidade de saúde onde você atua.';
       return;
     }
-
+    if (!isMaster && !microarea) {
+      status.textContent = 'Informe sua microárea.';
+      return;
+    }
     if (password !== password2) {
       status.textContent = 'As senhas não são iguais.';
       return;
@@ -76,7 +125,12 @@ window.TERRITORIO_VIVO_CONFIG = {
       email,
       password,
       options: {
-        data: { full_name: name, microarea },
+        data: {
+          full_name: name,
+          unit_cnes: unitCnes || null,
+          team_name: teamName,
+          microarea
+        },
         emailRedirectTo: redirectUrl
       }
     });
