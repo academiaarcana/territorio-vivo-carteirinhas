@@ -187,7 +187,8 @@ window.TERRITORIO_VIVO_CONFIG = {
 (function loadTerritorioVivoEnhancements(){
   const scripts = [
     ['enhancements.js','tv-enhancements'],
-    ['multiunit.js','tv-multiunit']
+    ['multiunit.js','tv-multiunit'],
+    ['public-site.js','tv-public-site']
   ];
   scripts.forEach(([src,key]) => {
     if (document.querySelector(`script[data-${key}]`)) return;
