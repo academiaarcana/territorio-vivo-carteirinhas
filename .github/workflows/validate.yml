@@ -34,12 +34,13 @@ jobs:
           grep -q "deploymentEnabled" vercel.json
           ! grep -R "service_role" src config.js index.html --exclude-dir=.git
 
-      - name: Testar catálogo público do Supabase
+      - name: Testar fronteiras públicas do Supabase
         shell: bash
         run: |
           set -euo pipefail
           SUPABASE_URL=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabaseUrl:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
           SUPABASE_KEY=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabasePublishableKey:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+
           for TABLE in municipalities health_units teams; do
             CODE=$(curl --silent --show-error --output "/tmp/${TABLE}.json" --write-out "%{http_code}" \
               "${SUPABASE_URL}/rest/v1/${TABLE}?select=*&limit=20" \
@@ -47,4 +48,11 @@ jobs:
               -H "Authorization: Bearer ${SUPABASE_KEY}")
             test "${CODE}" = "200"
           done
-          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK:',m.length,'município(s),',u.length,'unidade(s),',t.length,'equipe(s)')"
+
+          PRIVATE_CODE=$(curl --silent --show-error --output /tmp/territory_points.json --write-out "%{http_code}" \
+            "${SUPABASE_URL}/rest/v1/territory_points?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}")
+          test "${PRIVATE_CODE}" != "200"
+
+          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK e territory_points protegido de acesso anônimo.')"
