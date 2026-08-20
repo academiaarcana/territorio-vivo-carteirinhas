@@ -4,6 +4,16 @@ function assertNoError(error) {
   if (error) throw error;
 }
 
+function pickAllowed(patch, allowed) {
+  return Object.fromEntries(Object.entries(patch).filter(([key]) => allowed.includes(key)));
+}
+
+function nullableNumber(value) {
+  if (value === '' || value === null || value === undefined) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 export async function getProfile(userId) {
   const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
   assertNoError(error);
@@ -16,8 +26,15 @@ export async function updateProfile(userId, patch) {
     'unit_name','team_name','unit_phone','unit_address','unit_hours',
     'doctor_name','nurse_name','tech_name'
   ];
-  const clean = Object.fromEntries(Object.entries(patch).filter(([key]) => allowed.includes(key)));
+  const clean = pickAllowed(patch, allowed);
   const { data, error } = await supabase.from('profiles').update(clean).eq('id', userId).select('*').single();
+  assertNoError(error);
+  return data;
+}
+
+export async function setProfileRole(userId, role) {
+  if (!['acs','unit_admin'].includes(role)) throw new Error('Função de acesso inválida.');
+  const { data, error } = await supabase.from('profiles').update({ role }).eq('id', userId).select('*').single();
   assertNoError(error);
   return data;
 }
@@ -28,6 +45,27 @@ export async function listMunicipalities({ includeInactive = false } = {}) {
   const { data, error } = await query;
   assertNoError(error);
   return data || [];
+}
+
+export async function createMunicipality(payload) {
+  const clean = {
+    code: payload.code.trim(),
+    name: payload.name.trim(),
+    state_code: payload.state_code.trim().toUpperCase(),
+    active: payload.active ?? true
+  };
+  const { data, error } = await supabase.from('municipalities').insert(clean).select('*').single();
+  assertNoError(error);
+  return data;
+}
+
+export async function updateMunicipality(code, patch) {
+  const clean = pickAllowed(patch, ['name','state_code','active']);
+  if (clean.name !== undefined) clean.name = clean.name.trim();
+  if (clean.state_code !== undefined) clean.state_code = clean.state_code.trim().toUpperCase();
+  const { data, error } = await supabase.from('municipalities').update(clean).eq('code', code).select('*').single();
+  assertNoError(error);
+  return data;
 }
 
 export async function listUnits({ municipalityCode = null, includeInactive = false } = {}) {
@@ -113,7 +151,9 @@ export async function createTeam(payload) {
 
 export async function updateTeam(teamId, patch) {
   const allowed = ['name','ine','verification_status','source_label','source_url','source_checked_on','source_note','active'];
-  const clean = Object.fromEntries(Object.entries(patch).filter(([key]) => allowed.includes(key)));
+  const clean = pickAllowed(patch, allowed);
+  if (clean.name !== undefined) clean.name = clean.name.trim();
+  if (clean.ine !== undefined) clean.ine = clean.ine?.trim() || null;
   const { data, error } = await supabase.from('teams').update(clean).eq('id', teamId).select('*').single();
   assertNoError(error);
   return data;
@@ -121,7 +161,7 @@ export async function updateTeam(teamId, patch) {
 
 export async function updateUnit(cnes, patch) {
   const allowed = ['name','short_name','unit_type','address','neighborhood','phone','hours','data_status','source_label','source_url','source_checked_on','source_note','is_active','display_order'];
-  const clean = Object.fromEntries(Object.entries(patch).filter(([key]) => allowed.includes(key)));
+  const clean = pickAllowed(patch, allowed);
   const { data, error } = await supabase.from('health_units').update(clean).eq('cnes', cnes).select('*').single();
   assertNoError(error);
   return data;
@@ -153,12 +193,13 @@ export async function createUnit(payload) {
   return data;
 }
 
-export async function listTerritoryPoints({ municipalityCode = null, unitCnes = null, teamId = null, status = null } = {}) {
+export async function listTerritoryPoints({ municipalityCode = null, unitCnes = null, teamId = null, status = null, kind = null } = {}) {
   let query = supabase.from('territory_points').select('*').order('observed_on', { ascending: false }).order('created_at', { ascending: false });
   if (municipalityCode) query = query.eq('municipality_code', municipalityCode);
   if (unitCnes) query = query.eq('unit_cnes', unitCnes);
   if (teamId) query = query.eq('team_id', teamId);
   if (status) query = query.eq('status', status);
+  if (kind) query = query.eq('kind', kind);
   const { data, error } = await query;
   assertNoError(error);
   return data || [];
@@ -173,8 +214,8 @@ export async function createTerritoryPoint(payload) {
     name: payload.name.trim(),
     description: payload.description?.trim() || '',
     address: payload.address?.trim() || '',
-    latitude: payload.latitude ? Number(payload.latitude) : null,
-    longitude: payload.longitude ? Number(payload.longitude) : null,
+    latitude: nullableNumber(payload.latitude),
+    longitude: nullableNumber(payload.longitude),
     observed_on: payload.observed_on || new Date().toISOString().slice(0, 10),
     status: payload.status || 'active',
     source_label: payload.source_label?.trim() || 'Observação territorial',
@@ -187,7 +228,12 @@ export async function createTerritoryPoint(payload) {
 
 export async function updateTerritoryPoint(pointId, patch) {
   const allowed = ['kind','name','description','address','latitude','longitude','observed_on','status','source_label','source_note','municipality_code','unit_cnes','team_id'];
-  const clean = Object.fromEntries(Object.entries(patch).filter(([key]) => allowed.includes(key)));
+  const clean = pickAllowed(patch, allowed);
+  if (clean.name !== undefined) clean.name = clean.name.trim();
+  if (clean.description !== undefined) clean.description = clean.description?.trim() || '';
+  if (clean.address !== undefined) clean.address = clean.address?.trim() || '';
+  if (clean.latitude !== undefined) clean.latitude = nullableNumber(clean.latitude);
+  if (clean.longitude !== undefined) clean.longitude = nullableNumber(clean.longitude);
   const { data, error } = await supabase.from('territory_points').update(clean).eq('id', pointId).select('*').single();
   assertNoError(error);
   return data;
