@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Território Vivo — gerador de carteirinhas da UBS para preenchimento e impressão em A4." />
+  <title>Território Vivo — Carteirinhas da UBS</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">Território Vivo</p>
+      <h1>Carteirinhas da UBS</h1>
+      <p class="subtitle">Preencha, visualize e imprima em papel A4.</p>
+    </div>
+    <div class="brand-badges" aria-label="Identidade institucional">
+      <span class="brand-badge">SUS</span>
+      <span class="brand-badge">Saúde da Família</span>
+      <span class="brand-badge">Pimenta Bueno</span>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="panel form-panel" aria-labelledby="config-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Modelo 01</p>
+          <h2 id="config-title">Minha ACS e Minha Equipe</h2>
+        </div>
+        <span class="status-pill">Família • leitura simples</span>
+      </div>
+
+      <p class="helper">Esta carteirinha é para a família guardar como referência da equipe. Não é crachá funcional e não contém validade, matrícula ou dados clínicos.</p>
+
+      <form id="card-form" autocomplete="off">
+        <fieldset>
+          <legend>Referência territorial</legend>
+          <label>
+            Minha ACS
+            <input id="acs" name="acs" type="text" placeholder="Nome da ACS" />
+          </label>
+
+          <div class="two-col">
+            <label>
+              Microárea
+              <select id="microarea" name="microarea">
+                <option value="">Selecione</option>
+                <option value="08">08</option>
+                <option value="09">09</option>
+                <option value="10">10</option>
+              </select>
+            </label>
+            <label>
+              Telefone / contato
+              <input id="acsPhone" name="acsPhone" type="tel" placeholder="(69) 00000-0000" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Unidade e equipe</legend>
+          <label>
+            Unidade de Saúde
+            <input id="unit" name="unit" type="text" value="UBS Madre Tereza de Calcutá" />
+          </label>
+
+          <div class="two-col">
+            <label>
+              Equipe
+              <input id="team" name="team" type="text" value="Equipe 02" />
+            </label>
+            <label>
+              Telefone da UBS
+              <input id="unitPhone" name="unitPhone" type="tel" placeholder="Telefone institucional" />
+            </label>
+          </div>
+
+          <label>
+            Endereço da UBS
+            <input id="address" name="address" type="text" placeholder="Endereço da unidade" />
+          </label>
+
+          <label>
+            Horário de atendimento
+            <input id="hours" name="hours" type="text" placeholder="Ex.: segunda a sexta, 7h às 17h" />
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Profissionais de referência</legend>
+          <label>
+            Médica(o)
+            <input id="doctor" name="doctor" type="text" placeholder="Nome" />
+          </label>
+          <label>
+            Enfermeira(o)
+            <input id="nurse" name="nurse" type="text" placeholder="Nome" />
+          </label>
+          <label>
+            Técnica(o) de enfermagem
+            <input id="tech" name="tech" type="text" placeholder="Nome" />
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Impressão</legend>
+          <div class="two-col">
+            <label>
+              Aproveitamento da folha A4
+              <select id="perPage" name="perPage">
+                <option value="2">2 por A4 — leitura fácil</option>
+                <option value="4" selected>4 por A4 — padrão</option>
+              </select>
+            </label>
+            <label class="check-line">
+              <input id="economyMode" type="checkbox" />
+              <span>Modo econômico de toner</span>
+            </label>
+          </div>
+          <label class="check-line">
+            <input id="easyRead" type="checkbox" />
+            <span>Leitura fácil — fonte maior e menos informação por bloco</span>
+          </label>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" class="button secondary" id="saveTeam">Salvar dados da equipe neste dispositivo</button>
+          <button type="button" class="button ghost" id="clearSaved">Apagar dados salvos</button>
+        </div>
+
+        <div class="privacy-note" role="note">
+          <strong>Privacidade:</strong> esta versão não envia informações para servidor. Os dados só são salvos no dispositivo se você clicar em “Salvar dados da equipe”.
+        </div>
+      </form>
+    </section>
+
+    <section class="panel preview-panel" aria-labelledby="preview-title">
+      <div class="section-heading preview-heading">
+        <div>
+          <p class="eyebrow">Visualização</p>
+          <h2 id="preview-title">Frente e verso</h2>
+        </div>
+        <div class="actions compact">
+          <button type="button" class="button" id="printFront">Imprimir frente</button>
+          <button type="button" class="button" id="printBack">Imprimir verso</button>
+        </div>
+      </div>
+
+      <div id="previewArea" class="preview-area">
+        <article class="card card-front" id="frontPreview" aria-label="Frente da carteirinha">
+          <div class="card-topbar">
+            <div class="institution-mark">
+              <div class="city-mark" aria-hidden="true">PB</div>
+              <div>
+                <strong>Secretaria Municipal de Saúde</strong>
+                <span>Pimenta Bueno — RO</span>
+              </div>
+            </div>
+            <div class="sus-mark" aria-label="SUS">SUS</div>
+          </div>
+
+          <div class="card-title-block">
+            <h3>Minha ACS e Minha Equipe</h3>
+            <p><span data-bind="unit">UBS Madre Tereza de Calcutá</span> • <span data-bind="team">Equipe 02</span></p>
+          </div>
+
+          <div class="front-body">
+            <div class="reference-list">
+              <div class="info-row"><span class="mono-icon">●</span><span class="label">Minha ACS</span><strong data-bind="acs">________________</strong></div>
+              <div class="info-row"><span class="mono-icon">⌖</span><span class="label">Microárea</span><strong data-bind="microarea">__</strong></div>
+              <div class="info-row"><span class="mono-icon">☎</span><span class="label">Telefone / contato</span><strong data-bind="acsPhone">________________</strong></div>
+            </div>
+            <div class="family-symbol" aria-hidden="true">
+              <div class="family-house">+</div>
+              <span>Saúde da Família</span>
+            </div>
+          </div>
+
+          <div class="unit-strip">
+            <div><small>Sua UBS</small><strong data-bind="unit">UBS Madre Tereza de Calcutá</strong></div>
+            <div><small>Sua equipe</small><strong data-bind="team">Equipe 02</strong></div>
+          </div>
+        </article>
+
+        <article class="card card-back" id="backPreview" aria-label="Verso da carteirinha">
+          <div class="back-header">
+            <div>
+              <p class="mini-kicker">Sua referência no território</p>
+              <h3>Minha ACS e Minha Equipe</h3>
+            </div>
+            <span class="sus-mark small">SUS</span>
+          </div>
+
+          <div class="back-grid">
+            <div class="back-main">
+              <dl class="details-list">
+                <div><dt>UBS</dt><dd data-bind="unit">UBS Madre Tereza de Calcutá</dd></div>
+                <div><dt>Equipe</dt><dd data-bind="team">Equipe 02</dd></div>
+                <div><dt>Microárea</dt><dd data-bind="microarea">__</dd></div>
+                <div><dt>ACS</dt><dd data-bind="acs">________________</dd></div>
+                <div><dt>Telefone da ACS</dt><dd data-bind="acsPhone">________________</dd></div>
+                <div><dt>Telefone da UBS</dt><dd data-bind="unitPhone">________________</dd></div>
+                <div><dt>Endereço</dt><dd data-bind="address">________________</dd></div>
+                <div><dt>Horário</dt><dd data-bind="hours">________________</dd></div>
+              </dl>
+
+              <div class="team-box">
+                <strong>Profissionais de referência</strong>
+                <p><span>Médica(o):</span> <b data-bind="doctor">________________</b></p>
+                <p><span>Enfermeira(o):</span> <b data-bind="nurse">________________</b></p>
+                <p><span>Técnica(o):</span> <b data-bind="tech">________________</b></p>
+              </div>
+            </div>
+
+            <aside class="when-box">
+              <h4>Quando procurar sua equipe</h4>
+              <ul>
+                <li><span>+</span> Orientações de saúde</li>
+                <li><span>✓</span> Acompanhamento familiar</li>
+                <li><span>✦</span> Vacinação e prevenção</li>
+                <li><span>□</span> Agendamentos e encaminhamentos</li>
+              </ul>
+              <p class="simple-message">Em caso de dúvida, procure sua ACS ou a UBS.</p>
+            </aside>
+          </div>
+
+          <footer class="card-footer">Secretaria Municipal de Saúde • Pimenta Bueno — RO</footer>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <section id="printRoot" class="print-root" aria-hidden="true"></section>
+
+  <script src="app.js"></script>
+</body>
+</html>
