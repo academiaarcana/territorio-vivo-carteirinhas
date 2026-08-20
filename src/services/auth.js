@@ -47,8 +47,9 @@ export async function signOut() {
 }
 
 export async function sendPasswordReset(email) {
+  const separator = appConfig.publicUrl.includes('?') ? '&' : '?';
   const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-    redirectTo: `${appConfig.publicUrl}#/recuperar-senha`
+    redirectTo: `${appConfig.publicUrl}${separator}recovery=1`
   });
   if (error) throw error;
 }
