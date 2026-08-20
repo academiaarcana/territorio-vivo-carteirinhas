@@ -35,12 +35,6 @@ export const educationTopics = [
   }
 ];
 
-export const indicatorNames = [
-  'População ativa', 'Famílias', 'Pessoas idosas', 'Gestantes', 'Pessoas com deficiência',
-  'Hipertensão', 'Diabetes', 'Tabagismo', 'Domiciliados', 'Acamados', 'Saúde mental',
-  'Cadastros para atualizar', 'Buscas ativas pendentes'
-];
-
 export function getEducationTopic(id) {
   return educationTopics.find((topic) => topic.id === id) || null;
 }
