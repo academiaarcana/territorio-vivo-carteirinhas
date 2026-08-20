@@ -1,6 +1,8 @@
-# Território Vivo — UBS Madre Tereza de Calcutá
+# Território Vivo — Atenção Primária de Pimenta Bueno/RO
 
 Plataforma web para apoiar territorialização, geração de carteirinhas, rotina dos **5 minutos do território**, indicadores e educação em saúde na Atenção Primária.
+
+O projeto nasceu a partir de uma experiência na UBS Madre Tereza de Calcutá / Equipe 02 e foi ampliado para permitir uso por **outras UBS, equipes e microáreas de Pimenta Bueno**.
 
 ## Publicação
 
@@ -15,11 +17,28 @@ O workflow `.github/workflows/pages.yml` publica automaticamente a branch `main`
 
 ## Contas e acesso
 
-Cada ACS pode criar a própria conta com nome, e-mail, senha e microárea.
+Cada profissional pode criar a própria conta com nome, e-mail, unidade de saúde, equipe (quando conhecida), microárea e senha.
 
 A conta `macedotaynara@outlook.com` é reconhecida pelo banco como **master/admin**. Todas as demais contas recebem o papel **ACS**. Essa regra é aplicada no banco por trigger e não depende apenas da interface.
 
-A conta master possui um painel para visualizar e atualizar os dados profissionais dos perfis cadastrados.
+A conta master possui um painel para visualizar e atualizar os dados profissionais dos perfis cadastrados, inclusive UBS, equipe e microárea.
+
+## Rede de Pimenta Bueno
+
+O Supabase contém um catálogo institucional baseado em dados públicos do CNES, com as principais unidades da Atenção Primária e pontos de atendimento do município. O catálogo inicial inclui:
+
+- UBS Madre Tereza de Calcutá;
+- UBS Maura Ferreira;
+- UBS Pastor Ismaelino Salviano de Matos;
+- UBS Frei Silvestre;
+- UBS Pastor Jonas;
+- Posto de Saúde Canaã;
+- Ponto de Atendimento Itaporanga;
+- Posto de Saúde Urucumacuã.
+
+As fontes e a data de consulta estão documentadas em `docs/FONTES_PUBLICAS_PIMENTA_BUENO.md`.
+
+Nomes de profissionais e composição das equipes não são importados automaticamente da internet, porque podem mudar. Esses dados são confirmados pelo próprio profissional ou pela gestão.
 
 ## Privacidade
 
@@ -28,15 +47,16 @@ O sistema não foi desenhado como prontuário e não mantém uma base paralela d
 - O Supabase guarda apenas dados profissionais/de equipe necessários ao funcionamento da plataforma.
 - Dados preenchidos nos geradores de carteirinhas são temporários por padrão.
 - Informações clínicas ou sociais sensíveis não devem ser colocadas em carteirinhas familiares sem necessidade assistencial clara.
-- Row Level Security (RLS) limita o acesso dos ACS ao próprio perfil; a conta master possui a permissão administrativa necessária para gestão dos perfis da equipe.
+- Row Level Security (RLS) limita o acesso dos ACS ao próprio perfil; a conta master possui a permissão administrativa necessária para gestão dos perfis.
 
 ## Funcionalidades atuais
 
 - Login com e-mail e senha.
-- Autocadastro das ACS.
+- Autocadastro por UBS, equipe e microárea.
 - Recuperação de senha.
+- Catálogo de unidades de saúde com CNES e referências públicas.
 - Perfil profissional reutilizado nas carteirinhas.
-- Painel master de gestão dos perfis.
+- Painel master de gestão dos perfis de diferentes unidades.
 - Biblioteca de carteirinhas para família, território e gestão.
 - Impressão A4 com 2, 4 ou 8 unidades.
 - Modos leitura fácil e econômico.
