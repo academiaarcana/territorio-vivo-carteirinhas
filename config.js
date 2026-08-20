@@ -64,14 +64,18 @@ window.TERRITORIO_VIVO_CONFIG = {
     }
 
     status.textContent = 'Criando sua conta…';
+    const redirectUrl = `${window.location.origin}${window.location.pathname}`;
     const { data, error } = await registrationClient.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name, microarea } }
+      options: {
+        data: { full_name: name, microarea },
+        emailRedirectTo: redirectUrl
+      }
     });
 
     if (error) {
-      status.textContent = error.message || 'Não foi possível criar a conta.';
+      status.textContent = 'Não foi possível criar a conta. Verifique os dados e tente novamente.';
       return;
     }
 
@@ -82,4 +86,13 @@ window.TERRITORIO_VIVO_CONFIG = {
       status.textContent = 'Conta criada. Confira seu e-mail para confirmar o cadastro e depois faça login.';
     }
   });
+})();
+
+(function loadTerritorioVivoEnhancements(){
+  if (document.querySelector('script[data-tv-enhancements]')) return;
+  const script = document.createElement('script');
+  script.src = 'enhancements.js';
+  script.async = false;
+  script.dataset.tvEnhancements = 'true';
+  document.head.appendChild(script);
 })();
