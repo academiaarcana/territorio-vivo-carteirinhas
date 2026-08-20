@@ -1,5 +1,5 @@
 import { registerRoute, setNotFoundRenderer, startRouter, navigate, currentPath, renderCurrentRoute } from './core/router.js';
-import { setState, getState } from './core/store.js';
+import { setState } from './core/store.js';
 import { hydrateSession, clearSession } from './core/session.js';
 import { getSession, onAuthChange } from './services/auth.js';
 import { renderPublicPage, mountPublicPage } from './pages/public.js';
@@ -30,8 +30,9 @@ async function bootstrap() {
   if (!root) throw new Error('Elemento #app não encontrado.');
   root.innerHTML = '<main class="standalone"><p>Carregando Território Vivo…</p></main>';
 
+  let session = null;
   try {
-    const session = await getSession();
+    session = await getSession();
     if (session) await hydrateSession(session);
     else setState({ booting: false, session: null, user: null, profile: null, context: null });
   } catch (error) {
@@ -39,20 +40,22 @@ async function bootstrap() {
     setState({ booting: false, lastError: error });
   }
 
-  onAuthChange(async (event, session) => {
+  normalizeAuthCallbackHash(session);
+
+  onAuthChange(async (event, nextSession) => {
     try {
       if (event === 'PASSWORD_RECOVERY') {
-        if (session) await hydrateSession(session);
-        navigate('/recuperar-senha', { replace: true });
+        if (nextSession) await hydrateSession(nextSession);
+        await navigate('/recuperar-senha', { replace: true });
         return;
       }
-      if (session) {
-        await hydrateSession(session);
-        if (['/entrar','/criar-conta','/'].includes(currentPath())) navigate('/app/inicio', { replace: true });
+      if (nextSession) {
+        await hydrateSession(nextSession);
+        if (['/entrar','/criar-conta','/'].includes(currentPath())) await navigate('/app/inicio', { replace: true });
         else await renderCurrentRoute();
       } else {
         clearSession();
-        if (currentPath().startsWith('/app/')) navigate('/entrar', { replace: true });
+        if (currentPath().startsWith('/app/')) await navigate('/entrar', { replace: true });
         else await renderCurrentRoute();
       }
     } catch (error) {
@@ -61,6 +64,15 @@ async function bootstrap() {
   });
 
   await startRouter();
+}
+
+function normalizeAuthCallbackHash(session) {
+  const raw = location.hash.replace(/^#/, '');
+  if (!raw) return;
+  const looksLikeSupabaseCallback = raw.includes('access_token=') || raw.includes('refresh_token=') || raw.includes('error_description=');
+  if (!looksLikeSupabaseCallback) return;
+  const target = session ? '#/app/inicio' : '#/entrar';
+  history.replaceState(null, '', `${location.pathname}${location.search}${target}`);
 }
 
 bootstrap().catch((error) => {
