@@ -42,7 +42,7 @@ jobs:
         run: |
           grep -q "supabaseUrl" config.js
           grep -q "supabasePublishableKey" config.js
-          ! grep -R "service_role" . --exclude-dir=.git
+          ! grep -R "service_role" . --exclude-dir=.git --exclude-dir=.github
 
       - name: Testar catálogo público do Supabase
         shell: bash
