@@ -1,15 +1,22 @@
 (function territorioVivoPublicSite(){
   const cfg = window.TERRITORIO_VIVO_CONFIG || {};
   const $ = (sel, root=document) => root.querySelector(sel);
-  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]));
 
   function loadStyle(){
-    if ($('#tvPublicStyles')) return;
-    const link = document.createElement('link');
-    link.id = 'tvPublicStyles';
-    link.rel = 'stylesheet';
-    link.href = 'public-site.css';
-    document.head.appendChild(link);
+    if (!$('#tvPublicStyles')) {
+      const link = document.createElement('link');
+      link.id = 'tvPublicStyles';
+      link.rel = 'stylesheet';
+      link.href = 'public-site.css';
+      document.head.appendChild(link);
+    }
+    if (!$('#tvAuthPolishStyles')) {
+      const style = document.createElement('style');
+      style.id = 'tvAuthPolishStyles';
+      style.textContent = '[hidden]{display:none!important}.form-status.tv-success{color:#1d6b4b!important}.form-status.tv-error{color:#a53b35!important}';
+      document.head.appendChild(style);
+    }
   }
 
   function createLanding(){
@@ -105,6 +112,21 @@
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
+  function polishSignupStatus(){
+    const status = $('#signupStatus');
+    if (!status || status.dataset.polished === '1') return;
+    status.dataset.polished = '1';
+    const refresh = () => {
+      const text = (status.textContent || '').trim();
+      status.classList.remove('tv-success','tv-error');
+      if (!text) return;
+      if (/^Conta criada|^Senha atualizada|^Perfil atualizado/i.test(text)) status.classList.add('tv-success');
+      else if (/não foi possível|senhas não|informe|selecione/i.test(text)) status.classList.add('tv-error');
+    };
+    new MutationObserver(refresh).observe(status,{childList:true,characterData:true,subtree:true});
+    refresh();
+  }
+
   async function loadUnits(){
     const root = $('#publicUnitsGrid');
     if (!root || !cfg.supabaseUrl || !cfg.supabasePublishableKey || !window.supabase) return;
@@ -151,6 +173,10 @@
         if ($('#authView')) $('#authView').hidden = true;
       }
     }).observe(app,{attributes:true,attributeFilter:['hidden']});
+
+    const signupPanel = $('#signupPanel');
+    if (signupPanel) new MutationObserver(polishSignupStatus).observe(signupPanel,{childList:true,subtree:true});
+    polishSignupStatus();
   }
 
   async function init(){
