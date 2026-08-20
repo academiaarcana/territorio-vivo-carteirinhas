@@ -1,7 +1,9 @@
 import { getState } from './store.js';
+import { isManagement, isMaster } from './permissions.js';
 
 const routes = new Map();
 let renderNotFound = () => '<main class="standalone"><h1>Página não encontrada</h1></main>';
+let rendering = false;
 
 export function registerRoute(path, definition) {
   routes.set(normalize(path), definition);
@@ -30,39 +32,58 @@ export function currentPath() {
 }
 
 export async function renderCurrentRoute() {
+  if (rendering) return;
   const root = document.querySelector('#app');
   if (!root) return;
 
-  const path = currentPath();
-  const route = routes.get(path);
-  if (!route) {
-    root.innerHTML = renderNotFound();
-    return;
-  }
+  rendering = true;
+  try {
+    const path = currentPath();
+    const route = routes.get(path);
+    if (!route) {
+      root.innerHTML = renderNotFound();
+      focusPageHeading(root);
+      return;
+    }
 
-  const state = getState();
-  if (route.auth && !state.session) {
-    await navigate('/entrar', { replace: true });
-    return;
-  }
-  if (route.guestOnly && state.session) {
-    await navigate('/app/inicio', { replace: true });
-    return;
-  }
-  if (route.admin && state.profile?.role !== 'admin') {
-    await navigate('/app/inicio', { replace: true });
-    return;
-  }
+    const state = getState();
+    if (route.auth && !state.session) {
+      await navigate('/entrar', { replace: true });
+      return;
+    }
+    if (route.guestOnly && state.session) {
+      await navigate('/app/inicio', { replace: true });
+      return;
+    }
+    if (route.management && !isManagement(state.profile)) {
+      await navigate('/app/inicio', { replace: true });
+      return;
+    }
+    if (route.master && !isMaster(state.profile)) {
+      await navigate('/app/inicio', { replace: true });
+      return;
+    }
 
-  root.dataset.route = path;
-  root.innerHTML = await route.render({ path, state });
-  await route.mount?.({ root, path, state });
-  window.scrollTo({ top: 0, behavior: 'auto' });
+    root.dataset.route = path;
+    root.innerHTML = await route.render({ path, state });
+    await route.mount?.({ root, path, state });
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    focusPageHeading(root);
+  } finally {
+    rendering = false;
+  }
 }
 
 export function startRouter() {
   window.addEventListener('hashchange', renderCurrentRoute);
   return renderCurrentRoute();
+}
+
+function focusPageHeading(root) {
+  const heading = root.querySelector('h1');
+  if (!heading) return;
+  heading.setAttribute('tabindex', '-1');
+  heading.focus({ preventScroll: true });
 }
 
 function normalize(path) {
