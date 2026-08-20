@@ -11,11 +11,13 @@ window.TERRITORIO_VIVO_CONFIG = {
   const loginForm = document.querySelector('#loginForm');
   if (!authCard || !loginForm || document.querySelector('#signupPanel')) return;
 
+  const MASTER_EMAIL = 'macedotaynara@outlook.com';
+
   const button = document.createElement('button');
   button.type = 'button';
   button.id = 'showSignup';
   button.className = 'button soft wide';
-  button.textContent = 'Criar minha conta de ACS';
+  button.textContent = 'Criar minha conta';
   loginForm.insertAdjacentElement('afterend', button);
 
   const panel = document.createElement('div');
@@ -23,12 +25,12 @@ window.TERRITORIO_VIVO_CONFIG = {
   panel.hidden = true;
   panel.innerHTML = `
     <form id="signupForm" class="stack" autocomplete="on" style="margin-top:1rem">
-      <div class="privacy-banner"><strong>Cadastro da ACS.</strong> Informe apenas seus dados profissionais. Dados de pacientes não são cadastrados aqui.</div>
+      <div class="privacy-banner"><strong>Cadastro de acesso.</strong> Informe apenas seus dados profissionais. Dados de pacientes não são cadastrados aqui.</div>
       <label>Nome completo<input id="signupName" type="text" autocomplete="name" required /></label>
       <label>E-mail<input id="signupEmail" type="email" autocomplete="email" required /></label>
       <label>Microárea
-        <select id="signupMicroarea" required>
-          <option value="">Selecione</option>
+        <select id="signupMicroarea">
+          <option value="">Não se aplica / conta master</option>
           <option value="08">08</option>
           <option value="09">09</option>
           <option value="10">10</option>
@@ -57,6 +59,11 @@ window.TERRITORIO_VIVO_CONFIG = {
     const microarea = panel.querySelector('#signupMicroarea').value;
     const password = panel.querySelector('#signupPassword').value;
     const password2 = panel.querySelector('#signupPassword2').value;
+
+    if (email !== MASTER_EMAIL && !microarea) {
+      status.textContent = 'Selecione sua microárea: 08, 09 ou 10.';
+      return;
+    }
 
     if (password !== password2) {
       status.textContent = 'As senhas não são iguais.';
