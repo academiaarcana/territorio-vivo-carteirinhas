@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node scripts/validate-architecture.mjs"
+    "check": "npm run check:architecture && npm run check:security",
+    "check:architecture": "node scripts/validate-architecture.mjs",
+    "check:security": "node scripts/validate-security-contract.mjs"
   }
 }
