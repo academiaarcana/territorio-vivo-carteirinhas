@@ -14,9 +14,15 @@ export function setNotFoundRenderer(renderer) {
 export function navigate(path, { replace = false } = {}) {
   const normalized = normalize(path);
   const hash = `#${normalized}`;
-  if (replace) history.replaceState(null, '', hash);
-  else if (location.hash !== hash) location.hash = normalized;
-  else renderCurrentRoute();
+  if (replace) {
+    history.replaceState(null, '', hash);
+    return renderCurrentRoute();
+  }
+  if (location.hash !== hash) {
+    location.hash = normalized;
+    return;
+  }
+  return renderCurrentRoute();
 }
 
 export function currentPath() {
@@ -36,22 +42,22 @@ export async function renderCurrentRoute() {
 
   const state = getState();
   if (route.auth && !state.session) {
-    navigate('/entrar', { replace: true });
+    await navigate('/entrar', { replace: true });
     return;
   }
   if (route.guestOnly && state.session) {
-    navigate('/app/inicio', { replace: true });
+    await navigate('/app/inicio', { replace: true });
     return;
   }
   if (route.admin && state.profile?.role !== 'admin') {
-    navigate('/app/inicio', { replace: true });
+    await navigate('/app/inicio', { replace: true });
     return;
   }
 
   root.dataset.route = path;
   root.innerHTML = await route.render({ path, state });
   await route.mount?.({ root, path, state });
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 export function startRouter() {
