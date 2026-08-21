@@ -123,10 +123,11 @@ export async function mountAccessPendingPage({ root, state }) {
   }
 
   async function loadUnits(reset = true) {
-    setSelectLoading(unit, municipality.value ? 'Carregando unidades…' : 'Selecione o município');
+    const municipalityCode = municipality.value;
+    setSelectLoading(unit, municipalityCode ? 'Carregando unidades…' : 'Selecione o município');
     setSelectLoading(team, 'Selecione a unidade');
     customWrap.hidden = true;
-    if (!municipality.value) {
+    if (!municipalityCode) {
       units = [];
       teams = [];
       setSelectReady(unit);
@@ -134,12 +135,15 @@ export async function mountAccessPendingPage({ root, state }) {
       return;
     }
     try {
-      units = await listUnits({ municipalityCode: municipality.value });
+      const rows = await listUnits({ municipalityCode });
+      if (municipality.value !== municipalityCode) return;
+      units = rows;
       unit.innerHTML = '<option value="">Selecione</option>' + units.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}</option>`).join('');
       setSelectReady(unit);
       if (!reset) unit.value = state.profile?.unit_cnes || '';
       await loadTeams(reset);
     } catch (error) {
+      if (municipality.value !== municipalityCode) return;
       units = [];
       teams = [];
       setSelectError(unit, 'Não foi possível carregar as unidades');
@@ -149,16 +153,19 @@ export async function mountAccessPendingPage({ root, state }) {
   }
 
   async function loadTeams(reset = true) {
-    setSelectLoading(team, unit.value ? 'Carregando equipes…' : 'Selecione a unidade');
+    const unitCnes = unit.value;
+    setSelectLoading(team, unitCnes ? 'Carregando equipes…' : 'Selecione a unidade');
     customWrap.hidden = true;
-    if (!unit.value) {
+    if (!unitCnes) {
       teams = [];
       team.innerHTML = '<option value="">Equipe ainda não informada</option>';
       setSelectReady(team);
       return;
     }
     try {
-      teams = await listTeams({ unitCnes: unit.value });
+      const rows = await listTeams({ unitCnes });
+      if (unit.value !== unitCnes) return;
+      teams = rows;
       team.innerHTML = '<option value="">Equipe ainda não informada</option>' + teams.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + '<option value="__other__">Minha equipe não aparece</option>';
       setSelectReady(team);
       if (!reset && state.profile?.team_id && teams.some((row) => row.id === state.profile.team_id)) {
@@ -169,6 +176,7 @@ export async function mountAccessPendingPage({ root, state }) {
         customWrap.querySelector('input').value = state.profile.team_name;
       }
     } catch (error) {
+      if (unit.value !== unitCnes) return;
       teams = [];
       setSelectError(team, 'Não foi possível carregar as equipes');
       throw error;
