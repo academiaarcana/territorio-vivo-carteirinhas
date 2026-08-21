@@ -1,4 +1,5 @@
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
+import { canSubmitForm, setButtonBusy } from '../lib/forms.js';
 import { navigate } from '../core/router.js';
 import { setState } from '../core/store.js';
 import { isPendingProfile, isSuspendedProfile, accessStatusLabel } from '../core/permissions.js';
@@ -55,14 +56,17 @@ export function renderAccessPendingPage({ state }) {
 export async function mountAccessPendingPage({ root, state }) {
   const status = root.querySelector('#pending-status');
   root.querySelector('#pending-signout')?.addEventListener('click', async (event) => {
-    event.currentTarget.disabled = true;
+    const button = event.currentTarget;
+    if (button.disabled) return;
+    setButtonBusy(button, true, 'Saindo…');
     try { await signOut(); await navigate('/'); }
-    finally { event.currentTarget.disabled = false; }
+    finally { setButtonBusy(button, false); }
   });
 
   root.querySelector('#check-access')?.addEventListener('click', async (event) => {
     const button = event.currentTarget;
-    button.disabled = true;
+    if (button.disabled) return;
+    setButtonBusy(button, true, 'Verificando…');
     setStatus(status, 'Verificando…', 'info');
     try {
       const profile = await getProfile(state.user.id);
@@ -74,10 +78,11 @@ export async function mountAccessPendingPage({ root, state }) {
         return;
       }
       setStatus(status, profile?.access_status === 'suspended' ? 'O acesso continua suspenso.' : 'A solicitação ainda aguarda aprovação da gestão.', 'info');
-    } catch {
+    } catch (error) {
+      console.error(error);
       setStatus(status, 'Não foi possível verificar o acesso agora.', 'error');
     } finally {
-      button.disabled = false;
+      setButtonBusy(button, false);
     }
   });
 
@@ -92,10 +97,15 @@ export async function mountAccessPendingPage({ root, state }) {
   let teams = [];
 
   async function loadMunicipalities() {
-    const rows = await listMunicipalities();
-    municipality.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.code)}">${escapeHtml(row.name)} — ${escapeHtml(row.state_code)}</option>`).join('');
-    municipality.value = state.profile?.municipality_code || '';
-    await loadUnits(false);
+    form.setAttribute('aria-busy', 'true');
+    try {
+      const rows = await listMunicipalities();
+      municipality.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.code)}">${escapeHtml(row.name)} — ${escapeHtml(row.state_code)}</option>`).join('');
+      municipality.value = state.profile?.municipality_code || '';
+      await loadUnits(false);
+    } finally {
+      form.removeAttribute('aria-busy');
+    }
   }
 
   async function loadUnits(reset = true) {
@@ -119,28 +129,37 @@ export async function mountAccessPendingPage({ root, state }) {
     }
   }
 
-  municipality.addEventListener('change', () => loadUnits(true));
-  unit.addEventListener('change', () => loadTeams(true));
+  municipality.addEventListener('change', () => loadUnits(true).catch((error) => {
+    console.error(error);
+    setStatus(status, 'Não foi possível carregar as unidades.', 'error');
+  }));
+  unit.addEventListener('change', () => loadTeams(true).catch((error) => {
+    console.error(error);
+    setStatus(status, 'Não foi possível carregar as equipes.', 'error');
+  }));
   team.addEventListener('change', () => {
     customWrap.hidden = team.value !== '__other__';
     if (!customWrap.hidden) customWrap.querySelector('input').focus();
   });
 
   try { await loadMunicipalities(); }
-  catch { setStatus(status, 'Não foi possível carregar o catálogo territorial.', 'error'); }
+  catch (error) {
+    console.error(error);
+    setStatus(status, 'Não foi possível carregar o catálogo territorial.', 'error');
+  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const button = event.currentTarget.querySelector('[type="submit"]');
-    if (button.disabled) return;
-    const values = formToObject(event.currentTarget);
+    const button = form.querySelector('[type="submit"]');
+    if (!canSubmitForm(form, button)) return;
+    const values = formToObject(form);
     const selectedUnit = units.find((row) => row.cnes === values.unit_cnes);
     const selectedTeam = teams.find((row) => row.id === values.team_id);
     const teamId = values.team_id && values.team_id !== '__other__' ? values.team_id : null;
-    const teamName = values.team_id === '__other__' ? values.team_name_custom.trim() : (selectedTeam?.name || '');
+    const teamName = values.team_id === '__other__' ? (values.team_name_custom || '').trim() : (selectedTeam?.name || '');
     if (values.team_id === '__other__' && !teamName) return setStatus(status, 'Informe o nome da equipe para confirmação.', 'error');
 
-    button.disabled = true;
+    setButtonBusy(button, true, 'Salvando…');
     setStatus(status, 'Salvando solicitação…', 'info');
     try {
       const profile = await updateProfile(state.user.id, {
@@ -155,7 +174,7 @@ export async function mountAccessPendingPage({ root, state }) {
       console.error(error);
       setStatus(status, 'Não foi possível salvar a solicitação.', 'error');
     } finally {
-      button.disabled = false;
+      setButtonBusy(button, false);
     }
   });
 }
