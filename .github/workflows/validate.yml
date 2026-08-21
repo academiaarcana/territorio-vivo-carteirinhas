@@ -49,10 +49,12 @@ jobs:
             test "${CODE}" = "200"
           done
 
-          PRIVATE_CODE=$(curl --silent --show-error --output /tmp/territory_points.json --write-out "%{http_code}" \
-            "${SUPABASE_URL}/rest/v1/territory_points?select=id&limit=1" \
-            -H "apikey: ${SUPABASE_KEY}" \
-            -H "Authorization: Bearer ${SUPABASE_KEY}")
-          test "${PRIVATE_CODE}" != "200"
+          for PRIVATE_TABLE in profiles territory_points; do
+            PRIVATE_CODE=$(curl --silent --show-error --output "/tmp/${PRIVATE_TABLE}.json" --write-out "%{http_code}" \
+              "${SUPABASE_URL}/rest/v1/${PRIVATE_TABLE}?select=id&limit=1" \
+              -H "apikey: ${SUPABASE_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_KEY}")
+            test "${PRIVATE_CODE}" != "200"
+          done
 
-          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK e territory_points protegido de acesso anônimo.')"
+          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK; profiles e territory_points protegidos de acesso anônimo.')"
