@@ -1,5 +1,6 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { escapeHtml, formToObject, setStatus, formatDateBr } from '../lib/dom.js';
+import { setButtonBusy } from '../lib/forms.js';
 import { printHtml, downloadPdf } from '../utils/print.js';
 
 export function renderFivePage({ state }) {
@@ -20,20 +21,22 @@ export function mountFivePage({ root, state }) {
 
   root.querySelector('#five-print').addEventListener('click', () => {
     printHtml(build(), { className: 'five-print', title: '5 minutos do território' });
+    setStatus(status, 'Janela de impressão aberta.', 'success');
   });
 
   root.querySelector('#five-pdf').addEventListener('click', async (event) => {
     const button = event.currentTarget;
-    button.disabled = true;
+    if (button.disabled) return;
+    setButtonBusy(button, true, 'Gerando PDF…');
     setStatus(status, 'Gerando PDF…', 'info');
     try {
-      await downloadPdf(build(), { className: 'five-print', title: '5 minutos do território' });
-      setStatus(status, 'PDF gerado.', 'success');
+      const result = await downloadPdf(build(), { className: 'five-print', title: '5 minutos do território' });
+      setStatus(status, result.mode === 'pdf' ? 'PDF gerado.' : 'Gerador de PDF indisponível; a impressão foi aberta como alternativa.', result.mode === 'pdf' ? 'success' : 'info');
     } catch (error) {
       console.error(error);
       setStatus(status, 'Não foi possível gerar o PDF.', 'error');
     } finally {
-      button.disabled = false;
+      setButtonBusy(button, false);
     }
   });
 
