@@ -47,7 +47,7 @@ export async function renderCurrentRoute() {
   if (route.auth && !state.session) return navigate('/entrar', { replace: true });
   if (route.guestOnly && state.session) return navigate('/app/inicio', { replace: true });
 
-  if ((route.active || route.management || route.master) && state.session) {
+  if ((route.active || route.management || route.master || route.accessGate) && state.session) {
     try {
       await hydrateSession(state.session);
       state = getState();
@@ -59,6 +59,7 @@ export async function renderCurrentRoute() {
     }
   }
 
+  if (route.accessGate && isActiveProfile(state.profile)) return navigate('/app/inicio', { replace: true });
   if (route.active && !isActiveProfile(state.profile)) return navigate('/app/aguardando', { replace: true });
   if (route.management && !isManagement(state.profile)) return navigate('/app/inicio', { replace: true });
   if (route.master && !isMaster(state.profile)) return navigate('/app/inicio', { replace: true });
