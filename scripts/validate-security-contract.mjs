@@ -16,7 +16,8 @@ const mustExist = [
   'supabase/migrations/015_protect_unit_admin_institutional_scope.sql',
   'supabase/migrations/016_profile_access_approval_and_membership.sql',
   'supabase/migrations/017_restrict_unit_admin_access_status_management.sql',
-  'supabase/migrations/018_canonicalize_profile_network_labels.sql'
+  'supabase/migrations/018_canonicalize_profile_network_labels.sql',
+  'supabase/migrations/019_restrict_unit_admin_profile_updates_to_acs.sql'
 ];
 
 for (const file of mustExist) {
@@ -73,6 +74,11 @@ expect(migration18, "new.role <> 'admin' and new.access_status = 'active'", 'per
 expect(migration18, 'new.unit_name is distinct from old.unit_name', 'rótulo textual da UBS deve participar da proteção do escopo');
 expect(migration18, 'new.team_name is distinct from old.team_name', 'rótulo textual da equipe deve participar da proteção do escopo');
 
+const migration19 = read('supabase/migrations/019_restrict_unit_admin_profile_updates_to_acs.sql');
+expect(migration19, "and role = 'acs'", 'unit_admin só pode atualizar perfil profissional dentro da própria UBS');
+expect(migration19, 'unit_cnes = private.current_unit_cnes()', 'edição local de perfil precisa permanecer na própria UBS');
+expect(migration19, 'profiles_update_by_scope', 'policy de atualização de perfis precisa estar versionada');
+
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
 const config = read('config.js');
@@ -95,7 +101,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos, vínculo canônico e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos, vínculo canônico, hierarquia de perfis e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
