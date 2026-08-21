@@ -12,7 +12,7 @@ const required = [
   'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/services/access.js','src/data/cards.js','src/data/education.js','src/data/indicators.js',
   'src/pages/public.js','src/pages/auth.js','src/pages/access-pending.js','src/pages/access-management.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
   'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css',
-  'scripts/validate-security-contract.mjs'
+  'scripts/validate-security-contract.mjs','scripts/test-permissions.mjs'
 ];
 
 for (const file of required) {
@@ -63,11 +63,16 @@ if (!printJs.includes('[2, 4, 8, 12]')) errors.push('Utilitário de impressão p
 const appFiles = walk(src).filter((file) => file.endsWith('.js')).concat([path.join(root, 'config.js'), path.join(root, 'index.html')]);
 const appText = appFiles.filter(fs.existsSync).map((file) => fs.readFileSync(file,'utf8')).join('\n');
 if (/service[_-]?role/i.test(appText)) errors.push('Referência proibida a service role encontrada no frontend.');
+for (const fixed of ['Pimenta Bueno','UBS Madre Tereza de Calcutá','Equipe 02']) {
+  if (appText.includes(fixed)) errors.push(`Runtime não pode depender de valor territorial fixo: ${fixed}`);
+}
 
 const authPage = read('src/pages/auth.js');
 if (!authPage.includes('PASSWORD_MIN_LENGTH')) errors.push('Fluxo de autenticação precisa aplicar política mínima de senha no frontend.');
 if (!authPage.includes('setBusy')) errors.push('Formulários de autenticação precisam prevenir duplo envio.');
 if (!authPage.includes('aguarda aprovação') && !authPage.includes('aguardando aprovação')) errors.push('Cadastro precisa informar a etapa de aprovação profissional.');
+if (authPage.includes("row.code === '110018'") || authPage.includes("municipality.value = '110018'")) errors.push('Cadastro não pode fixar o município inicial por código IBGE.');
+if (!authPage.includes('rows.length === 1')) errors.push('Autocadastro deve pré-selecionar município apenas quando o catálogo tiver uma única opção.');
 
 const repository = read('src/services/repository.js');
 if (!repository.includes('normalizeCoordinates')) errors.push('Persistência territorial precisa validar coordenadas antes de enviar ao banco.');
@@ -78,7 +83,26 @@ if (!repository.includes('Informe latitude e longitude juntas')) errors.push('Co
 const migrationHistory = read('docs/MIGRATION_HISTORY.md');
 if (!migrationHistory.includes('harden_profile_functions')) errors.push('Histórico precisa registrar o hotfix harden_profile_functions.');
 if (!migrationHistory.includes('restrict_master_role_trigger_search_path')) errors.push('Histórico precisa registrar o hotfix de search_path do master.');
-if (!migrationHistory.includes('020_protect_approved_profile_microarea_scope.sql')) errors.push('Histórico precisa incluir a migration 020.');
+for (const migration of ['020_protect_approved_profile_microarea_scope.sql','023_database_input_bounds.sql','024_least_privilege_table_grants.sql']) {
+  if (!migrationHistory.includes(migration)) errors.push(`Histórico precisa incluir ${migration}.`);
+}
+
+const dialogContracts = [
+  ['src/pages/cards.js','card-editor','card-editor-title'],
+  ['src/pages/territory.js','point-dialog','point-dialog-title'],
+  ['src/pages/admin.js','admin-dialog','admin-dialog-title'],
+  ['src/pages/education.js','education-dialog','education-dialog-title']
+];
+for (const [file, dialogId, labelId] of dialogContracts) {
+  const content = read(file);
+  if (!content.includes(`id="${dialogId}"`) || !content.includes(`aria-labelledby="${labelId}"`) || !content.includes(`id="${labelId}"`)) {
+    errors.push(`${file} precisa manter o diálogo ${dialogId} rotulado por ${labelId}.`);
+  }
+}
+const adminPage = read('src/pages/admin.js');
+for (const key of ['ArrowRight','ArrowLeft','Home','End']) {
+  if (!adminPage.includes(key)) errors.push(`Tabs da gestão precisam tratar a tecla ${key}.`);
+}
 
 const cardsModule = await import(pathToFileUrl(path.join(root, 'src/data/cards.js')));
 const ids = cardsModule.cardTemplates.map((item) => item.id);
