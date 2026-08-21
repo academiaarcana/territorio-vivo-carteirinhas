@@ -1,5 +1,5 @@
 import { getState } from './store.js';
-import { isManagement, isMaster } from './permissions.js';
+import { isActiveProfile, isManagement, isMaster } from './permissions.js';
 
 const routes = new Map();
 let renderNotFound = () => '<main class="standalone"><h1>Página não encontrada</h1></main>';
@@ -43,18 +43,11 @@ export async function renderCurrentRoute() {
   }
 
   const state = getState();
-  if (route.auth && !state.session) {
-    return navigate('/entrar', { replace: true });
-  }
-  if (route.guestOnly && state.session) {
-    return navigate('/app/inicio', { replace: true });
-  }
-  if (route.management && !isManagement(state.profile)) {
-    return navigate('/app/inicio', { replace: true });
-  }
-  if (route.master && !isMaster(state.profile)) {
-    return navigate('/app/inicio', { replace: true });
-  }
+  if (route.auth && !state.session) return navigate('/entrar', { replace: true });
+  if (route.guestOnly && state.session) return navigate('/app/inicio', { replace: true });
+  if (route.active && !isActiveProfile(state.profile)) return navigate('/app/aguardando', { replace: true });
+  if (route.management && !isManagement(state.profile)) return navigate('/app/inicio', { replace: true });
+  if (route.master && !isMaster(state.profile)) return navigate('/app/inicio', { replace: true });
 
   root.dataset.route = path;
   root.innerHTML = await route.render({ path, state });
