@@ -53,7 +53,7 @@ const activeRouteCount = [...main.matchAll(/active:\s*true/g)].length;
 if (activeRouteCount < 8) errors.push('Rotas internas precisam exigir perfil ativo por padrão.');
 
 const a11y = read('src/core/a11y.js');
-for (const key of ['ArrowRight','ArrowLeft','Home','End']) {
+for (const key of ['ArrowRight','ArrowLeft','ArrowUp','ArrowDown','Home','End']) {
   if (!a11y.includes(key)) errors.push(`Controlador de tabs precisa tratar a tecla ${key}.`);
 }
 if (!a11y.includes('[role="tablist"]') || !a11y.includes('[role="tab"]')) errors.push('Controlador de tabs precisa usar a semântica ARIA correta.');
@@ -74,9 +74,13 @@ const printJs = read('src/utils/print.js');
 if (!printJs.includes('[2, 4, 8, 12]')) errors.push('Utilitário de impressão precisa aceitar 2, 4, 8 e 12 por A4.');
 
 const formsUtil = read('src/lib/forms.js');
-if (!formsUtil.includes('setButtonBusy')) errors.push('Utilitário compartilhado precisa centralizar estado ocupado dos botões.');
+for (const helper of ['setButtonBusy','canSubmitForm','setSelectLoading','setSelectReady','setSelectError']) {
+  if (!formsUtil.includes(helper)) errors.push(`Utilitário compartilhado precisa expor ${helper}.`);
+}
 if (!formsUtil.includes("setAttribute('aria-busy', 'true')")) errors.push('Estado ocupado compartilhado precisa expor aria-busy.');
-if (!formsUtil.includes('canSubmitForm')) errors.push('Utilitário compartilhado precisa prevenir submissão repetida e validar formulários.');
+if (!formsUtil.includes("setAttribute('aria-invalid', 'true')")) errors.push('Falha de catálogo precisa expor aria-invalid.');
+if (!formsUtil.includes('data.loadState') && !formsUtil.includes('dataset.loadState')) errors.push('Catálogos assíncronos precisam registrar loading/ready/error.');
+if (!formsUtil.includes('select[data-load-state="loading"]') || !formsUtil.includes('select[data-load-state="error"]')) errors.push('Submissão precisa reconhecer catálogos obrigatórios carregando ou com erro.');
 
 const appFiles = walk(src).filter((file) => file.endsWith('.js')).concat([path.join(root, 'config.js'), path.join(root, 'index.html')]);
 const appText = appFiles.filter(fs.existsSync).map((file) => fs.readFileSync(file,'utf8')).join('\n');
@@ -90,11 +94,25 @@ if (/['"]08['"]\s*,\s*['"]09['"]\s*,\s*['"]10['"]/.test(appText) || /<option[^>]
 
 const authPage = read('src/pages/auth.js');
 if (!authPage.includes('PASSWORD_MIN_LENGTH')) errors.push('Fluxo de autenticação precisa aplicar política mínima de senha no frontend.');
-if (!authPage.includes('setBusy')) errors.push('Formulários de autenticação precisam prevenir duplo envio.');
+if (!authPage.includes("from '../lib/forms.js'")) errors.push('Autenticação precisa reutilizar o utilitário compartilhado de formulários.');
+if (!authPage.includes('setButtonBusy') || !authPage.includes('canSubmitForm')) errors.push('Formulários de autenticação precisam prevenir duplo envio com o utilitário compartilhado.');
+if (!authPage.includes('setSelectLoading') || !authPage.includes('setSelectReady') || !authPage.includes('setSelectError')) errors.push('Signup precisa tratar explicitamente loading/erro dos catálogos territoriais.');
+if (/function\s+setBusy\s*\(/.test(authPage)) errors.push('Autenticação não deve manter uma implementação local duplicada de busy state.');
 if (!authPage.includes('aguarda aprovação') && !authPage.includes('aguardando aprovação')) errors.push('Cadastro precisa informar a etapa de aprovação profissional.');
 if (authPage.includes("row.code === '110018'") || authPage.includes("municipality.value = '110018'")) errors.push('Cadastro não pode fixar o município inicial por código IBGE.');
 if (!authPage.includes('rows.length === 1')) errors.push('Autocadastro deve pré-selecionar município apenas quando o catálogo tiver uma única opção.');
 if (authPage.includes('Este e-mail já possui uma conta')) errors.push('Cadastro não deve confirmar explicitamente que um e-mail já existe.');
+
+const profilePage = read('src/pages/profile.js');
+if (!profilePage.includes('scopeLocked')) errors.push('Perfil ativo precisa refletir vínculo territorial bloqueado na interface.');
+if (!profilePage.includes('setSelectLoading') || !profilePage.includes('setSelectError')) errors.push('Perfil precisa invalidar catálogos dependentes que falharam ao carregar.');
+if (!profilePage.includes('canSubmitForm') || !profilePage.includes('setButtonBusy')) errors.push('Perfil precisa prevenir duplo envio com estado compartilhado.');
+
+const pendingPage = read('src/pages/access-pending.js');
+if (!pendingPage.includes('Verificar aprovação')) errors.push('Perfil pendente precisa conseguir consultar aprovação.');
+if (!pendingPage.includes('Depois da aprovação')) errors.push('Onboarding precisa explicar que vínculo aprovado fica protegido.');
+if (!pendingPage.includes('setSelectLoading') || !pendingPage.includes('setSelectError')) errors.push('Conta pendente precisa invalidar catálogos dependentes que falharam.');
+if (!pendingPage.includes('canSubmitForm') || !pendingPage.includes('setButtonBusy')) errors.push('Conta pendente precisa prevenir duplo envio com estado compartilhado.');
 
 const repository = read('src/services/repository.js');
 if (!repository.includes('normalizeCoordinates')) errors.push('Persistência territorial precisa validar coordenadas antes de enviar ao banco.');
