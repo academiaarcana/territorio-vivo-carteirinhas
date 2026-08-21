@@ -1,6 +1,7 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { indicatorDefinitions, indicatorGroups, indicatorScopes } from '../data/indicators.js';
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
+import { setButtonBusy } from '../lib/forms.js';
 import { printHtml, downloadPdf } from '../utils/print.js';
 
 export function renderIndicatorsPage({ state }) {
@@ -39,19 +40,23 @@ export function mountIndicatorsPage({ root, state }) {
   scope.addEventListener('change', syncScope);
   syncScope();
 
-  root.querySelector('#indicators-print').addEventListener('click', () => printHtml(build(), { title: 'Indicadores do território', className: 'indicators-print' }));
+  root.querySelector('#indicators-print').addEventListener('click', () => {
+    printHtml(build(), { title: 'Indicadores do território', className: 'indicators-print' });
+    setStatus(status, 'Janela de impressão aberta.', 'success');
+  });
   root.querySelector('#indicators-pdf').addEventListener('click', async (event) => {
     const button = event.currentTarget;
-    button.disabled = true;
+    if (button.disabled) return;
+    setButtonBusy(button, true, 'Gerando PDF…');
     setStatus(status, 'Gerando PDF…', 'info');
     try {
-      await downloadPdf(build(), { title: 'Indicadores do território', className: 'indicators-print' });
-      setStatus(status, 'PDF gerado.', 'success');
+      const result = await downloadPdf(build(), { title: 'Indicadores do território', className: 'indicators-print' });
+      setStatus(status, result.mode === 'pdf' ? 'PDF gerado.' : 'Gerador de PDF indisponível; a impressão foi aberta como alternativa.', result.mode === 'pdf' ? 'success' : 'info');
     } catch (error) {
       console.error(error);
       setStatus(status, 'Não foi possível gerar o PDF.', 'error');
     } finally {
-      button.disabled = false;
+      setButtonBusy(button, false);
     }
   });
   root.querySelector('#indicators-clear').addEventListener('click', () => {
