@@ -51,6 +51,7 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `023_database_input_bounds.sql` | `database_input_bounds` |
 | `024_least_privilege_table_grants.sql` | `least_privilege_table_grants` |
 | `025_canonicalize_health_unit_municipality.sql` | `canonicalize_health_unit_municipality` |
+| `026_protect_health_unit_identity.sql` | `protect_health_unit_identity` |
 
 ## Regra para novas alterações
 
