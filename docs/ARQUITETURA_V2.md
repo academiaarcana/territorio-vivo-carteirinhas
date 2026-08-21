@@ -31,8 +31,10 @@ src/
     layout.js
     session.js
     permissions.js
+    a11y.js
   lib/
     dom.js
+    forms.js
   services/
     supabase.js
     auth.js
@@ -64,6 +66,9 @@ src/
 scripts/
   validate-architecture.mjs
   validate-security-contract.mjs
+  validate-production-contracts.mjs
+  test-layout-contract.mjs
+  test-permissions.mjs
 supabase/migrations/
 ```
 
@@ -89,7 +94,7 @@ supabase/migrations/
 - lê achados territoriais não pessoais somente da própria UBS;
 - cria/edita/exclui apenas seus próprios pontos dentro do próprio escopo;
 - não altera papel ou status de acesso;
-- após aprovação, não troca sozinho município/UBS/equipe.
+- após aprovação, não troca sozinho município/UBS/equipe/microárea.
 
 ### `unit_admin`
 
@@ -155,8 +160,7 @@ Tipos suportados:
 - parceiro;
 - risco ambiental/estrutural;
 - ponto crítico;
-- barreira de acesso;
-- outro achado não pessoal.
+- barreira de acesso.
 
 A tabela aceita endereço e coordenadas opcionais para futura camada cartográfica. A visualização em mapa pertence à fase de design; a modelagem e o CRUD pertencem à fase estrutural.
 
@@ -166,12 +170,12 @@ Públicas:
 
 - `#/` — apresentação;
 - `#/entrar` — login;
-- `#/criar-conta` — autocadastro;
-- `#/recuperar-senha` — recuperação.
+- `#/criar-conta` — autocadastro.
 
-Autenticada sem aprovação:
+Autenticadas sem aprovação:
 
-- `#/app/aguardando` — status, revisão do vínculo pendente e nova consulta de aprovação.
+- `#/app/aguardando` — status, revisão do vínculo pendente e nova consulta de aprovação;
+- `#/recuperar-senha` — definição de nova senha somente com sessão autenticada/recuperação válida.
 
 Protegidas e ativas:
 
@@ -218,7 +222,7 @@ Ao recarregar/sair, esses dados são descartados, salvo futura decisão explíci
 - vínculo de ACS ativo e vínculo do administrador são protegidos contra mudança de escopo.
 - nomes de unidade/equipe são canonicalizados pelo banco.
 - administrador local não pode alterar estrutura administrativa da UBS nem editar perfis administrativos como se fossem ACS.
-- `territory_points` não possui leitura anônima.
+- `profiles` e `territory_points` não possuem leitura anônima.
 - CI impede referências frontend a `service_role`.
 
 ## Supabase Free — limitação conhecida
@@ -242,13 +246,15 @@ Passkeys/WebAuthn não fazem parte do escopo atual.
 
 - validação da arquitetura/módulos;
 - validação do contrato de segurança;
+- validação dos contratos de produção/layout;
+- matriz de permissões do frontend;
 - consistência dos modelos de carteirinha, indicadores e educação;
 - presença das migrations críticas;
 - ausência de scripts legados;
 - ausência de service role no frontend;
 - requisitos estruturais de acessibilidade e impressão.
 
-O workflow também testa com a publishable key que o catálogo público é acessível e que `territory_points` não fica exposto anonimamente.
+O workflow também testa com a publishable key que o catálogo público é acessível e que `profiles` e `territory_points` rejeitam acesso anônimo com status de autorização esperado.
 
 ## Critério antes do redesign
 
