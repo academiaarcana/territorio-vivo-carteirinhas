@@ -39,7 +39,8 @@ export function setSelectError(select, label = 'Não foi possível carregar') {
 
 export function canSubmitForm(form, button) {
   if (!form || !button || button.disabled) return false;
-  const blockedCatalog = form.querySelector('select[data-load-state="loading"], select[data-load-state="error"]');
+  const blockedCatalog = [...form.querySelectorAll('select[data-load-state="loading"], select[data-load-state="error"]')]
+    .some((select) => select.required);
   if (blockedCatalog) return false;
   return form.reportValidity();
 }
