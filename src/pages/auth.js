@@ -9,6 +9,20 @@ const PASSWORD_MIN_LENGTH = 10;
 const PASSWORD_SYMBOLS = "!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~";
 const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres, com letra minúscula, letra maiúscula, número e símbolo.`;
 
+function passwordGuidance(id) {
+  return `<aside id="${id}" class="clinical-disclaimer password-guidance" aria-label="Requisitos da senha">
+    <strong>Antes de criar a senha</strong>
+    <p>A senha precisa ter todos estes requisitos:</p>
+    <ul>
+      <li>${PASSWORD_MIN_LENGTH} ou mais caracteres;</li>
+      <li>uma letra minúscula e uma letra maiúscula;</li>
+      <li>um número;</li>
+      <li>um símbolo, como !, @, # ou $.</li>
+    </ul>
+    <small>Esses requisitos protegem sua conta e são necessários para concluir o cadastro.</small>
+  </aside>`;
+}
+
 function authFrame(title, intro, body) {
   return `<main class="auth-page"><section class="auth-panel"><a href="#/" class="brand"><span class="brand-mark" aria-hidden="true">TV</span><span><strong>Território Vivo</strong><small>Atenção Primária</small></span></a><header><h1>${escapeHtml(title)}</h1><p>${escapeHtml(intro)}</p></header>${body}<button type="button" class="link-button" data-home>← Voltar para a apresentação</button></section></main>`;
 }
@@ -89,9 +103,9 @@ export function renderSignupPage() {
       <label id="custom-team-wrap" hidden>Nome da equipe para confirmação<input name="teamName" maxlength="120" placeholder="Ex.: Equipe 03 ou eSF Rural"></label>
       <label>Microárea<input name="microarea" id="signup-microarea" maxlength="40" placeholder="Ex.: 08" required></label>
       <p id="master-hint" class="field-hint">Município, unidade e microárea são obrigatórios para contas profissionais comuns.</p>
-      <label>Senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="password-help" required></label>
-      <p id="password-help" class="field-hint">${PASSWORD_REQUIREMENT} Evite reutilizar senha de outros serviços.</p>
-      <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" required></label>
+      ${passwordGuidance('signup-password-help')}
+      <label>Senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="signup-password-help" required></label>
+      <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="signup-password-help" required></label>
       <button class="button primary" type="submit" data-default-label="Criar conta">Criar conta</button>
       <p id="auth-status" class="form-status" aria-live="polite"></p>
     </form>
@@ -254,9 +268,9 @@ export async function mountSignupPage({ root }) {
 export function renderRecoveryPage() {
   return authFrame('Definir nova senha', 'Escolha uma nova senha para sua conta profissional.', `
     <form id="recovery-form" class="stack-form">
-      <label>Nova senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" required></label>
-      <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" required></label>
-      <p class="field-hint">${PASSWORD_REQUIREMENT}</p>
+      ${passwordGuidance('recovery-password-help')}
+      <label>Nova senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="recovery-password-help" required></label>
+      <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="recovery-password-help" required></label>
       <button class="button primary" type="submit" data-default-label="Salvar nova senha">Salvar nova senha</button>
       <p id="auth-status" class="form-status" aria-live="polite"></p>
     </form>`);
