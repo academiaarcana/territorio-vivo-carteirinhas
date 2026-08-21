@@ -1,18 +1,18 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
-import { isUnitAdmin, roleLabel } from '../core/permissions.js';
+import { isMaster, roleLabel } from '../core/permissions.js';
 import { listMunicipalities, listUnits, listTeams, updateProfile, buildContext } from '../services/repository.js';
 import { setState } from '../core/store.js';
 
 export function renderProfilePage({ state }) {
   const p = state.profile || {};
-  const lockedUnit = isUnitAdmin(p);
+  const lockedNetwork = !isMaster(p);
   const content = `
     <section class="panel"><p class="eyebrow">Perfil reutilizável</p><h2>Meu perfil e meu território</h2><p>Estes dados são salvos no Supabase e reaproveitados nos módulos. Informações de famílias não entram aqui.</p>
-      <div class="role-notice"><strong>${escapeHtml(roleLabel(p))}</strong>${lockedUnit ? '<span>Como administrador da UBS, seu vínculo de unidade só pode ser alterado pelo master municipal.</span>' : ''}</div>
+      <div class="role-notice"><strong>${escapeHtml(roleLabel(p))}</strong>${lockedNetwork ? '<span>Seu vínculo com município, UBS e equipe foi validado pela gestão. Para mudar de equipe ou unidade, solicite a atualização à administração.</span>' : '<span>Como master, você pode ajustar seu próprio contexto institucional.</span>'}</div>
       <form id="profile-form" class="profile-sections">
         <fieldset><legend>Profissional</legend><div class="form-grid"><label>Nome completo<input name="full_name" value="${escapeHtml(p.full_name || '')}" required maxlength="160"></label><label>Microárea<input name="microarea" value="${escapeHtml(p.microarea || '')}" maxlength="40" placeholder="Ex.: 08"></label><label>Telefone / contato institucional<input name="acs_phone" value="${escapeHtml(p.acs_phone || '')}" maxlength="80"></label></div></fieldset>
-        <fieldset><legend>Território</legend><div class="form-grid"><label>Município<select name="municipality_code" id="profile-municipality" ${lockedUnit ? 'disabled aria-disabled="true"' : ''}></select></label><label>Unidade<select name="unit_cnes" id="profile-unit" ${lockedUnit ? 'disabled aria-disabled="true"' : ''}></select></label><label>Equipe<select name="team_id" id="profile-team"></select></label><label id="profile-custom-team-wrap" hidden>Nome da equipe<input name="team_name_custom" maxlength="120"></label></div><div id="profile-source" class="source-note"></div></fieldset>
+        <fieldset><legend>Território</legend><div class="form-grid"><label>Município<select name="municipality_code" id="profile-municipality" ${lockedNetwork ? 'disabled aria-disabled="true"' : ''}></select></label><label>Unidade<select name="unit_cnes" id="profile-unit" ${lockedNetwork ? 'disabled aria-disabled="true"' : ''}></select></label><label>Equipe<select name="team_id" id="profile-team" ${lockedNetwork ? 'disabled aria-disabled="true"' : ''}></select></label><label id="profile-custom-team-wrap" hidden>Nome da equipe<input name="team_name_custom" maxlength="120" ${lockedNetwork ? 'disabled' : ''}></label></div><div id="profile-source" class="source-note"></div></fieldset>
         <fieldset><legend>Dados institucionais usados nas carteirinhas</legend><div class="form-grid"><label>Telefone da unidade<input name="unit_phone" value="${escapeHtml(p.unit_phone || '')}" maxlength="80"></label><label>Horário<input name="unit_hours" value="${escapeHtml(p.unit_hours || '')}" maxlength="160"></label><label class="full">Endereço<input name="unit_address" value="${escapeHtml(p.unit_address || '')}" maxlength="240"></label></div></fieldset>
         <fieldset><legend>Profissionais de referência</legend><div class="form-grid"><label>Médica(o)<input name="doctor_name" value="${escapeHtml(p.doctor_name || '')}" maxlength="160"></label><label>Enfermeira(o)<input name="nurse_name" value="${escapeHtml(p.nurse_name || '')}" maxlength="160"></label><label>Técnica(o) de enfermagem<input name="tech_name" value="${escapeHtml(p.tech_name || '')}" maxlength="160"></label></div></fieldset>
         <div class="actions"><button class="button primary" type="submit">Salvar perfil</button><span id="profile-status" class="form-status" aria-live="polite"></span></div>
@@ -23,7 +23,7 @@ export function renderProfilePage({ state }) {
 
 export async function mountProfilePage({ root, state }) {
   mountAppLayout(root);
-  const lockedUnit = isUnitAdmin(state.profile);
+  const lockedNetwork = !isMaster(state.profile);
   const form = root.querySelector('#profile-form');
   const municipality = root.querySelector('#profile-municipality');
   const unit = root.querySelector('#profile-unit');
@@ -42,22 +42,22 @@ export async function mountProfilePage({ root, state }) {
   }
 
   async function loadUnits(reset = true) {
-    const municipalityCode = lockedUnit ? state.profile?.municipality_code : (municipality.value || null);
+    const municipalityCode = lockedNetwork ? state.profile?.municipality_code : (municipality.value || null);
     units = await listUnits({ municipalityCode });
-    if (lockedUnit) units = units.filter((row) => row.cnes === state.profile?.unit_cnes);
+    if (lockedNetwork) units = units.filter((row) => row.cnes === state.profile?.unit_cnes);
     unit.innerHTML = '<option value="">Selecione</option>' + units.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}${row.neighborhood ? ` — ${escapeHtml(row.neighborhood)}` : ''}</option>`).join('');
-    if (!reset || lockedUnit) unit.value = state.profile?.unit_cnes || '';
-    await loadTeams(reset && !lockedUnit);
-    syncUnitFields(reset && !lockedUnit);
+    if (!reset || lockedNetwork) unit.value = state.profile?.unit_cnes || '';
+    await loadTeams(reset && !lockedNetwork);
+    syncUnitFields(reset && !lockedNetwork);
   }
 
   async function loadTeams(reset = true) {
-    const unitCnes = lockedUnit ? state.profile?.unit_cnes : unit.value;
+    const unitCnes = lockedNetwork ? state.profile?.unit_cnes : unit.value;
     teams = unitCnes ? await listTeams({ unitCnes }) : [];
-    team.innerHTML = '<option value="">Equipe ainda não informada</option>' + teams.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + (unitCnes ? '<option value="__other__">Minha equipe não aparece</option>' : '');
-    if ((!reset || lockedUnit) && state.profile?.team_id && teams.some((row) => row.id === state.profile.team_id)) {
+    team.innerHTML = '<option value="">Equipe ainda não informada</option>' + teams.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + (!lockedNetwork && unitCnes ? '<option value="__other__">Minha equipe não aparece</option>' : '');
+    if ((!reset || lockedNetwork) && state.profile?.team_id && teams.some((row) => row.id === state.profile.team_id)) {
       team.value = state.profile.team_id;
-    } else if ((!reset || lockedUnit) && state.profile?.team_name && !state.profile?.team_id) {
+    } else if (!lockedNetwork && !reset && state.profile?.team_name && !state.profile?.team_id) {
       team.value = '__other__';
       customWrap.hidden = false;
       customWrap.querySelector('input').value = state.profile.team_name;
@@ -68,13 +68,13 @@ export async function mountProfilePage({ root, state }) {
   }
 
   function syncUnitFields(overwrite = true) {
-    const selectedCnes = lockedUnit ? state.profile?.unit_cnes : unit.value;
+    const selectedCnes = lockedNetwork ? state.profile?.unit_cnes : unit.value;
     const selected = units.find((row) => row.cnes === selectedCnes);
     if (!selected) {
       source.textContent = '';
       return;
     }
-    source.textContent = `CNES ${selected.cnes} • ${selected.data_status === 'team_confirmed' ? 'confirmado localmente' : selected.data_status === 'needs_review' ? 'dados públicos a confirmar' : 'referência pública'}`;
+    source.textContent = `CNES ${selected.cnes} • ${selected.data_status === 'team_confirmed' ? 'confirmado localmente' : selected.data_status === 'needs_review' ? 'dados públicos a confirmar' : 'referência pública'}${lockedNetwork ? ' • vínculo validado pela gestão' : ''}`;
     if (overwrite) {
       form.elements.unit_phone.value = selected.phone || '';
       form.elements.unit_address.value = [selected.address, selected.neighborhood].filter(Boolean).join(' — ');
@@ -82,18 +82,17 @@ export async function mountProfilePage({ root, state }) {
     }
   }
 
-  if (!lockedUnit) {
+  if (!lockedNetwork) {
     municipality.addEventListener('change', () => loadUnits(true));
     unit.addEventListener('change', async () => {
       await loadTeams(true);
       syncUnitFields(true);
     });
+    team.addEventListener('change', () => {
+      customWrap.hidden = team.value !== '__other__';
+      if (!customWrap.hidden) customWrap.querySelector('input').focus();
+    });
   }
-
-  team.addEventListener('change', () => {
-    customWrap.hidden = team.value !== '__other__';
-    if (!customWrap.hidden) customWrap.querySelector('input').focus();
-  });
 
   try {
     await loadMunicipalities();
@@ -105,13 +104,20 @@ export async function mountProfilePage({ root, state }) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const button = form.querySelector('button[type="submit"]');
+    if (button.disabled) return;
     const values = formToObject(form);
-    const municipalityCode = lockedUnit ? state.profile?.municipality_code : (values.municipality_code || null);
-    const unitCnes = lockedUnit ? state.profile?.unit_cnes : (values.unit_cnes || null);
+    const municipalityCode = lockedNetwork ? state.profile?.municipality_code : (values.municipality_code || null);
+    const unitCnes = lockedNetwork ? state.profile?.unit_cnes : (values.unit_cnes || null);
     const selectedUnit = units.find((row) => row.cnes === unitCnes);
-    const selectedTeam = teams.find((row) => row.id === values.team_id);
-    const teamId = values.team_id && values.team_id !== '__other__' ? values.team_id : null;
-    const teamName = values.team_id === '__other__' ? values.team_name_custom.trim() : (selectedTeam?.name || '');
+    const selectedTeam = lockedNetwork
+      ? teams.find((row) => row.id === state.profile?.team_id)
+      : teams.find((row) => row.id === values.team_id);
+    const teamId = lockedNetwork
+      ? (state.profile?.team_id || null)
+      : (values.team_id && values.team_id !== '__other__' ? values.team_id : null);
+    const teamName = lockedNetwork
+      ? (selectedTeam?.name || state.profile?.team_name || '')
+      : (values.team_id === '__other__' ? values.team_name_custom.trim() : (selectedTeam?.name || ''));
 
     button.disabled = true;
     setStatus(status, 'Salvando…', 'info');
@@ -128,7 +134,7 @@ export async function mountProfilePage({ root, state }) {
       setStatus(status, 'Perfil salvo.', 'success');
     } catch (error) {
       console.error(error);
-      setStatus(status, lockedUnit ? 'Não foi possível salvar. O vínculo de UBS do administrador é protegido pelo sistema.' : 'Não foi possível salvar o perfil.', 'error');
+      setStatus(status, lockedNetwork ? 'Não foi possível salvar. Seu vínculo institucional é protegido e alterações de território são feitas pela gestão.' : 'Não foi possível salvar o perfil.', 'error');
     } finally {
       button.disabled = false;
     }
