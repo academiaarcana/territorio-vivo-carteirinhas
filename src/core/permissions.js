@@ -36,7 +36,7 @@ export function isManagement(profile) {
 
 export function roleLabel(profileOrRole) {
   const role = typeof profileOrRole === 'string' ? profileOrRole : profileOrRole?.role;
-  if (role === ROLES.ADMIN) return 'Master municipal';
+  if (role === ROLES.ADMIN) return 'Conta Master';
   if (role === ROLES.UNIT_ADMIN) return 'Administrador da UBS';
   return 'Profissional / ACS';
 }

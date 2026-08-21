@@ -39,7 +39,7 @@ export function renderTerritoryPage({ state }) {
     <input name="team_id" type="hidden" value="${escapeHtml(profile.team_id || '')}">`;
 
   const content = `
-    <section class="panel"><p class="eyebrow">Meu território</p><h2>${escapeHtml(master ? 'Visão municipal' : own)}</h2><p>Esta área organiza referências territoriais <strong>não pessoais</strong>. Não registre nomes de pacientes, famílias, diagnósticos, condições clínicas ou informações identificáveis.</p></section>
+    <section class="panel"><p class="eyebrow">${master ? 'Rede cadastrada' : 'Meu território'}</p><h2>${escapeHtml(master ? 'Visão geral da rede' : own)}</h2><p>Esta área organiza referências territoriais <strong>não pessoais</strong>. Não registre nomes de pacientes, famílias, diagnósticos, condições clínicas ou informações identificáveis.</p></section>
 
     <section class="two-column wide-left">
       <article class="panel">
