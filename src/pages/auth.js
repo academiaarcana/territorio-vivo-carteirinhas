@@ -25,14 +25,24 @@ export function renderLoginPage() {
 export function mountLoginPage({ root }) {
   bindCommon(root);
   root.querySelector('[data-signup]')?.addEventListener('click', () => navigate('/criar-conta'));
+  const form = root.querySelector('#login-form');
   const status = root.querySelector('#auth-status');
   const forgot = root.querySelector('[data-forgot]');
+  const submit = form.querySelector('[type="submit"]');
+  let actionInFlight = false;
+
+  function setLoginActionsBusy(actor, busy, label = '') {
+    if (busy) form.setAttribute('aria-busy', 'true');
+    else form.removeAttribute('aria-busy');
+    [submit, forgot].forEach((button) => setButtonBusy(button, busy, button === actor ? label : ''));
+  }
 
   forgot?.addEventListener('click', async () => {
-    if (forgot.disabled) return;
+    if (forgot.disabled || actionInFlight) return;
     const email = root.querySelector('[name="email"]').value.trim();
     if (!email) return setStatus(status, 'Digite seu e-mail primeiro.', 'error');
-    setButtonBusy(forgot, true, 'Enviando…');
+    actionInFlight = true;
+    setLoginActionsBusy(forgot, true, 'Enviando…');
     setStatus(status, 'Enviando link…', 'info');
     try {
       await sendPasswordReset(email);
@@ -41,17 +51,17 @@ export function mountLoginPage({ root }) {
       console.error(error);
       setStatus(status, authErrorMessage(error, 'reset'), 'error');
     } finally {
-      setButtonBusy(forgot, false);
+      actionInFlight = false;
+      setLoginActionsBusy(forgot, false);
     }
   });
 
-  const form = root.querySelector('#login-form');
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const button = form.querySelector('[type="submit"]');
-    if (!canSubmitForm(form, button)) return;
+    if (actionInFlight || !canSubmitForm(form, submit)) return;
     const { email, password } = formToObject(form);
-    setButtonBusy(button, true, 'Entrando…');
+    actionInFlight = true;
+    setLoginActionsBusy(submit, true, 'Entrando…');
     setStatus(status, 'Validando sua conta…', 'info');
     try {
       await signIn(email, password);
@@ -60,7 +70,8 @@ export function mountLoginPage({ root }) {
       console.error(error);
       setStatus(status, authErrorMessage(error, 'login'), 'error');
     } finally {
-      setButtonBusy(button, false);
+      actionInFlight = false;
+      setLoginActionsBusy(submit, false);
     }
   });
 }
