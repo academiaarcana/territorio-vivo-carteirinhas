@@ -1,5 +1,6 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
+import { canSubmitForm, setButtonBusy } from '../lib/forms.js';
 import { isMaster, roleLabel } from '../core/permissions.js';
 import { listMunicipalities, listUnits, listTeams, updateProfile, buildContext } from '../services/repository.js';
 import { setState } from '../core/store.js';
@@ -35,10 +36,15 @@ export async function mountProfilePage({ root, state }) {
   let teams = [];
 
   async function loadMunicipalities() {
-    const rows = await listMunicipalities();
-    municipality.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.code)}">${escapeHtml(row.name)} — ${escapeHtml(row.state_code)}</option>`).join('');
-    municipality.value = state.profile?.municipality_code || '';
-    await loadUnits(false);
+    form.setAttribute('aria-busy', 'true');
+    try {
+      const rows = await listMunicipalities();
+      municipality.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.code)}">${escapeHtml(row.name)} — ${escapeHtml(row.state_code)}</option>`).join('');
+      municipality.value = state.profile?.municipality_code || '';
+      await loadUnits(false);
+    } finally {
+      form.removeAttribute('aria-busy');
+    }
   }
 
   async function loadUnits(reset = true) {
@@ -78,8 +84,19 @@ export async function mountProfilePage({ root, state }) {
   }
 
   if (!scopeLocked) {
-    municipality.addEventListener('change', () => loadUnits(true));
-    unit.addEventListener('change', async () => { await loadTeams(true); syncUnitFields(true); });
+    municipality.addEventListener('change', () => loadUnits(true).catch((error) => {
+      console.error(error);
+      setStatus(status, 'Não foi possível carregar as unidades.', 'error');
+    }));
+    unit.addEventListener('change', async () => {
+      try {
+        await loadTeams(true);
+        syncUnitFields(true);
+      } catch (error) {
+        console.error(error);
+        setStatus(status, 'Não foi possível carregar as equipes.', 'error');
+      }
+    });
     team.addEventListener('change', () => {
       customWrap.hidden = team.value !== '__other__';
       if (!customWrap.hidden) customWrap.querySelector('input').focus();
@@ -92,7 +109,7 @@ export async function mountProfilePage({ root, state }) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const button = form.querySelector('button[type="submit"]');
-    if (button.disabled) return;
+    if (!canSubmitForm(form, button)) return;
     const values = formToObject(form);
     const municipalityCode = scopeLocked ? state.profile?.municipality_code : (values.municipality_code || null);
     const unitCnes = scopeLocked ? state.profile?.unit_cnes : (values.unit_cnes || null);
@@ -102,7 +119,7 @@ export async function mountProfilePage({ root, state }) {
     const teamId = scopeLocked ? (state.profile?.team_id || null) : (values.team_id && values.team_id !== '__other__' ? values.team_id : null);
     const teamName = scopeLocked ? (selectedTeam?.name || state.profile?.team_name || '') : (values.team_id === '__other__' ? (values.team_name_custom || '').trim() : (selectedTeam?.name || ''));
 
-    button.disabled = true;
+    setButtonBusy(button, true, 'Salvando…');
     setStatus(status, 'Salvando…', 'info');
     try {
       const profile = await updateProfile(state.user.id, {
@@ -118,6 +135,8 @@ export async function mountProfilePage({ root, state }) {
     } catch (error) {
       console.error(error);
       setStatus(status, scopeLocked ? 'Não foi possível salvar. Seu vínculo territorial aprovado é protegido pelo sistema.' : 'Não foi possível salvar o perfil.', 'error');
-    } finally { button.disabled = false; }
+    } finally {
+      setButtonBusy(button, false);
+    }
   });
 }
