@@ -4,7 +4,7 @@
 
 Registrar a relação entre o histórico executado no projeto Supabase e os arquivos SQL mantidos na branch V2.
 
-O estado de schema está reconciliado. O histórico de execução do Supabase contém **22 entradas**, enquanto a numeração V2 possui **20 arquivos principais**, porque duas correções de segurança foram executadas como hotfixes antes da consolidação da arquitetura V2.
+O estado de schema está reconciliado. O histórico de execução do Supabase possui duas entradas históricas adicionais em relação à numeração V2 porque duas correções de segurança foram executadas como hotfixes antes da consolidação da arquitetura atual.
 
 ## Hotfixes históricos sem arquivo numerado próprio
 
@@ -46,6 +46,7 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `018_canonicalize_profile_network_labels.sql` | `canonicalize_profile_network_labels` |
 | `019_restrict_unit_admin_profile_updates_to_acs.sql` | `restrict_unit_admin_profile_updates_to_acs` |
 | `020_protect_approved_profile_microarea_scope.sql` | `protect_approved_profile_microarea_scope` |
+| `021_least_privilege_unit_admin_visibility.sql` | `least_privilege_unit_admin_visibility` |
 
 ## Regra para novas alterações
 
@@ -59,4 +60,4 @@ A partir da V2, toda mudança DDL deve seguir o mesmo fluxo:
 
 ## Critério de drift
 
-Consideramos drift quando o **estado efetivo** do schema, funções, triggers, constraints ou RLS do Supabase difere do que a sequência versionada pretende produzir. Diferença de quantidade no histórico causada pelos dois hotfixes acima, já documentados e superseded por definições posteriores, não é tratada como drift de schema.
+Consideramos drift quando o **estado efetivo** do schema, funções, triggers, constraints ou RLS do Supabase difere do que a sequência versionada pretende produzir. Diferença de quantidade no histórico causada pelos dois hotfixes acima, já documentados e substituídos por definições posteriores, não é tratada como drift de schema.
