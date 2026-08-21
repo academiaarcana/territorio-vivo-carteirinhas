@@ -81,19 +81,25 @@ if (!authPage.includes('setBusy')) errors.push('Formulários de autenticação p
 if (!authPage.includes('aguarda aprovação') && !authPage.includes('aguardando aprovação')) errors.push('Cadastro precisa informar a etapa de aprovação profissional.');
 if (authPage.includes("row.code === '110018'") || authPage.includes("municipality.value = '110018'")) errors.push('Cadastro não pode fixar o município inicial por código IBGE.');
 if (!authPage.includes('rows.length === 1')) errors.push('Autocadastro deve pré-selecionar município apenas quando o catálogo tiver uma única opção.');
+if (authPage.includes('Este e-mail já possui uma conta')) errors.push('Cadastro não deve confirmar explicitamente que um e-mail já existe.');
 
 const repository = read('src/services/repository.js');
 if (!repository.includes('normalizeCoordinates')) errors.push('Persistência territorial precisa validar coordenadas antes de enviar ao banco.');
 if (!repository.includes("'Latitude', -90, 90")) errors.push('Latitude precisa ser validada entre -90 e 90.');
 if (!repository.includes("'Longitude', -180, 180")) errors.push('Longitude precisa ser validada entre -180 e 180.');
 if (!repository.includes('Informe latitude e longitude juntas')) errors.push('Coordenadas precisam ser fornecidas em par.');
+if (repository.includes("state: payload.state?.trim() || 'RO'")) errors.push('Criação de unidade não pode usar UF fixa como fallback.');
+if (repository.includes('municipality: payload.municipality')) errors.push('Rótulo textual do município da unidade deve ser derivado pelo banco, não pelo cliente.');
 
 const migrationHistory = read('docs/MIGRATION_HISTORY.md');
 if (!migrationHistory.includes('harden_profile_functions')) errors.push('Histórico precisa registrar o hotfix harden_profile_functions.');
 if (!migrationHistory.includes('restrict_master_role_trigger_search_path')) errors.push('Histórico precisa registrar o hotfix de search_path do master.');
-for (const migration of ['020_protect_approved_profile_microarea_scope.sql','023_database_input_bounds.sql','024_least_privilege_table_grants.sql']) {
+for (const migration of ['020_protect_approved_profile_microarea_scope.sql','023_database_input_bounds.sql','024_least_privilege_table_grants.sql','025_canonicalize_health_unit_municipality.sql']) {
   if (!migrationHistory.includes(migration)) errors.push(`Histórico precisa incluir ${migration}.`);
 }
+
+const publicPage = read('src/pages/public.js');
+if (!publicPage.includes('skip-link') || !publicPage.includes('id="public-main"')) errors.push('Página pública precisa de skip link para o conteúdo principal.');
 
 const dialogContracts = [
   ['src/pages/cards.js','card-editor','card-editor-title'],
