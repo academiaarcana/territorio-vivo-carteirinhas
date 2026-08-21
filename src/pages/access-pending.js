@@ -55,10 +55,25 @@ export function renderAccessPendingPage({ state }) {
 
 export async function mountAccessPendingPage({ root, state }) {
   const status = root.querySelector('#pending-status');
+  const actionRegion = root.querySelector('.access-gate');
+  let actionInFlight = false;
+
+  function setPendingActionsBusy(actor, busy, label = '') {
+    const buttons = [...root.querySelectorAll('#check-access, #pending-signout, #pending-profile-form button[type="submit"]')];
+    if (busy) {
+      actionRegion?.setAttribute('aria-busy', 'true');
+      buttons.forEach((button) => setButtonBusy(button, true, button === actor ? label : ''));
+      return;
+    }
+    buttons.forEach((button) => setButtonBusy(button, false));
+    actionRegion?.removeAttribute('aria-busy');
+  }
+
   root.querySelector('#pending-signout')?.addEventListener('click', async (event) => {
     const button = event.currentTarget;
-    if (button.disabled) return;
-    setButtonBusy(button, true, 'Saindo…');
+    if (button.disabled || actionInFlight) return;
+    actionInFlight = true;
+    setPendingActionsBusy(button, true, 'Saindo…');
     try {
       await signOut();
       await navigate('/');
@@ -66,14 +81,16 @@ export async function mountAccessPendingPage({ root, state }) {
       console.error(error);
       setStatus(status, 'Não foi possível sair agora. Tente novamente.', 'error');
     } finally {
-      setButtonBusy(button, false);
+      actionInFlight = false;
+      setPendingActionsBusy(button, false);
     }
   });
 
   root.querySelector('#check-access')?.addEventListener('click', async (event) => {
     const button = event.currentTarget;
-    if (button.disabled) return;
-    setButtonBusy(button, true, 'Verificando…');
+    if (button.disabled || actionInFlight) return;
+    actionInFlight = true;
+    setPendingActionsBusy(button, true, 'Verificando…');
     setStatus(status, 'Verificando…', 'info');
     try {
       const profile = await getProfile(state.user.id);
@@ -89,7 +106,8 @@ export async function mountAccessPendingPage({ root, state }) {
       console.error(error);
       setStatus(status, 'Não foi possível verificar o acesso agora.', 'error');
     } finally {
-      setButtonBusy(button, false);
+      actionInFlight = false;
+      setPendingActionsBusy(button, false);
     }
   });
 
@@ -206,7 +224,7 @@ export async function mountAccessPendingPage({ root, state }) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const button = form.querySelector('[type="submit"]');
-    if (!canSubmitForm(form, button)) {
+    if (actionInFlight || !canSubmitForm(form, button)) {
       if (form.querySelector('select[required][data-load-state="error"]')) setStatus(status, 'O catálogo territorial não carregou corretamente. Tente novamente antes de salvar.', 'error');
       return;
     }
@@ -217,7 +235,8 @@ export async function mountAccessPendingPage({ root, state }) {
     const teamName = values.team_id === '__other__' ? (values.team_name_custom || '').trim() : (selectedTeam?.name || '');
     if (values.team_id === '__other__' && !teamName) return setStatus(status, 'Informe o nome da equipe para confirmação.', 'error');
 
-    setButtonBusy(button, true, 'Salvando…');
+    actionInFlight = true;
+    setPendingActionsBusy(button, true, 'Salvando…');
     setStatus(status, 'Salvando solicitação…', 'info');
     try {
       const profile = await updateProfile(state.user.id, {
@@ -232,7 +251,8 @@ export async function mountAccessPendingPage({ root, state }) {
       console.error(error);
       setStatus(status, 'Não foi possível salvar a solicitação.', 'error');
     } finally {
-      setButtonBusy(button, false);
+      actionInFlight = false;
+      setPendingActionsBusy(button, false);
     }
   });
 }
