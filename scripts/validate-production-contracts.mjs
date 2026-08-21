@@ -57,6 +57,10 @@ expect(router, "heading.setAttribute('tabindex', '-1')", 'Título focado após n
 expect(router, 'heading.focus({ preventScroll: true })', 'Foco pós-navegação não deve reposicionar a página depois do scroll controlado.');
 expect(router, "window.scrollTo({ top: 0, behavior: 'auto' })", 'Navegação SPA precisa retornar ao topo sem animação forçada.');
 
+const pagesWorkflow = read('.github/workflows/pages.yml');
+expect(pagesWorkflow, 'branches: ["main"]', 'GitHub Pages deve publicar por push somente a partir da main.');
+expect(pagesWorkflow, "if: github.ref == 'refs/heads/main'", 'Mesmo workflow_dispatch não pode publicar uma branch diferente da main.');
+
 const admin = read('src/pages/admin.js');
 expect(admin, 'submitDialogForm', 'Gestão precisa centralizar busy state de formulários administrativos.');
 expect(admin, 'refreshAfterMutation', 'Gestão não pode anunciar sucesso se o reload pós-mutation falhar silenciosamente.');
@@ -109,4 +113,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contratos de produção OK: recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos, busy states, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
+console.log('Contratos de produção OK: Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos, busy states, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
