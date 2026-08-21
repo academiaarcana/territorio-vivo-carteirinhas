@@ -50,6 +50,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
 
 export function mountAppLayout(root) {
   root.querySelectorAll('[data-nav]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.nav)));
+  bindTabKeyboard(root);
   root.querySelector('[data-signout]')?.addEventListener('click', async () => {
     const button = root.querySelector('[data-signout]');
     button.disabled = true;
@@ -59,5 +60,26 @@ export function mountAppLayout(root) {
     } finally {
       button.disabled = false;
     }
+  });
+}
+
+function bindTabKeyboard(root) {
+  root.querySelectorAll('[role="tablist"]').forEach((tablist) => {
+    const tabs = [...tablist.querySelectorAll('[role="tab"]:not([disabled])')];
+    if (!tabs.length) return;
+    tabs.forEach((tab) => tab.setAttribute('tabindex', tab.getAttribute('aria-selected') === 'true' ? '0' : '-1'));
+    tablist.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      const current = tabs.indexOf(document.activeElement);
+      if (current < 0) return;
+      event.preventDefault();
+      let next = current;
+      if (event.key === 'ArrowRight') next = (current + 1) % tabs.length;
+      if (event.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = tabs.length - 1;
+      tabs[next].focus();
+      tabs[next].click();
+    });
   });
 }
