@@ -101,7 +101,7 @@ if (!adminPage.includes('await createUnit(values)')) errors.push('Cadastro de UB
 const migrationHistory = read('docs/MIGRATION_HISTORY.md');
 if (!migrationHistory.includes('harden_profile_functions')) errors.push('Histórico precisa registrar o hotfix harden_profile_functions.');
 if (!migrationHistory.includes('restrict_master_role_trigger_search_path')) errors.push('Histórico precisa registrar o hotfix de search_path do master.');
-for (const migration of ['020_protect_approved_profile_microarea_scope.sql','023_database_input_bounds.sql','024_least_privilege_table_grants.sql','025_canonicalize_health_unit_municipality.sql','026_protect_health_unit_identity.sql']) {
+for (const migration of ['020_protect_approved_profile_microarea_scope.sql','023_database_input_bounds.sql','024_least_privilege_table_grants.sql','025_canonicalize_health_unit_municipality.sql','026_protect_health_unit_identity.sql','027_restrict_territory_point_kinds.sql']) {
   if (!migrationHistory.includes(migration)) errors.push(`Histórico precisa incluir ${migration}.`);
 }
 
