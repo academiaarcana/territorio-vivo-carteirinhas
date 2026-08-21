@@ -22,7 +22,8 @@ const mustExist = [
   'supabase/migrations/020_protect_approved_profile_microarea_scope.sql',
   'supabase/migrations/021_least_privilege_unit_admin_visibility.sql',
   'supabase/migrations/022_enforce_profile_access_on_insert.sql',
-  'supabase/migrations/023_database_input_bounds.sql'
+  'supabase/migrations/023_database_input_bounds.sql',
+  'supabase/migrations/024_least_privilege_table_grants.sql'
 ];
 
 for (const file of mustExist) {
@@ -113,6 +114,14 @@ expect(migration23, 'teams_text_lengths_check', 'equipes precisam de limites de 
 expect(migration23, 'territory_points_text_lengths_check', 'pontos territoriais precisam de limites de texto no banco');
 expect(migration23, 'territory_points_coordinate_pair_check', 'latitude e longitude precisam ser exigidas em par também no banco');
 
+const migration24 = read('supabase/migrations/024_least_privilege_table_grants.sql');
+expect(migration24, 'revoke all privileges on table public.profiles from anon', 'perfil não deve conceder privilégio de tabela ao papel anônimo');
+expect(migration24, 'grant select on table public.municipalities to anon', 'catálogo de municípios precisa continuar público somente para leitura');
+expect(migration24, 'grant select on table public.health_units to anon', 'catálogo de unidades precisa continuar público somente para leitura');
+expect(migration24, 'grant select on table public.teams to anon', 'catálogo de equipes precisa continuar público somente para leitura');
+expect(migration24, 'grant select, insert, update on table public.profiles to authenticated', 'clientes autenticados não precisam de DELETE direto em profiles');
+expect(migration24, 'grant select, insert, update, delete on table public.territory_points to authenticated', 'CRUD territorial autenticado precisa permanecer disponível e filtrado por RLS');
+
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
 const config = read('config.js');
@@ -155,7 +164,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, grants mínimos, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
