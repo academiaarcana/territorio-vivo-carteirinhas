@@ -20,6 +20,5 @@ export const supabase = window.supabase.createClient(
 );
 
 export const appConfig = Object.freeze({
-  publicUrl: config.publicUrl || `${location.origin}${location.pathname}`,
-  masterEmail: config.masterEmail || 'macedotaynara@outlook.com'
+  publicUrl: config.publicUrl || `${location.origin}${location.pathname}`
 });

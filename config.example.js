@@ -3,6 +3,5 @@
 window.TERRITORIO_VIVO_CONFIG = Object.freeze({
   supabaseUrl: 'https://SEU-PROJETO.supabase.co',
   supabasePublishableKey: 'sb_publishable_SUBSTITUA_AQUI',
-  publicUrl: 'https://SEU-USUARIO.github.io/SEU-REPOSITORIO/',
-  masterEmail: 'admin@exemplo.com'
+  publicUrl: 'https://SEU-USUARIO.github.io/SEU-REPOSITORIO/'
 });

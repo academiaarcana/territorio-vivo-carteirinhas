@@ -1,5 +1,5 @@
 import { getState } from './store.js';
-import { isActiveProfile, isManagement, isMaster } from './permissions.js';
+import { CAPABILITIES, hasCapability } from './access-control.js';
 import { hydrateSession } from './session.js';
 
 const routes = new Map();
@@ -47,7 +47,7 @@ export async function renderCurrentRoute() {
   if (route.auth && !state.session) return navigate('/entrar', { replace: true });
   if (route.guestOnly && state.session) return navigate('/app/inicio', { replace: true });
 
-  if ((route.active || route.management || route.master || route.accessGate) && state.session) {
+  if ((route.capability || route.accessGate) && state.session) {
     try {
       await hydrateSession(state.session);
       state = getState();
@@ -59,10 +59,11 @@ export async function renderCurrentRoute() {
     }
   }
 
-  if (route.accessGate && isActiveProfile(state.profile)) return navigate('/app/inicio', { replace: true });
-  if (route.active && !isActiveProfile(state.profile)) return navigate('/app/aguardando', { replace: true });
-  if (route.management && !isManagement(state.profile)) return navigate('/app/inicio', { replace: true });
-  if (route.master && !isMaster(state.profile)) return navigate('/app/inicio', { replace: true });
+  if (route.accessGate && hasCapability(state.profile, CAPABILITIES.ACCESS_INTERNAL)) return navigate('/app/inicio', { replace: true });
+  if (route.capability && !hasCapability(state.profile, route.capability)) {
+    const fallback = hasCapability(state.profile, CAPABILITIES.ACCESS_INTERNAL) ? '/app/inicio' : '/app/aguardando';
+    return navigate(fallback, { replace: true });
+  }
 
   root.dataset.route = path;
   root.innerHTML = await route.render({ path, state });

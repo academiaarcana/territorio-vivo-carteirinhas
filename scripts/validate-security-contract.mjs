@@ -6,6 +6,7 @@ const root = process.cwd();
 const errors = [];
 
 const mustExist = [
+  'src/core/access-control.js',
   'src/core/permissions.js',
   'src/services/access.js',
   'src/pages/access-pending.js',
@@ -33,18 +34,26 @@ for (const file of mustExist) {
   if (!fs.existsSync(path.join(root, file))) errors.push(`Contrato ausente: ${file}`);
 }
 
+const accessControl = read('src/core/access-control.js');
+expect(accessControl, "UNIT_ADMIN: 'unit_admin'", 'matriz central precisa conhecer unit_admin');
+expect(accessControl, "PENDING: 'pending'", 'matriz central precisa conhecer conta pendente');
+expect(accessControl, "DENIED: 'denied'", 'combinações inválidas precisam falhar fechadas');
+expect(accessControl, 'CAPABILITY_MATRIX', 'capacidades precisam estar em uma matriz central');
+expect(accessControl, "kind: 'network'", 'escopo master precisa representar toda a rede');
+
 const permissions = read('src/core/permissions.js');
-expect(permissions, "UNIT_ADMIN: 'unit_admin'", 'frontend precisa conhecer unit_admin');
-expect(permissions, "PENDING: 'pending'", 'frontend precisa conhecer conta pendente');
 expect(permissions, 'isActiveProfile', 'frontend precisa centralizar perfil ativo');
 expect(permissions, 'isManagement', 'frontend precisa centralizar acesso de gestão');
 expect(permissions, 'canManageTerritoryPoint', 'frontend precisa centralizar gestão territorial');
 expect(permissions, 'canChangeAccessStatus', 'frontend precisa centralizar aprovação de acessos');
 
 const main = read('src/main.js');
-expect(main, 'management: true', 'rota de gestão deve exigir nível de gestão');
-expect(main, 'active: true', 'rotas internas devem exigir perfil aprovado');
+expect(main, 'capability: CAPABILITIES.MANAGE_UNIT', 'rota de gestão deve exigir capacidade de gestão');
+expect(main, 'capability: CAPABILITIES.ACCESS_INTERNAL', 'rotas internas devem exigir capacidade aprovada');
 expect(main, "'/app/aguardando'", 'perfil não aprovado precisa de rota segura de espera');
+
+const frontendAuthority = [read('config.js'), read('config.example.js'), read('src/services/supabase.js'), read('src/pages/auth.js')].join('\n');
+if (frontendAuthority.includes('masterEmail') || frontendAuthority.includes('syncMaster')) errors.push('Frontend não pode determinar a Conta Master por e-mail.');
 
 const migration10 = read('supabase/migrations/010_territory_points.sql');
 expect(migration10, 'new.created_by := auth.uid()', 'autoria territorial precisa ser definida pelo banco no insert');

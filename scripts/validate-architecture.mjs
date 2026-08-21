@@ -7,12 +7,12 @@ const src = path.join(root, 'src');
 const errors = [];
 
 const required = [
-  'index.html','config.js','package.json','docs/MIGRATION_HISTORY.md',
-  'src/main.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js','src/core/a11y.js',
+  'index.html','config.js','package.json','docs/MIGRATION_HISTORY.md','docs/CONTROLE_DE_ACESSO.md',
+  'src/main.js','src/core/access-control.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js','src/core/a11y.js',
   'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/services/access.js','src/data/cards.js','src/data/education.js','src/data/indicators.js',
   'src/pages/public.js','src/pages/auth.js','src/pages/access-pending.js','src/pages/access-management.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
   'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/lib/forms.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css',
-  'scripts/validate-security-contract.mjs','scripts/test-permissions.mjs'
+  'scripts/validate-security-contract.mjs','scripts/test-access-control-contract.mjs','scripts/test-permissions.mjs'
 ];
 
 for (const file of required) {
@@ -49,8 +49,9 @@ const main = read('src/main.js');
 if (!main.includes("'/app/aguardando'")) errors.push('Aplicação precisa ter rota para cadastro aguardando aprovação.');
 if (!main.includes("'/app/aprovacoes'")) errors.push('Aplicação precisa ter rota de gestão de aprovações.');
 if (!main.includes('installGlobalA11y()')) errors.push('Aplicação precisa instalar o controlador global de acessibilidade.');
-const activeRouteCount = [...main.matchAll(/active:\s*true/g)].length;
-if (activeRouteCount < 8) errors.push('Rotas internas precisam exigir perfil ativo por padrão.');
+const capabilityRouteCount = [...main.matchAll(/capability:\s*CAPABILITIES\./g)].length;
+if (capabilityRouteCount < 9) errors.push('Rotas internas precisam declarar capacidade explícita.');
+if (!main.includes("from './core/access-control.js'")) errors.push('Registro de rotas precisa usar a matriz central de capacidades.');
 
 const a11y = read('src/core/a11y.js');
 for (const key of ['ArrowRight','ArrowLeft','ArrowUp','ArrowDown','Home','End']) {
@@ -102,6 +103,7 @@ if (!authPage.includes('aguarda aprovação') && !authPage.includes('aguardando 
 if (authPage.includes("row.code === '110018'") || authPage.includes("municipality.value = '110018'")) errors.push('Cadastro não pode fixar o município inicial por código IBGE.');
 if (!authPage.includes('rows.length === 1')) errors.push('Autocadastro deve pré-selecionar município apenas quando o catálogo tiver uma única opção.');
 if (authPage.includes('Este e-mail já possui uma conta')) errors.push('Cadastro não deve confirmar explicitamente que um e-mail já existe.');
+if (authPage.includes('masterEmail') || authPage.includes('syncMaster')) errors.push('Cadastro público não pode reconhecer a Conta Master pelo e-mail.');
 
 const profilePage = read('src/pages/profile.js');
 if (!profilePage.includes('scopeLocked')) errors.push('Perfil ativo precisa refletir vínculo territorial bloqueado na interface.');

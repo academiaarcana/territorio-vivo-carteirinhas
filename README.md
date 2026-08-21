@@ -23,7 +23,7 @@ scripts/      # validação automatizada
 supabase/     # migrações do banco
 ```
 
-A descrição detalhada está em `docs/ARQUITETURA_V2.md`.
+A descrição detalhada está em `docs/ARQUITETURA_V2.md`. A matriz que determina o nível e as capacidades de cada conta está em `docs/CONTROLE_DE_ACESSO.md`.
 
 ## Hospedagem
 
@@ -69,6 +69,8 @@ Cada profissional cria a própria conta. O backend é a fonte de verdade para pe
 - contas comuns recebem papel `acs`;
 - a conta master definida no banco recebe papel `admin`;
 - o frontend **não permite escolher função**;
+- `role` + `access_status` + vínculo territorial determinam o nível efetivo;
+- combinações inválidas são negadas por padrão;
 - RLS limita perfis comuns ao próprio perfil;
 - ações administrativas dependem de políticas RLS;
 - o campo `role` é protegido por trigger no banco.

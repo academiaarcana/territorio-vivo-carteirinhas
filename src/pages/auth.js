@@ -3,7 +3,6 @@ import { canSubmitForm, setButtonBusy, setSelectError, setSelectLoading, setSele
 import { navigate } from '../core/router.js';
 import { signIn, signUp, signOut, sendPasswordReset, updatePassword } from '../services/auth.js';
 import { listMunicipalities, listUnits, listTeams } from '../services/repository.js';
-import { appConfig } from '../services/supabase.js';
 
 const PASSWORD_MIN_LENGTH = 10;
 const PASSWORD_SYMBOLS = "!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~";
@@ -102,7 +101,7 @@ export function renderSignupPage() {
       <label>Equipe<select name="teamId" id="signup-team"><option value="">Selecione a unidade</option></select></label>
       <label id="custom-team-wrap" hidden>Nome da equipe para confirmação<input name="teamName" maxlength="120" placeholder="Ex.: Equipe 03 ou eSF Rural"></label>
       <label>Microárea<input name="microarea" id="signup-microarea" maxlength="40" placeholder="Ex.: 08" required></label>
-      <p id="master-hint" class="field-hint">Município, unidade e microárea são obrigatórios para contas profissionais comuns.</p>
+      <p class="field-hint">Toda nova conta profissional entra como ACS pendente. A gestão confirma o vínculo e libera o nível correto; o cadastro não permite escolher papel ou se autoaprovar.</p>
       ${passwordGuidance('signup-password-help')}
       <label>Senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="signup-password-help" required></label>
       <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="signup-password-help" required></label>
@@ -121,9 +120,6 @@ export async function mountSignupPage({ root }) {
   const unit = root.querySelector('#signup-unit');
   const team = root.querySelector('#signup-team');
   const customWrap = root.querySelector('#custom-team-wrap');
-  const email = root.querySelector('[name="email"]');
-  const microarea = root.querySelector('#signup-microarea');
-  const hint = root.querySelector('#master-hint');
 
   async function loadMunicipalities() {
     setSelectLoading(municipality, 'Carregando municípios…');
@@ -193,14 +189,6 @@ export async function mountSignupPage({ root }) {
     if (!customWrap.hidden) customWrap.querySelector('input').focus();
   }
 
-  function syncMaster() {
-    const master = email.value.trim().toLowerCase() === appConfig.masterEmail.toLowerCase();
-    municipality.required = !master;
-    unit.required = !master;
-    microarea.required = !master;
-    hint.textContent = master ? 'Conta master: município, unidade, equipe e microárea são opcionais.' : 'Após o cadastro, a gestão da UBS confirmará este vínculo antes de liberar o ambiente interno.';
-  }
-
   municipality.addEventListener('change', () => loadUnits().catch((error) => {
     console.error(error);
     setStatus(status, 'Não foi possível carregar as unidades. Tente selecionar o município novamente.', 'error');
@@ -210,7 +198,6 @@ export async function mountSignupPage({ root }) {
     setStatus(status, 'Não foi possível carregar as equipes. Tente selecionar a unidade novamente.', 'error');
   }));
   team.addEventListener('change', syncCustomTeam);
-  email.addEventListener('input', syncMaster);
 
   try {
     await loadMunicipalities();
@@ -218,8 +205,6 @@ export async function mountSignupPage({ root }) {
     console.error(error);
     setStatus(status, 'Não foi possível carregar o catálogo territorial. Tente novamente mais tarde.', 'error');
   }
-  syncMaster();
-
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const button = form.querySelector('[type="submit"]');
@@ -228,11 +213,10 @@ export async function mountSignupPage({ root }) {
       return;
     }
     const values = formToObject(form);
-    const master = values.email.trim().toLowerCase() === appConfig.masterEmail.toLowerCase();
     const passwordError = validatePassword(values.password);
     if (passwordError) return setStatus(status, passwordError, 'error');
     if (values.password !== values.password2) return setStatus(status, 'As senhas não são iguais.', 'error');
-    if (!master && (!values.municipalityCode || !values.unitCnes || !values.microarea.trim())) return setStatus(status, 'Preencha município, unidade e microárea.', 'error');
+    if (!values.municipalityCode || !values.unitCnes || !values.microarea.trim()) return setStatus(status, 'Preencha município, unidade e microárea.', 'error');
 
     let teamName = '';
     let teamId = values.teamId || null;
@@ -249,12 +233,10 @@ export async function mountSignupPage({ root }) {
     try {
       const data = await signUp({ ...values, teamId, teamName });
       if (data.session) {
-        setStatus(status, master ? 'Conta master criada. Entrando…' : 'Conta criada. Seu vínculo agora aguarda aprovação da gestão.', 'success');
+        setStatus(status, 'Conta criada. Seu vínculo agora aguarda aprovação da gestão.', 'success');
         setTimeout(() => navigate('/app/inicio', { replace: true }), 250);
       } else {
-        setStatus(status, master
-          ? 'Conta criada. Confira seu e-mail para confirmar o cadastro.'
-          : 'Conta criada. Confirme seu e-mail; depois o vínculo profissional ficará aguardando aprovação da gestão.', 'success');
+        setStatus(status, 'Conta criada. Confirme seu e-mail; depois o vínculo profissional ficará aguardando aprovação da gestão.', 'success');
       }
     } catch (error) {
       console.error(error);

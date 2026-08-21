@@ -26,6 +26,7 @@ config.js
 src/
   main.js
   core/
+    access-control.js
     store.js
     router.js
     layout.js
@@ -68,6 +69,7 @@ scripts/
   validate-security-contract.mjs
   validate-production-contracts.mjs
   test-layout-contract.mjs
+  test-access-control-contract.mjs
   test-permissions.mjs
 supabase/migrations/
 ```
@@ -77,9 +79,7 @@ supabase/migrations/
 1. Visitante lê somente o catálogo institucional público permitido por RLS.
 2. Profissional cria conta com nome, e-mail, município, UBS, equipe/microárea e senha.
 3. Supabase Auth confirma a identidade por e-mail conforme a configuração do projeto.
-4. O trigger `handle_new_user()` cria o perfil:
-   - master conhecido → `role=admin`, `access_status=active`;
-   - demais contas → `role=acs`, `access_status=pending`.
+4. O trigger `handle_new_user()` cria todo perfil profissional comum como `role=acs`, `access_status=pending`. A identidade master já provisionada é reconhecida exclusivamente pelo banco e não pelo formulário público.
 5. Perfil pendente entra somente na rota de espera/onboarding e pode revisar o vínculo solicitado.
 6. Administrador da UBS pode aprovar/suspender apenas perfis `acs` da própria unidade.
 7. Master pode administrar o ciclo de acesso dos perfis não-master e definir/revogar `unit_admin`.
@@ -109,11 +109,13 @@ supabase/migrations/
 
 ### `admin`
 
-- master municipal/global;
+- Conta Master global;
 - exige `access_status=active`;
 - administra municípios, unidades, equipes, perfis e papéis permitidos;
 - possui visão global dos achados territoriais não pessoais;
-- o e-mail master é reforçado pelo banco e não depende de valor enviado pelo frontend.
+- a identidade master é reforçada pelo banco e não depende de valor enviado ou comparado pelo frontend.
+
+A matriz completa de níveis, capacidades e fontes de decisão está em `docs/CONTROLE_DE_ACESSO.md`.
 
 ## Estado de acesso
 

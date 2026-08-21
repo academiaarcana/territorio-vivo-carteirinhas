@@ -2,6 +2,7 @@ import { registerRoute, setNotFoundRenderer, startRouter, navigate, currentPath,
 import { setState } from './core/store.js';
 import { hydrateSession, clearSession } from './core/session.js';
 import { installGlobalA11y } from './core/a11y.js';
+import { CAPABILITIES } from './core/access-control.js';
 import { getSession, onAuthChange } from './services/auth.js';
 import { renderPublicPage, mountPublicPage } from './pages/public.js';
 import { renderLoginPage, mountLoginPage, renderSignupPage, mountSignupPage, renderRecoveryPage, mountRecoveryPage } from './pages/auth.js';
@@ -23,15 +24,15 @@ registerRoute('/entrar', { guestOnly: true, render: renderLoginPage, mount: moun
 registerRoute('/criar-conta', { guestOnly: true, render: renderSignupPage, mount: mountSignupPage });
 registerRoute('/recuperar-senha', { auth: true, render: renderRecoveryPage, mount: mountRecoveryPage });
 registerRoute('/app/aguardando', { auth: true, accessGate: true, render: renderAccessPendingPage, mount: mountAccessPendingPage });
-registerRoute('/app/inicio', { auth: true, active: true, render: renderDashboard, mount: mountDashboard });
-registerRoute('/app/territorio', { auth: true, active: true, render: renderTerritoryPage, mount: mountTerritoryPage });
-registerRoute('/app/carteirinhas', { auth: true, active: true, render: renderCardsPage, mount: mountCardsPage });
-registerRoute('/app/5-minutos', { auth: true, active: true, render: renderFivePage, mount: mountFivePage });
-registerRoute('/app/indicadores', { auth: true, active: true, render: renderIndicatorsPage, mount: mountIndicatorsPage });
-registerRoute('/app/educacao', { auth: true, active: true, render: renderEducationPage, mount: mountEducationPage });
-registerRoute('/app/perfil', { auth: true, active: true, render: renderProfilePage, mount: mountProfilePage });
-registerRoute('/app/aprovacoes', { auth: true, active: true, management: true, render: renderAccessManagementPage, mount: mountAccessManagementPage });
-registerRoute('/app/gestao', { auth: true, active: true, management: true, render: renderAdminPage, mount: mountAdminPage });
+registerRoute('/app/inicio', { auth: true, capability: CAPABILITIES.ACCESS_INTERNAL, render: renderDashboard, mount: mountDashboard });
+registerRoute('/app/territorio', { auth: true, capability: CAPABILITIES.READ_UNIT_TERRITORY, render: renderTerritoryPage, mount: mountTerritoryPage });
+registerRoute('/app/carteirinhas', { auth: true, capability: CAPABILITIES.USE_TEMPORARY_TOOLS, render: renderCardsPage, mount: mountCardsPage });
+registerRoute('/app/5-minutos', { auth: true, capability: CAPABILITIES.USE_TEMPORARY_TOOLS, render: renderFivePage, mount: mountFivePage });
+registerRoute('/app/indicadores', { auth: true, capability: CAPABILITIES.USE_TEMPORARY_TOOLS, render: renderIndicatorsPage, mount: mountIndicatorsPage });
+registerRoute('/app/educacao', { auth: true, capability: CAPABILITIES.USE_TEMPORARY_TOOLS, render: renderEducationPage, mount: mountEducationPage });
+registerRoute('/app/perfil', { auth: true, capability: CAPABILITIES.EDIT_OWN_PROFILE_DATA, render: renderProfilePage, mount: mountProfilePage });
+registerRoute('/app/aprovacoes', { auth: true, capability: CAPABILITIES.MANAGE_UNIT_PROFESSIONALS, render: renderAccessManagementPage, mount: mountAccessManagementPage });
+registerRoute('/app/gestao', { auth: true, capability: CAPABILITIES.MANAGE_UNIT, render: renderAdminPage, mount: mountAdminPage });
 setNotFoundRenderer(() => '<main class="standalone"><h1>Página não encontrada</h1><p><a href="#/">Voltar ao início</a></p></main>');
 
 async function bootstrap() {

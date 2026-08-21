@@ -1,37 +1,33 @@
-export const ROLES = Object.freeze({
-  ACS: 'acs',
-  UNIT_ADMIN: 'unit_admin',
-  ADMIN: 'admin'
-});
+import {
+  ACCESS_LEVELS, ACCESS_STATES, ACCOUNT_ROLES, CAPABILITIES,
+  hasCapability, resolveAccessLevel
+} from './access-control.js';
 
-export const ACCESS_STATUS = Object.freeze({
-  PENDING: 'pending',
-  ACTIVE: 'active',
-  SUSPENDED: 'suspended'
-});
+export const ROLES = ACCOUNT_ROLES;
+export const ACCESS_STATUS = ACCESS_STATES;
 
 export function isActiveProfile(profile) {
-  return profile?.access_status === ACCESS_STATUS.ACTIVE;
+  return hasCapability(profile, CAPABILITIES.ACCESS_INTERNAL);
 }
 
 export function isPendingProfile(profile) {
-  return profile?.access_status === ACCESS_STATUS.PENDING;
+  return resolveAccessLevel(profile) === ACCESS_LEVELS.ACS_PENDING;
 }
 
 export function isSuspendedProfile(profile) {
-  return profile?.access_status === ACCESS_STATUS.SUSPENDED;
+  return resolveAccessLevel(profile) === ACCESS_LEVELS.SUSPENDED;
 }
 
 export function isMaster(profile) {
-  return profile?.role === ROLES.ADMIN && isActiveProfile(profile);
+  return resolveAccessLevel(profile) === ACCESS_LEVELS.MASTER_ACTIVE;
 }
 
 export function isUnitAdmin(profile) {
-  return profile?.role === ROLES.UNIT_ADMIN && isActiveProfile(profile);
+  return resolveAccessLevel(profile) === ACCESS_LEVELS.UNIT_ADMIN_ACTIVE;
 }
 
 export function isManagement(profile) {
-  return isMaster(profile) || isUnitAdmin(profile);
+  return hasCapability(profile, CAPABILITIES.MANAGE_UNIT_PROFESSIONALS);
 }
 
 export function roleLabel(profileOrRole) {
@@ -49,28 +45,29 @@ export function accessStatusLabel(profileOrStatus) {
 }
 
 export function canManageUnit(profile, unitCnes) {
-  if (isMaster(profile)) return true;
-  return isUnitAdmin(profile) && Boolean(unitCnes) && profile?.unit_cnes === unitCnes;
+  if (hasCapability(profile, CAPABILITIES.MANAGE_NETWORK)) return true;
+  return hasCapability(profile, CAPABILITIES.MANAGE_UNIT) && Boolean(unitCnes) && profile?.unit_cnes === unitCnes;
 }
 
 export function canManageTerritoryPoint(profile, userId, point) {
-  if (!point || !isActiveProfile(profile)) return false;
-  if (isMaster(profile)) return true;
-  if (isUnitAdmin(profile)) return Boolean(point.unit_cnes) && point.unit_cnes === profile?.unit_cnes;
-  return Boolean(userId)
+  if (!point) return false;
+  if (hasCapability(profile, CAPABILITIES.MANAGE_ALL_TERRITORY)) return true;
+  if (hasCapability(profile, CAPABILITIES.MANAGE_UNIT_TERRITORY)) return Boolean(point.unit_cnes) && point.unit_cnes === profile?.unit_cnes;
+  return hasCapability(profile, CAPABILITIES.UPDATE_OWN_TERRITORY_POINT)
+    && Boolean(userId)
     && point.created_by === userId
     && Boolean(point.unit_cnes)
     && point.unit_cnes === profile?.unit_cnes;
 }
 
 export function canChangeProfileRole(actorProfile, targetProfile) {
-  return isMaster(actorProfile) && targetProfile?.role !== ROLES.ADMIN;
+  return hasCapability(actorProfile, CAPABILITIES.ASSIGN_UNIT_ADMIN) && targetProfile?.role !== ROLES.ADMIN;
 }
 
 export function canChangeAccessStatus(actorProfile, targetProfile) {
   if (!targetProfile || targetProfile.role === ROLES.ADMIN) return false;
-  if (isMaster(actorProfile)) return true;
-  return isUnitAdmin(actorProfile)
+  if (hasCapability(actorProfile, CAPABILITIES.CHANGE_NON_MASTER_ACCESS)) return true;
+  return hasCapability(actorProfile, CAPABILITIES.APPROVE_UNIT_ACS)
     && targetProfile.role === ROLES.ACS
     && targetProfile.unit_cnes
     && targetProfile.unit_cnes === actorProfile.unit_cnes
