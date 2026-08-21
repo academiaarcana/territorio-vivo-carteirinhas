@@ -63,10 +63,17 @@ jobs:
               "${SUPABASE_URL}/rest/v1/${PRIVATE_TABLE}?select=id&limit=1" \
               -H "apikey: ${SUPABASE_KEY}" \
               -H "Authorization: Bearer ${SUPABASE_KEY}")
-            test "${PRIVATE_CODE}" != "200"
+            case "${PRIVATE_CODE}" in
+              401|403) ;;
+              *)
+                echo "${PRIVATE_TABLE} deveria rejeitar acesso anônimo com 401/403, mas respondeu HTTP ${PRIVATE_CODE}."
+                cat "/tmp/${PRIVATE_TABLE}.json" || true
+                exit 1
+                ;;
+            esac
           done
 
-          echo "Catálogo público acessível; profiles e territory_points protegidos de acesso anônimo."
+          echo "Catálogo público acessível; profiles e territory_points rejeitam acesso anônimo com status de autorização esperado."
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
