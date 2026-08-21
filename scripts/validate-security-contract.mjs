@@ -21,7 +21,8 @@ const mustExist = [
   'supabase/migrations/019_restrict_unit_admin_profile_updates_to_acs.sql',
   'supabase/migrations/020_protect_approved_profile_microarea_scope.sql',
   'supabase/migrations/021_least_privilege_unit_admin_visibility.sql',
-  'supabase/migrations/022_enforce_profile_access_on_insert.sql'
+  'supabase/migrations/022_enforce_profile_access_on_insert.sql',
+  'supabase/migrations/023_database_input_bounds.sql'
 ];
 
 for (const file of mustExist) {
@@ -105,6 +106,13 @@ expect(migration22, "new.role := 'admin'", 'conta master precisa permanecer prot
 expect(migration22, "new.access_status := 'active'", 'conta master precisa permanecer ativa');
 expect(migration22, 'revoke execute on function public.enforce_profile_role() from anon, authenticated', 'função de proteção de papel/acesso não deve ser chamada diretamente pelo cliente');
 
+const migration23 = read('supabase/migrations/023_database_input_bounds.sql');
+expect(migration23, 'profiles_text_lengths_check', 'perfis precisam de limites de texto no banco');
+expect(migration23, 'health_units_text_lengths_check', 'unidades precisam de limites de texto no banco');
+expect(migration23, 'teams_text_lengths_check', 'equipes precisam de limites de texto no banco');
+expect(migration23, 'territory_points_text_lengths_check', 'pontos territoriais precisam de limites de texto no banco');
+expect(migration23, 'territory_points_coordinate_pair_check', 'latitude e longitude precisam ser exigidas em par também no banco');
+
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
 const config = read('config.js');
@@ -147,7 +155,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, inserção segura, escopos, autoria, dados temporários e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
