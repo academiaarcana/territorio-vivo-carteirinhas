@@ -163,7 +163,7 @@ export async function createUnit(payload) {
   const clean = {
     cnes: payload.cnes.trim(), name: payload.name.trim(), short_name: payload.short_name?.trim() || payload.name.trim(), unit_type: payload.unit_type || 'ubs',
     address: payload.address?.trim() || '', neighborhood: payload.neighborhood?.trim() || '', phone: payload.phone?.trim() || '', hours: payload.hours?.trim() || '',
-    municipality_code: payload.municipality_code, municipality: payload.municipality?.trim() || '', state: payload.state?.trim() || 'RO',
+    municipality_code: payload.municipality_code,
     source_label: payload.source_label?.trim() || 'Cadastro administrativo', source_url: payload.source_url?.trim() || '',
     source_checked_on: payload.source_checked_on || new Date().toISOString().slice(0, 10), source_note: payload.source_note?.trim() || '',
     data_status: payload.data_status || 'needs_review', is_active: payload.is_active ?? true, display_order: Number(payload.display_order || 100)
