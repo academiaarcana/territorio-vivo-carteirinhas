@@ -9,8 +9,8 @@ const errors = [];
 const required = [
   'index.html','config.js','package.json',
   'src/main.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js',
-  'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/data/cards.js','src/data/education.js','src/data/indicators.js',
-  'src/pages/public.js','src/pages/auth.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
+  'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/services/access.js','src/data/cards.js','src/data/education.js','src/data/indicators.js',
+  'src/pages/public.js','src/pages/auth.js','src/pages/access-pending.js','src/pages/access-management.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
   'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css',
   'scripts/validate-security-contract.mjs'
 ];
@@ -43,6 +43,13 @@ if (index.includes('id="app" aria-live')) errors.push('A raiz inteira do SPA nã
 const layout = fs.readFileSync(path.join(root, 'src/core/layout.js'), 'utf8');
 if (!layout.includes('skip-link')) errors.push('Shell autenticado precisa de skip link.');
 if (!layout.includes('aria-current')) errors.push('Navegação autenticada precisa indicar página atual.');
+if (!layout.includes('/app/aprovacoes')) errors.push('Navegação de gestão precisa expor o módulo de aprovações.');
+
+const main = fs.readFileSync(path.join(root, 'src/main.js'), 'utf8');
+if (!main.includes("'/app/aguardando'")) errors.push('Aplicação precisa ter rota para cadastro aguardando aprovação.');
+if (!main.includes("'/app/aprovacoes'")) errors.push('Aplicação precisa ter rota de gestão de aprovações.');
+const activeRouteCount = [...main.matchAll(/active:\s*true/g)].length;
+if (activeRouteCount < 8) errors.push('Rotas internas precisam exigir perfil ativo por padrão.');
 
 const structural = fs.readFileSync(path.join(root, 'src/styles/structural.css'), 'utf8');
 if (!structural.includes(':focus-visible')) errors.push('Camada estrutural precisa definir foco de teclado visível.');
@@ -56,6 +63,11 @@ if (!printJs.includes('[2, 4, 8, 12]')) errors.push('Utilitário de impressão p
 const appFiles = walk(src).filter((file) => file.endsWith('.js')).concat([path.join(root, 'config.js'), path.join(root, 'index.html')]);
 const appText = appFiles.filter(fs.existsSync).map((file) => fs.readFileSync(file,'utf8')).join('\n');
 if (/service[_-]?role/i.test(appText)) errors.push('Referência proibida a service role encontrada no frontend.');
+
+const authPage = fs.readFileSync(path.join(root, 'src/pages/auth.js'), 'utf8');
+if (!authPage.includes('PASSWORD_MIN_LENGTH')) errors.push('Fluxo de autenticação precisa aplicar política mínima de senha no frontend.');
+if (!authPage.includes('setBusy')) errors.push('Formulários de autenticação precisam prevenir duplo envio.');
+if (!authPage.includes('aguarda aprovação') && !authPage.includes('aguardando aprovação')) errors.push('Cadastro precisa informar a etapa de aprovação profissional.');
 
 const cardsModule = await import(pathToFileUrl(path.join(root, 'src/data/cards.js')));
 const ids = cardsModule.cardTemplates.map((item) => item.id);
