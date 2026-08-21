@@ -12,8 +12,7 @@ const pointKinds = [
   ['partner','Parceiro'],
   ['risk','Risco ambiental/estrutural'],
   ['critical_point','Ponto crítico'],
-  ['access_barrier','Barreira de acesso'],
-  ['other','Outro achado não pessoal']
+  ['access_barrier','Barreira de acesso']
 ];
 
 const pointStatuses = [
@@ -57,8 +56,8 @@ export function renderTerritoryPage({ state }) {
           ${scopeFields}
           <label>Classificação<select name="kind" required>${pointKinds.map(([value,label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('')}</select></label>
           <label>Nome curto do ponto<input name="name" required maxlength="160" placeholder="Ex.: Praça do bairro, ponte danificada, associação"></label>
-          <label>Descrição não pessoal<textarea name="description" rows="4" maxlength="1000" placeholder="Descreva o recurso, barreira ou situação sem identificar pessoas."></textarea></label>
-          <label>Endereço / referência geográfica<input name="address" maxlength="300"></label>
+          <label>Descrição não pessoal<textarea name="description" rows="4" maxlength="4000" placeholder="Descreva o recurso, barreira ou situação sem identificar pessoas."></textarea></label>
+          <label>Endereço / referência geográfica<input name="address" maxlength="500"></label>
           <div class="form-grid two"><label>Latitude<input name="latitude" inputmode="decimal" placeholder="Ex.: -11.67"></label><label>Longitude<input name="longitude" inputmode="decimal" placeholder="Ex.: -61.19"></label></div>
           <label>Data da observação<input name="observed_on" type="date" value="${today()}"></label>
           <button class="button primary" type="submit">Registrar ponto</button>
@@ -150,20 +149,22 @@ export async function mountTerritoryPage({ root, state }) {
 
   pointForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const button = event.currentTarget.querySelector('button[type="submit"]');
-    const values = formToObject(event.currentTarget);
-    button.disabled = true;
+    const form = event.currentTarget;
+    const button = form.querySelector('button[type="submit"]');
+    if (button.disabled || !form.reportValidity()) return;
+    const values = formToObject(form);
+    setButtonBusy(button, true, 'Registrando…');
     setStatus(pointStatus, 'Registrando…', 'info');
     try {
       await createTerritoryPoint(values);
-      resetPointForm(event.currentTarget, { master, state, municipalities, units, teams });
+      resetPointForm(form, { master, state });
       setStatus(pointStatus, 'Ponto territorial registrado.', 'success');
       await refreshPoints();
     } catch (error) {
       console.error(error);
       setStatus(pointStatus, 'Não foi possível registrar. Confira o vínculo territorial e não inclua dados pessoais.', 'error');
     } finally {
-      button.disabled = false;
+      setButtonBusy(button, false);
     }
   });
 
@@ -173,20 +174,27 @@ export async function mountTerritoryPage({ root, state }) {
     const remove = event.target.closest('[data-delete-point]');
     if (edit) return openPointEditor(edit.dataset.editPoint);
     if (resolve) {
+      if (resolve.disabled) return;
+      setButtonBusy(resolve, true, 'Salvando…');
       try {
         await updateTerritoryPoint(resolve.dataset.resolvePoint, { status: 'resolved' });
         await refreshPoints();
       } catch {
         window.alert('Você não tem permissão para alterar este ponto.');
+      } finally {
+        setButtonBusy(resolve, false);
       }
     }
     if (remove) {
-      if (!window.confirm('Excluir este ponto territorial? Esta ação não pode ser desfeita.')) return;
+      if (remove.disabled || !window.confirm('Excluir este ponto territorial? Esta ação não pode ser desfeita.')) return;
+      setButtonBusy(remove, true, 'Excluindo…');
       try {
         await deleteTerritoryPoint(remove.dataset.deletePoint);
         await refreshPoints();
       } catch {
         window.alert('Você não tem permissão para excluir este ponto.');
+      } finally {
+        setButtonBusy(remove, false);
       }
     }
   });
@@ -194,22 +202,29 @@ export async function mountTerritoryPage({ root, state }) {
   function openPointEditor(id) {
     const point = points.find((row) => row.id === id);
     if (!point || !canManageTerritoryPoint(state.profile, state.user?.id, point)) return;
+    const editScopeFields = master ? `
+      <label>Município<select name="municipality_code" id="edit-point-municipality" required></select></label>
+      <label>Unidade<select name="unit_cnes" id="edit-point-unit" required></select></label>
+      <label>Equipe<select name="team_id" id="edit-point-team"><option value="">Sem equipe específica</option></select></label>` : '';
     dialogBody.innerHTML = `<section><h2 id="point-dialog-title">Editar ponto territorial</h2><p>Edite apenas informação territorial não pessoal.</p><form id="point-edit-form" class="stack-form">
+      ${editScopeFields}
       <label>Classificação<select name="kind">${pointKinds.map(([value,label]) => `<option value="${value}" ${point.kind === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label>
       <label>Nome<input name="name" required maxlength="160" value="${escapeHtml(point.name)}"></label>
-      <label>Descrição<textarea name="description" rows="4" maxlength="1000">${escapeHtml(point.description || '')}</textarea></label>
-      <label>Endereço / referência<input name="address" maxlength="300" value="${escapeHtml(point.address || '')}"></label>
+      <label>Descrição<textarea name="description" rows="4" maxlength="4000">${escapeHtml(point.description || '')}</textarea></label>
+      <label>Endereço / referência<input name="address" maxlength="500" value="${escapeHtml(point.address || '')}"></label>
       <div class="form-grid two"><label>Latitude<input name="latitude" inputmode="decimal" value="${escapeHtml(point.latitude ?? '')}"></label><label>Longitude<input name="longitude" inputmode="decimal" value="${escapeHtml(point.longitude ?? '')}"></label></div>
       <label>Data da observação<input name="observed_on" type="date" value="${escapeHtml(point.observed_on || today())}"></label>
       <label>Status<select name="status">${pointStatuses.map(([value,label]) => `<option value="${value}" ${point.status === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label>
       <button class="button primary" type="submit">Salvar alterações</button><p id="point-edit-status" class="form-status" aria-live="polite"></p>
     </form></section>`;
     const form = dialogBody.querySelector('#point-edit-form');
+    if (master) setupEditScopeSelectors(form, municipalities, units, teams, point);
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const editStatus = form.querySelector('#point-edit-status');
       const button = form.querySelector('button[type="submit"]');
-      button.disabled = true;
+      if (button.disabled || !form.reportValidity()) return;
+      setButtonBusy(button, true, 'Salvando…');
       setStatus(editStatus, 'Salvando…', 'info');
       try {
         await updateTerritoryPoint(id, formToObject(form));
@@ -219,7 +234,7 @@ export async function mountTerritoryPage({ root, state }) {
         console.error(error);
         setStatus(editStatus, 'Não foi possível salvar. Verifique seu escopo e os campos.', 'error');
       } finally {
-        button.disabled = false;
+        setButtonBusy(button, false);
       }
     });
     dialog.showModal();
@@ -240,7 +255,10 @@ export async function mountTerritoryPage({ root, state }) {
     pointsTarget.innerHTML = items.length ? items.map((point) => {
       const canManage = canManageTerritoryPoint(state.profile, state.user?.id, point);
       const coordinates = point.latitude !== null && point.longitude !== null ? `<p><strong>Coordenadas:</strong> ${escapeHtml(point.latitude)}, ${escapeHtml(point.longitude)}</p>` : '';
-      return `<article class="territory-point-card"><div><span class="status-badge">${escapeHtml(kindLabel(point.kind))}</span><h3>${escapeHtml(point.name)}</h3><small>${formatDateBr(point.observed_on)} • ${statusLabel(point.status)}</small></div>${point.description ? `<p>${escapeHtml(point.description)}</p>` : ''}${point.address ? `<p><strong>Referência:</strong> ${escapeHtml(point.address)}</p>` : ''}${coordinates}<div class="actions">${canManage ? `<button class="link-button" type="button" data-edit-point="${escapeHtml(point.id)}">Editar</button>` : ''}${canManage && point.status !== 'resolved' ? `<button class="link-button" type="button" data-resolve-point="${escapeHtml(point.id)}">Marcar resolvido</button>` : ''}${canManage ? `<button class="link-button danger-link" type="button" data-delete-point="${escapeHtml(point.id)}">Excluir</button>` : ''}</div></article>`;
+      const unit = units.find((item) => item.cnes === point.unit_cnes);
+      const team = teams.find((item) => item.id === point.team_id);
+      const scope = master ? `<p><strong>Escopo:</strong> ${escapeHtml(unit?.short_name || point.unit_cnes || 'Sem UBS')}${team ? ` • ${escapeHtml(team.name)}` : ''}</p>` : '';
+      return `<article class="territory-point-card"><div><span class="status-badge">${escapeHtml(kindLabel(point.kind))}</span><h3>${escapeHtml(point.name)}</h3><small>${formatDateBr(point.observed_on)} • ${statusLabel(point.status)}</small></div>${scope}${point.description ? `<p>${escapeHtml(point.description)}</p>` : ''}${point.address ? `<p><strong>Referência:</strong> ${escapeHtml(point.address)}</p>` : ''}${coordinates}<div class="actions">${canManage ? `<button class="link-button" type="button" data-edit-point="${escapeHtml(point.id)}">Editar</button>` : ''}${canManage && point.status !== 'resolved' ? `<button class="link-button" type="button" data-resolve-point="${escapeHtml(point.id)}">Marcar resolvido</button>` : ''}${canManage ? `<button class="link-button danger-link" type="button" data-delete-point="${escapeHtml(point.id)}">Excluir</button>` : ''}</div></article>`;
     }).join('') : '<div class="empty-state"><h3>Nenhum achado territorial</h3><p>Não há registros para os filtros selecionados.</p></div>';
   }
 
@@ -266,14 +284,40 @@ function setupMasterScopeSelectors(form, municipalities, units, teams) {
   unit.addEventListener('change', syncTeams);
 }
 
+function setupEditScopeSelectors(form, municipalities, units, teams, point) {
+  const municipality = form.querySelector('#edit-point-municipality');
+  const unit = form.querySelector('#edit-point-unit');
+  const team = form.querySelector('#edit-point-team');
+  municipality.innerHTML = '<option value="">Selecione</option>' + municipalities.map((item) => `<option value="${escapeHtml(item.code)}">${escapeHtml(item.name)} — ${escapeHtml(item.state_code)}</option>`).join('');
+  municipality.value = point.municipality_code || '';
+
+  function syncUnits(selectedUnit = '') {
+    const rows = units.filter((item) => item.municipality_code === municipality.value && item.is_active);
+    unit.innerHTML = '<option value="">Selecione</option>' + rows.map((item) => `<option value="${escapeHtml(item.cnes)}">${escapeHtml(item.short_name)}</option>`).join('');
+    if (selectedUnit && rows.some((item) => item.cnes === selectedUnit)) unit.value = selectedUnit;
+    syncTeams(selectedUnit ? point.team_id : '');
+  }
+  function syncTeams(selectedTeam = '') {
+    const rows = teams.filter((item) => item.unit_cnes === unit.value && item.active);
+    team.innerHTML = '<option value="">Sem equipe específica</option>' + rows.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join('');
+    if (selectedTeam && rows.some((item) => item.id === selectedTeam)) team.value = selectedTeam;
+  }
+  municipality.addEventListener('change', () => syncUnits(''));
+  unit.addEventListener('change', () => syncTeams(''));
+  syncUnits(point.unit_cnes || '');
+}
+
 function resetPointForm(form, { master, state }) {
   form.reset();
   form.elements.observed_on.value = today();
-  if (!master) {
-    form.elements.municipality_code.value = state.profile.municipality_code || '';
-    form.elements.unit_cnes.value = state.profile.unit_cnes || '';
-    form.elements.team_id.value = state.profile.team_id || '';
+  if (master) {
+    form.elements.unit_cnes.innerHTML = '<option value="">Selecione o município</option>';
+    form.elements.team_id.innerHTML = '<option value="">Sem equipe específica</option>';
+    return;
   }
+  form.elements.municipality_code.value = state.profile.municipality_code || '';
+  form.elements.unit_cnes.value = state.profile.unit_cnes || '';
+  form.elements.team_id.value = state.profile.team_id || '';
 }
 
 function renderPointKpis(root, points) {
@@ -287,7 +331,7 @@ function renderPointKpis(root, points) {
 }
 
 function kindLabel(kind) {
-  return Object.fromEntries(pointKinds)[kind] || 'Outro';
+  return Object.fromEntries(pointKinds)[kind] || 'Tipo não reconhecido';
 }
 
 function statusLabel(status) {
@@ -296,6 +340,21 @@ function statusLabel(status) {
 
 function searchableNetwork(unit) {
   return [unit.cnes, unit.name, unit.short_name, unit.neighborhood, unit.address, unit.phone, ...unit.teams.flatMap((team) => [team.name, team.ine])].filter(Boolean).join(' ').toLowerCase();
+}
+
+function setButtonBusy(button, busy, label = '') {
+  if (!button) return;
+  if (busy) {
+    button.dataset.previousLabel = button.textContent;
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    if (label) button.textContent = label;
+    return;
+  }
+  button.disabled = false;
+  button.removeAttribute('aria-busy');
+  button.textContent = button.dataset.previousLabel || button.textContent;
+  delete button.dataset.previousLabel;
 }
 
 function today() {
