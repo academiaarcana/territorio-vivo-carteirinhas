@@ -48,6 +48,7 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `020_protect_approved_profile_microarea_scope.sql` | `protect_approved_profile_microarea_scope` |
 | `021_least_privilege_unit_admin_visibility.sql` | `least_privilege_unit_admin_visibility` |
 | `022_enforce_profile_access_on_insert.sql` | `enforce_profile_access_on_insert` |
+| `023_database_input_bounds.sql` | `database_input_bounds` |
 
 ## Regra para novas alterações
 
