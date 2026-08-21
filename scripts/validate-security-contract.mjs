@@ -20,7 +20,8 @@ const mustExist = [
   'supabase/migrations/018_canonicalize_profile_network_labels.sql',
   'supabase/migrations/019_restrict_unit_admin_profile_updates_to_acs.sql',
   'supabase/migrations/020_protect_approved_profile_microarea_scope.sql',
-  'supabase/migrations/021_least_privilege_unit_admin_visibility.sql'
+  'supabase/migrations/021_least_privilege_unit_admin_visibility.sql',
+  'supabase/migrations/022_enforce_profile_access_on_insert.sql'
 ];
 
 for (const file of mustExist) {
@@ -97,6 +98,13 @@ expect(migration21, "and role = 'acs'", 'unit_admin só deve enxergar perfis pro
 expect(migration21, 'or private.is_unit_admin_for(unit_cnes)', 'unit_admin precisa enxergar equipes inativas da própria UBS para poder reativá-las');
 expect(migration21, 'or private.is_unit_admin_for(cnes)', 'unit_admin precisa enxergar a própria unidade mesmo se ficar inativa');
 
+const migration22 = read('supabase/migrations/022_enforce_profile_access_on_insert.sql');
+expect(migration22, "new.role := 'acs'", 'inserção manual não-master precisa forçar papel ACS');
+expect(migration22, "new.access_status := 'pending'", 'inserção manual não-master precisa forçar acesso pendente');
+expect(migration22, "new.role := 'admin'", 'conta master precisa permanecer protegida como admin');
+expect(migration22, "new.access_status := 'active'", 'conta master precisa permanecer ativa');
+expect(migration22, 'revoke execute on function public.enforce_profile_role() from anon, authenticated', 'função de proteção de papel/acesso não deve ser chamada diretamente pelo cliente');
+
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
 const config = read('config.js');
@@ -139,7 +147,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, escopos, autoria, dados temporários e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, inserção segura, escopos, autoria, dados temporários e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
