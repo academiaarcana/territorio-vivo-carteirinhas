@@ -68,14 +68,16 @@ export async function mountProfilePage({ root, state }) {
       return;
     }
     try {
-      units = await listUnits({ municipalityCode });
-      if (scopeLocked) units = units.filter((row) => row.cnes === state.profile?.unit_cnes);
+      const rows = await listUnits({ municipalityCode });
+      if (!scopeLocked && municipality.value !== municipalityCode) return;
+      units = scopeLocked ? rows.filter((row) => row.cnes === state.profile?.unit_cnes) : rows;
       unit.innerHTML = '<option value="">Selecione</option>' + units.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}${row.neighborhood ? ` — ${escapeHtml(row.neighborhood)}` : ''}</option>`).join('');
       setSelectReady(unit);
       if (!reset || scopeLocked) unit.value = state.profile?.unit_cnes || '';
       await loadTeams(reset && !scopeLocked);
       syncUnitFields(reset && !scopeLocked);
     } catch (error) {
+      if (!scopeLocked && municipality.value !== municipalityCode) return;
       units = [];
       teams = [];
       setSelectError(unit, 'Não foi possível carregar as unidades');
@@ -96,7 +98,9 @@ export async function mountProfilePage({ root, state }) {
       return;
     }
     try {
-      teams = await listTeams({ unitCnes });
+      const rows = await listTeams({ unitCnes });
+      if (!scopeLocked && unit.value !== unitCnes) return;
+      teams = rows;
       team.innerHTML = '<option value="">Equipe ainda não informada</option>' + teams.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + (!scopeLocked ? '<option value="__other__">Minha equipe não aparece</option>' : '');
       setSelectReady(team);
       if ((!reset || scopeLocked) && state.profile?.team_id && teams.some((row) => row.id === state.profile.team_id)) team.value = state.profile.team_id;
@@ -106,6 +110,7 @@ export async function mountProfilePage({ root, state }) {
         customWrap.querySelector('input').value = state.profile.team_name;
       }
     } catch (error) {
+      if (!scopeLocked && unit.value !== unitCnes) return;
       teams = [];
       setSelectError(team, 'Não foi possível carregar as equipes');
       throw error;
