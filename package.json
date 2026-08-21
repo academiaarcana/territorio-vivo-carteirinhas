@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "npm run check:architecture && npm run check:security && npm run check:production && npm run test:layout && npm run test:access-management && npm run test:session-access && npm run test:admin-concurrency && npm run test:territory-concurrency && npm run test:permissions",
+    "check": "npm run check:architecture && npm run check:security && npm run check:production && npm run test:layout && npm run test:access-management && npm run test:session-access && npm run test:admin-concurrency && npm run test:territory-concurrency && npm run test:pending-concurrency && npm run test:permissions",
     "check:architecture": "node scripts/validate-architecture.mjs",
     "check:security": "node scripts/validate-security-contract.mjs",
     "check:production": "node scripts/validate-production-contracts.mjs",
@@ -13,6 +13,7 @@
     "test:session-access": "node scripts/test-session-access-contract.mjs",
     "test:admin-concurrency": "node scripts/test-admin-concurrency-contract.mjs",
     "test:territory-concurrency": "node scripts/test-territory-concurrency-contract.mjs",
+    "test:pending-concurrency": "node scripts/test-pending-concurrency-contract.mjs",
     "test:permissions": "node scripts/test-permissions.mjs"
   }
 }
