@@ -74,6 +74,9 @@ if (/service[_-]?role/i.test(appText)) errors.push('Referência proibida a servi
 for (const fixed of ['Pimenta Bueno','UBS Madre Tereza de Calcutá','Equipe 02']) {
   if (appText.includes(fixed)) errors.push(`Runtime não pode depender de valor territorial fixo: ${fixed}`);
 }
+if (/['"]08['"]\s*,\s*['"]09['"]\s*,\s*['"]10['"]/.test(appText) || /<option[^>]+value=['"](?:08|09|10)['"]/i.test(appText)) {
+  errors.push('Runtime não pode restringir microáreas ao conjunto fixo 08/09/10.');
+}
 
 const authPage = read('src/pages/auth.js');
 if (!authPage.includes('PASSWORD_MIN_LENGTH')) errors.push('Fluxo de autenticação precisa aplicar política mínima de senha no frontend.');
@@ -91,10 +94,14 @@ if (!repository.includes('Informe latitude e longitude juntas')) errors.push('Co
 if (repository.includes("state: payload.state?.trim() || 'RO'")) errors.push('Criação de unidade não pode usar UF fixa como fallback.');
 if (repository.includes('municipality: payload.municipality')) errors.push('Rótulo textual do município da unidade deve ser derivado pelo banco, não pelo cliente.');
 
+const adminPage = read('src/pages/admin.js');
+if (adminPage.includes('option.dataset.name') || adminPage.includes('option.dataset.state')) errors.push('Gestão não deve montar município/UF textual ao cadastrar UBS.');
+if (!adminPage.includes('await createUnit(values)')) errors.push('Cadastro de UBS deve enviar o formulário canônico diretamente ao serviço.');
+
 const migrationHistory = read('docs/MIGRATION_HISTORY.md');
 if (!migrationHistory.includes('harden_profile_functions')) errors.push('Histórico precisa registrar o hotfix harden_profile_functions.');
 if (!migrationHistory.includes('restrict_master_role_trigger_search_path')) errors.push('Histórico precisa registrar o hotfix de search_path do master.');
-for (const migration of ['020_protect_approved_profile_microarea_scope.sql','023_database_input_bounds.sql','024_least_privilege_table_grants.sql','025_canonicalize_health_unit_municipality.sql']) {
+for (const migration of ['020_protect_approved_profile_microarea_scope.sql','023_database_input_bounds.sql','024_least_privilege_table_grants.sql','025_canonicalize_health_unit_municipality.sql','026_protect_health_unit_identity.sql']) {
   if (!migrationHistory.includes(migration)) errors.push(`Histórico precisa incluir ${migration}.`);
 }
 
