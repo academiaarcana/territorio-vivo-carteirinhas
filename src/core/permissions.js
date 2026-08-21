@@ -71,6 +71,7 @@ export function canChangeAccessStatus(actorProfile, targetProfile) {
   if (!targetProfile || targetProfile.role === ROLES.ADMIN) return false;
   if (isMaster(actorProfile)) return true;
   return isUnitAdmin(actorProfile)
+    && targetProfile.role === ROLES.ACS
     && targetProfile.unit_cnes
     && targetProfile.unit_cnes === actorProfile.unit_cnes
     && targetProfile.id !== actorProfile.id;
