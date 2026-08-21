@@ -1,5 +1,7 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
+import { openAccessibleDialog } from '../core/a11y.js';
 import { escapeHtml, formatDateBr, formToObject, setStatus } from '../lib/dom.js';
+import { setButtonBusy } from '../lib/forms.js';
 import { isMaster, canManageTerritoryPoint } from '../core/permissions.js';
 import {
   listMunicipalities, listUnits, listTeams, listTerritoryPoints,
@@ -172,7 +174,7 @@ export async function mountTerritoryPage({ root, state }) {
     const edit = event.target.closest('[data-edit-point]');
     const resolve = event.target.closest('[data-resolve-point]');
     const remove = event.target.closest('[data-delete-point]');
-    if (edit) return openPointEditor(edit.dataset.editPoint);
+    if (edit) return openPointEditor(edit.dataset.editPoint, edit);
     if (resolve) {
       if (resolve.disabled) return;
       setButtonBusy(resolve, true, 'Salvando…');
@@ -199,7 +201,7 @@ export async function mountTerritoryPage({ root, state }) {
     }
   });
 
-  function openPointEditor(id) {
+  function openPointEditor(id, opener) {
     const point = points.find((row) => row.id === id);
     if (!point || !canManageTerritoryPoint(state.profile, state.user?.id, point)) return;
     const editScopeFields = master ? `
@@ -237,7 +239,7 @@ export async function mountTerritoryPage({ root, state }) {
         setButtonBusy(button, false);
       }
     });
-    dialog.showModal();
+    openAccessibleDialog(dialog, opener);
   }
 
   function renderNetwork(items) {
@@ -340,21 +342,6 @@ function statusLabel(status) {
 
 function searchableNetwork(unit) {
   return [unit.cnes, unit.name, unit.short_name, unit.neighborhood, unit.address, unit.phone, ...unit.teams.flatMap((team) => [team.name, team.ine])].filter(Boolean).join(' ').toLowerCase();
-}
-
-function setButtonBusy(button, busy, label = '') {
-  if (!button) return;
-  if (busy) {
-    button.dataset.previousLabel = button.textContent;
-    button.disabled = true;
-    button.setAttribute('aria-busy', 'true');
-    if (label) button.textContent = label;
-    return;
-  }
-  button.disabled = false;
-  button.removeAttribute('aria-busy');
-  button.textContent = button.dataset.previousLabel || button.textContent;
-  delete button.dataset.previousLabel;
 }
 
 function today() {
