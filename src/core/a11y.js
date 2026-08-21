@@ -1,5 +1,6 @@
 let installed = false;
 let lastOutsideFocus = null;
+let lastInteractionTarget = null;
 const dialogOpeners = new WeakMap();
 let observer = null;
 
@@ -8,6 +9,7 @@ export function installGlobalA11y() {
   installed = true;
   document.addEventListener('keydown', handleTablistKeydown);
   document.addEventListener('click', handleTabClick);
+  document.addEventListener('pointerdown', rememberInteractionTarget, true);
   document.addEventListener('focusin', rememberOutsideFocus, true);
   document.addEventListener('close', restoreDialogFocus, true);
 
@@ -21,17 +23,19 @@ export function installGlobalA11y() {
   });
 }
 
-export function openAccessibleDialog(dialog, opener = document.activeElement) {
+export function openAccessibleDialog(dialog, opener = null) {
   if (!(dialog instanceof HTMLDialogElement) || dialog.open) return false;
-  const resolvedOpener = canRestoreFocus(opener)
-    ? opener
-    : canRestoreFocus(lastOutsideFocus)
-      ? lastOutsideFocus
-      : null;
+  const candidates = [opener, lastInteractionTarget, document.activeElement, lastOutsideFocus];
+  const resolvedOpener = candidates.find(canRestoreFocus) || null;
   dialogOpeners.set(dialog, resolvedOpener);
   dialog.showModal();
   queueMicrotask(() => focusDialog(dialog));
   return true;
+}
+
+function rememberInteractionTarget(event) {
+  const target = event.target?.closest?.('button,a[href],input,select,textarea,[tabindex]');
+  if (target instanceof HTMLElement && !target.closest('dialog[open]')) lastInteractionTarget = target;
 }
 
 function rememberOutsideFocus(event) {
@@ -47,8 +51,8 @@ function handleMutations(mutations) {
       const dialog = mutation.target;
       if (!(dialog instanceof HTMLDialogElement) || mutation.attributeName !== 'open') continue;
       if (!dialog.open || dialogOpeners.has(dialog)) continue;
-      const opener = canRestoreFocus(lastOutsideFocus) ? lastOutsideFocus : null;
-      dialogOpeners.set(dialog, opener);
+      const candidates = [lastInteractionTarget, document.activeElement, lastOutsideFocus];
+      dialogOpeners.set(dialog, candidates.find(canRestoreFocus) || null);
       queueMicrotask(() => focusDialog(dialog));
       continue;
     }
