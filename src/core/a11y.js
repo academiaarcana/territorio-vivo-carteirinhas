@@ -60,8 +60,10 @@ function restoreDialogFocus(event) {
   if (!(dialog instanceof HTMLDialogElement)) return;
   const opener = dialogOpeners.get(dialog);
   dialogOpeners.delete(dialog);
-  if (!(opener instanceof HTMLElement) || !opener.isConnected) return;
-  queueMicrotask(() => opener.focus({ preventScroll: true }));
+  if (!(opener instanceof HTMLElement)) return;
+  queueMicrotask(() => {
+    if (opener.isConnected) opener.focus({ preventScroll: true });
+  });
 }
 
 function handleTablistKeydown(event) {
