@@ -23,7 +23,8 @@ const mustExist = [
   'supabase/migrations/021_least_privilege_unit_admin_visibility.sql',
   'supabase/migrations/022_enforce_profile_access_on_insert.sql',
   'supabase/migrations/023_database_input_bounds.sql',
-  'supabase/migrations/024_least_privilege_table_grants.sql'
+  'supabase/migrations/024_least_privilege_table_grants.sql',
+  'supabase/migrations/025_canonicalize_health_unit_municipality.sql'
 ];
 
 for (const file of mustExist) {
@@ -122,6 +123,15 @@ expect(migration24, 'grant select on table public.teams to anon', 'catálogo de 
 expect(migration24, 'grant select, insert, update on table public.profiles to authenticated', 'clientes autenticados não precisam de DELETE direto em profiles');
 expect(migration24, 'grant select, insert, update, delete on table public.territory_points to authenticated', 'CRUD territorial autenticado precisa permanecer disponível e filtrado por RLS');
 
+const migration25 = read('supabase/migrations/025_canonicalize_health_unit_municipality.sql');
+expect(migration25, 'alter column municipality drop default', 'unidade não pode herdar município textual fixo por default');
+expect(migration25, 'alter column state drop default', 'unidade não pode herdar UF fixa por default');
+expect(migration25, 'alter column municipality_code set not null', 'unidade precisa estar vinculada a município por código');
+expect(migration25, 'canonicalize_health_unit_municipality', 'município/UF da unidade precisam ser canonicalizados pelo banco');
+expect(migration25, 'new.municipality := resolved_name', 'nome textual do município deve vir do cadastro municipal');
+expect(migration25, 'new.state := upper(resolved_state)', 'UF textual deve vir do cadastro municipal');
+expect(migration25, 'revoke execute on function public.canonicalize_health_unit_municipality() from anon, authenticated', 'função canônica de unidade não deve ser invocável pelo cliente');
+
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
 const config = read('config.js');
@@ -164,7 +174,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, grants mínimos, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, município canônico, grants mínimos, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
