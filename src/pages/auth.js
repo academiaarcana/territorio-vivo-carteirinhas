@@ -6,6 +6,8 @@ import { listMunicipalities, listUnits, listTeams } from '../services/repository
 import { appConfig } from '../services/supabase.js';
 
 const PASSWORD_MIN_LENGTH = 10;
+const PASSWORD_SYMBOLS = "!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~";
+const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres, com letra minúscula, letra maiúscula, número e símbolo.`;
 
 function authFrame(title, intro, body) {
   return `<main class="auth-page"><section class="auth-panel"><a href="#/" class="brand"><span class="brand-mark" aria-hidden="true">TV</span><span><strong>Território Vivo</strong><small>Atenção Primária</small></span></a><header><h1>${escapeHtml(title)}</h1><p>${escapeHtml(intro)}</p></header>${body}<button type="button" class="link-button" data-home>← Voltar para a apresentação</button></section></main>`;
@@ -88,7 +90,7 @@ export function renderSignupPage() {
       <label>Microárea<input name="microarea" id="signup-microarea" maxlength="40" placeholder="Ex.: 08" required></label>
       <p id="master-hint" class="field-hint">Município, unidade e microárea são obrigatórios para contas profissionais comuns.</p>
       <label>Senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="password-help" required></label>
-      <p id="password-help" class="field-hint">Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres, com letras e números. Evite reutilizar senha de outros serviços.</p>
+      <p id="password-help" class="field-hint">${PASSWORD_REQUIREMENT} Evite reutilizar senha de outros serviços.</p>
       <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" required></label>
       <button class="button primary" type="submit" data-default-label="Criar conta">Criar conta</button>
       <p id="auth-status" class="form-status" aria-live="polite"></p>
@@ -254,7 +256,7 @@ export function renderRecoveryPage() {
     <form id="recovery-form" class="stack-form">
       <label>Nova senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" required></label>
       <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" required></label>
-      <p class="field-hint">Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres, com letras e números.</p>
+      <p class="field-hint">${PASSWORD_REQUIREMENT}</p>
       <button class="button primary" type="submit" data-default-label="Salvar nova senha">Salvar nova senha</button>
       <p id="auth-status" class="form-status" aria-live="polite"></p>
     </form>`);
@@ -289,8 +291,13 @@ export function mountRecoveryPage({ root }) {
 }
 
 function validatePassword(password) {
-  if (String(password || '').length < PASSWORD_MIN_LENGTH) return `A senha precisa ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
-  if (!/[A-Za-zÀ-ÿ]/.test(password) || !/\d/.test(password)) return 'Use uma senha com letras e pelo menos um número.';
+  const value = String(password || '');
+  if (value.length < PASSWORD_MIN_LENGTH) return `A senha precisa ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+  const hasRequiredCharacters = /[a-z]/.test(value)
+    && /[A-Z]/.test(value)
+    && /\d/.test(value)
+    && [...value].some((character) => PASSWORD_SYMBOLS.includes(character));
+  if (!hasRequiredCharacters) return PASSWORD_REQUIREMENT;
   return '';
 }
 
@@ -300,7 +307,7 @@ function authErrorMessage(error, context) {
   if (code.includes('email_not_confirmed') || message.includes('email not confirmed')) return 'Seu e-mail ainda não foi confirmado. Abra a mensagem enviada pelo Território Vivo e tente novamente.';
   if (code.includes('invalid_credentials') || message.includes('invalid login credentials')) return 'E-mail ou senha incorretos.';
   if (code.includes('user_already_exists') || message.includes('already registered')) return 'Não foi possível concluir o cadastro. Se você já tiver uma conta, use “Já tenho conta” ou recupere a senha.';
-  if (code.includes('weak_password') || message.includes('weak password')) return `Escolha uma senha mais forte, com pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+  if (code.includes('weak_password') || message.includes('weak password')) return PASSWORD_REQUIREMENT;
   if (code.includes('over_request_rate_limit') || code.includes('rate_limit') || message.includes('rate limit')) return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
   if (context === 'reset') return 'Não foi possível enviar o link agora. Aguarde um pouco e tente novamente.';
   if (context === 'password') return 'Não foi possível atualizar a senha. Abra novamente o link de recuperação recebido por e-mail.';
