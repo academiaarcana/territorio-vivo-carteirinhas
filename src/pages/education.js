@@ -1,6 +1,7 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { educationTopics, getEducationTopic } from '../data/education.js';
-import { escapeHtml, formatDateBr } from '../lib/dom.js';
+import { escapeHtml, formatDateBr, setStatus } from '../lib/dom.js';
+import { setButtonBusy } from '../lib/forms.js';
 import { printHtml, downloadPdf } from '../utils/print.js';
 
 export function renderEducationPage() {
@@ -19,14 +20,32 @@ export function mountEducationPage({ root, state }) {
     const topic = getEducationTopic(button.dataset.topic);
     if (!topic) return;
     body.innerHTML = renderTopic(topic);
-    body.querySelector('[data-print-topic]').addEventListener('click', () => printHtml(renderTopicPrint(topic, state), { title: topic.title, className: 'education-print' }));
-    body.querySelector('[data-pdf-topic]').addEventListener('click', () => downloadPdf(renderTopicPrint(topic, state), { title: topic.title, className: 'education-print' }));
+    const status = body.querySelector('[data-topic-status]');
+    body.querySelector('[data-print-topic]').addEventListener('click', () => {
+      printHtml(renderTopicPrint(topic, state), { title: topic.title, className: 'education-print' });
+      setStatus(status, 'Janela de impressão aberta.', 'success');
+    });
+    body.querySelector('[data-pdf-topic]').addEventListener('click', async (event) => {
+      const pdfButton = event.currentTarget;
+      if (pdfButton.disabled) return;
+      setButtonBusy(pdfButton, true, 'Gerando PDF…');
+      setStatus(status, 'Gerando PDF…', 'info');
+      try {
+        const result = await downloadPdf(renderTopicPrint(topic, state), { title: topic.title, className: 'education-print' });
+        setStatus(status, result.mode === 'pdf' ? 'PDF gerado.' : 'Gerador de PDF indisponível; a impressão foi aberta como alternativa.', result.mode === 'pdf' ? 'success' : 'info');
+      } catch (error) {
+        console.error(error);
+        setStatus(status, 'Não foi possível gerar o PDF.', 'error');
+      } finally {
+        setButtonBusy(pdfButton, false);
+      }
+    });
     dialog.showModal();
   }));
 }
 
 function renderTopic(topic) {
-  return `<article class="education-detail"><header><p class="eyebrow">${escapeHtml(topic.category)}</p><h2 id="education-dialog-title">${escapeHtml(topic.title)}</h2><p>${escapeHtml(topic.summary)}</p></header>${topic.blocks.map((block) => `<section><h3>${escapeHtml(block.title)}</h3><ul>${block.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul></section>`).join('')}<p class="clinical-disclaimer">${escapeHtml(topic.disclaimer)}</p><section><h3>Fontes</h3><ul class="source-list">${topic.sources.map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(source.label)}</a></li>`).join('')}</ul></section><div class="actions"><button class="button primary" type="button" data-print-topic>Imprimir</button><button class="button" type="button" data-pdf-topic>Baixar PDF</button></div></article>`;
+  return `<article class="education-detail"><header><p class="eyebrow">${escapeHtml(topic.category)}</p><h2 id="education-dialog-title">${escapeHtml(topic.title)}</h2><p>${escapeHtml(topic.summary)}</p></header>${topic.blocks.map((block) => `<section><h3>${escapeHtml(block.title)}</h3><ul>${block.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul></section>`).join('')}<p class="clinical-disclaimer">${escapeHtml(topic.disclaimer)}</p><section><h3>Fontes</h3><ul class="source-list">${topic.sources.map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)}</a></li>`).join('')}</ul></section><div class="actions"><button class="button primary" type="button" data-print-topic>Imprimir</button><button class="button" type="button" data-pdf-topic>Baixar PDF</button></div><p class="form-status" data-topic-status aria-live="polite"></p></article>`;
 }
 
 function renderTopicPrint(topic, state) {
