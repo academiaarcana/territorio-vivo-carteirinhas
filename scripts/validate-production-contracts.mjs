@@ -68,9 +68,21 @@ expect(education, 'data-topic-status', 'Educação em saúde precisa ter região
 expect(education, 'rel="noopener noreferrer"', 'Links externos da educação precisam proteger a página de origem.');
 
 const a11y = read('src/core/a11y.js');
-expect(a11y, 'queueMicrotask(() => {\n    if (opener.isConnected)', 'Retorno de foco precisa revalidar se o disparador ainda está no DOM no instante do foco.');
+expect(a11y, 'export function openAccessibleDialog', 'Dialogs precisam de helper acessível centralizado.');
+expect(a11y, "document.addEventListener('pointerdown'", 'Abertura de dialog via mouse precisa preservar o disparador para retorno de foco.');
+expect(a11y, 'canRestoreFocus', 'Retorno de foco precisa validar o disparador antes de focá-lo.');
+expect(a11y, "element.closest('[hidden],[inert]')", 'Retorno de foco não pode apontar para elemento oculto ou inerte.');
+expect(a11y, 'element.getClientRects().length > 0', 'Retorno de foco precisa confirmar que o disparador continua visível.');
+expect(a11y, "tab.setAttribute('tabindex', active ? '0' : '-1')", 'Tabs precisam implementar roving tabindex.');
+expect(a11y, 'initializeTablists(document)', 'Tabs precisam ser inicializadas desde a primeira renderização.');
 for (const key of ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End']) {
   expect(a11y, key, `Tabs precisam manter suporte à tecla ${key}.`);
+}
+
+for (const file of ['src/pages/cards.js', 'src/pages/territory.js', 'src/pages/admin.js', 'src/pages/education.js']) {
+  const content = read(file);
+  expect(content, 'openAccessibleDialog', `${file} precisa usar o helper acessível de dialogs.`);
+  if (/\.showModal\s*\(/.test(content)) errors.push(`${file} não deve abrir dialog diretamente com showModal().`);
 }
 
 if (errors.length) {
@@ -79,4 +91,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contratos de produção OK: sincronização canônica, catálogos assíncronos, busy states, PDF/fallback e foco de dialogs protegidos.');
+console.log('Contratos de produção OK: sincronização canônica, catálogos assíncronos, busy states, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
