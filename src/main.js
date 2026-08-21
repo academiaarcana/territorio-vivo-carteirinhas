@@ -1,6 +1,7 @@
 import { registerRoute, setNotFoundRenderer, startRouter, navigate, currentPath, renderCurrentRoute } from './core/router.js';
 import { setState } from './core/store.js';
 import { hydrateSession, clearSession } from './core/session.js';
+import { installGlobalA11y } from './core/a11y.js';
 import { getSession, onAuthChange } from './services/auth.js';
 import { renderPublicPage, mountPublicPage } from './pages/public.js';
 import { renderLoginPage, mountLoginPage, renderSignupPage, mountSignupPage, renderRecoveryPage, mountRecoveryPage } from './pages/auth.js';
@@ -14,6 +15,8 @@ import { renderIndicatorsPage, mountIndicatorsPage } from './pages/indicators.js
 import { renderEducationPage, mountEducationPage } from './pages/education.js';
 import { renderProfilePage, mountProfilePage } from './pages/profile.js';
 import { renderAdminPage, mountAdminPage } from './pages/admin.js';
+
+installGlobalA11y();
 
 registerRoute('/', { render: renderPublicPage, mount: mountPublicPage });
 registerRoute('/entrar', { guestOnly: true, render: renderLoginPage, mount: mountLoginPage });
