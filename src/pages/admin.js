@@ -37,6 +37,8 @@ export async function mountAdminPage({ root, state }) {
   let data = { profiles: [], units: [], teams: [], municipalities: [] };
   let active = 'profiles';
   let searchQuery = '';
+  let mutationInFlight = false;
+  let refreshPromise = null;
   const content = root.querySelector('#admin-content');
   const status = root.querySelector('#admin-status');
   const dialog = root.querySelector('#admin-dialog');
@@ -44,32 +46,40 @@ export async function mountAdminPage({ root, state }) {
 
   async function refresh(trigger = null) {
     if (trigger?.disabled) return false;
+    if (refreshPromise) return refreshPromise;
     if (trigger) setButtonBusy(trigger, true, 'Atualizando…');
     content.setAttribute('aria-busy', 'true');
     setStatus(status, 'Atualizando…', 'info');
+    refreshPromise = (async () => {
+      try {
+        const [profilesRaw, unitsRaw, teamsRaw, municipalitiesRaw] = await Promise.all([
+          listProfiles(), listUnits({ includeInactive: true }), listTeams({ includeInactive: true }), listMunicipalities({ includeInactive: true })
+        ]);
+        const ownUnit = state.profile?.unit_cnes;
+        const ownMunicipality = state.profile?.municipality_code;
+        const units = master ? unitsRaw : unitsRaw.filter((unit) => unit.cnes === ownUnit);
+        const teams = master ? teamsRaw : teamsRaw.filter((team) => team.unit_cnes === ownUnit);
+        const profiles = master ? profilesRaw : profilesRaw.filter((profile) => profile.unit_cnes === ownUnit);
+        const municipalities = master ? municipalitiesRaw : municipalitiesRaw.filter((item) => item.code === ownMunicipality);
+        data = { profiles, units, teams, municipalities };
+        renderKpis(root, data, { master });
+        renderActive();
+        setStatus(status, '', '');
+        return true;
+      } catch (error) {
+        console.error(error);
+        setStatus(status, 'Não foi possível carregar a gestão.', 'error');
+        content.innerHTML = '<div class="empty-state"><h3>Gestão indisponível</h3><p>Tente atualizar novamente. Se persistir, confira sua permissão e conexão.</p></div>';
+        return false;
+      } finally {
+        content.removeAttribute('aria-busy');
+        if (trigger) setButtonBusy(trigger, false);
+      }
+    })();
     try {
-      const [profilesRaw, unitsRaw, teamsRaw, municipalitiesRaw] = await Promise.all([
-        listProfiles(), listUnits({ includeInactive: true }), listTeams({ includeInactive: true }), listMunicipalities({ includeInactive: true })
-      ]);
-      const ownUnit = state.profile?.unit_cnes;
-      const ownMunicipality = state.profile?.municipality_code;
-      const units = master ? unitsRaw : unitsRaw.filter((unit) => unit.cnes === ownUnit);
-      const teams = master ? teamsRaw : teamsRaw.filter((team) => team.unit_cnes === ownUnit);
-      const profiles = master ? profilesRaw : profilesRaw.filter((profile) => profile.unit_cnes === ownUnit);
-      const municipalities = master ? municipalitiesRaw : municipalitiesRaw.filter((item) => item.code === ownMunicipality);
-      data = { profiles, units, teams, municipalities };
-      renderKpis(root, data, { master });
-      renderActive();
-      setStatus(status, '', '');
-      return true;
-    } catch (error) {
-      console.error(error);
-      setStatus(status, 'Não foi possível carregar a gestão.', 'error');
-      content.innerHTML = '<div class="empty-state"><h3>Gestão indisponível</h3><p>Tente atualizar novamente. Se persistir, confira sua permissão e conexão.</p></div>';
-      return false;
+      return await refreshPromise;
     } finally {
-      content.removeAttribute('aria-busy');
-      if (trigger) setButtonBusy(trigger, false);
+      refreshPromise = null;
     }
   }
 
@@ -85,7 +95,9 @@ export async function mountAdminPage({ root, state }) {
   async function submitDialogForm(form, { busyLabel = 'Salvando…', successMessage, errorMessage, task }) {
     const button = form.querySelector('button[type="submit"]');
     const localStatus = ensureFormStatus(form);
-    if (!canSubmitForm(form, button)) return;
+    if (!canSubmitForm(form, button) || mutationInFlight || refreshPromise) return;
+    mutationInFlight = true;
+    content.setAttribute('aria-busy', 'true');
     setButtonBusy(button, true, busyLabel);
     setStatus(localStatus, busyLabel, 'info');
     try {
@@ -96,6 +108,26 @@ export async function mountAdminPage({ root, state }) {
       console.error(error);
       setStatus(localStatus, errorMessage, 'error');
     } finally {
+      mutationInFlight = false;
+      content.removeAttribute('aria-busy');
+      setButtonBusy(button, false);
+    }
+  }
+
+  async function runInlineMutation(button, { busyLabel, successMessage, errorMessage, task }) {
+    if (!button || button.disabled || mutationInFlight || refreshPromise) return;
+    mutationInFlight = true;
+    content.setAttribute('aria-busy', 'true');
+    setButtonBusy(button, true, busyLabel);
+    try {
+      await task();
+      await refreshAfterMutation(successMessage);
+    } catch (error) {
+      console.error(error);
+      setStatus(status, errorMessage, 'error');
+    } finally {
+      mutationInFlight = false;
+      content.removeAttribute('aria-busy');
       setButtonBusy(button, false);
     }
   }
@@ -117,13 +149,17 @@ export async function mountAdminPage({ root, state }) {
     renderActive();
   }));
 
-  root.querySelector('#admin-refresh').addEventListener('click', (event) => refresh(event.currentTarget));
+  root.querySelector('#admin-refresh').addEventListener('click', (event) => {
+    if (mutationInFlight) return;
+    refresh(event.currentTarget);
+  });
   root.querySelector('#admin-search').addEventListener('input', (event) => {
     searchQuery = event.currentTarget.value.trim().toLowerCase();
     renderActive();
   });
 
   content.addEventListener('click', async (event) => {
+    if (mutationInFlight || refreshPromise) return;
     const editProfile = event.target.closest('[data-edit-profile]');
     const confirmPending = event.target.closest('[data-confirm-pending-team]');
     const confirmUnit = event.target.closest('[data-confirm-unit]');
@@ -149,32 +185,23 @@ export async function mountAdminPage({ root, state }) {
     if (editMunicipality && master) return openMunicipalityEditor(editMunicipality.dataset.editMunicipality);
 
     if (confirmUnit) {
-      if (confirmUnit.disabled) return;
-      setButtonBusy(confirmUnit, true, 'Confirmando…');
-      try {
-        await updateUnit(confirmUnit.dataset.confirmUnit, { data_status: 'team_confirmed', source_checked_on: today() });
-        await refreshAfterMutation('Unidade marcada como confirmada localmente.');
-      } catch (error) {
-        console.error(error);
-        setStatus(status, 'Não foi possível confirmar a unidade.', 'error');
-      } finally {
-        setButtonBusy(confirmUnit, false);
-      }
+      return runInlineMutation(confirmUnit, {
+        busyLabel: 'Confirmando…',
+        successMessage: 'Unidade marcada como confirmada localmente.',
+        errorMessage: 'Não foi possível confirmar a unidade.',
+        task: () => updateUnit(confirmUnit.dataset.confirmUnit, { data_status: 'team_confirmed', source_checked_on: today() })
+      });
     }
 
     if (toggleTeam) {
       const team = data.teams.find((row) => row.id === toggleTeam.dataset.toggleTeam);
-      if (!team || toggleTeam.disabled) return;
-      setButtonBusy(toggleTeam, true, team.active ? 'Desativando…' : 'Ativando…');
-      try {
-        await updateTeam(team.id, { active: !team.active });
-        await refreshAfterMutation(team.active ? 'Equipe desativada.' : 'Equipe ativada.');
-      } catch (error) {
-        console.error(error);
-        setStatus(status, 'Não foi possível alterar a equipe.', 'error');
-      } finally {
-        setButtonBusy(toggleTeam, false);
-      }
+      if (!team) return;
+      return runInlineMutation(toggleTeam, {
+        busyLabel: team.active ? 'Desativando…' : 'Ativando…',
+        successMessage: team.active ? 'Equipe desativada.' : 'Equipe ativada.',
+        errorMessage: 'Não foi possível alterar a equipe.',
+        task: () => updateTeam(team.id, { active: !team.active })
+      });
     }
   });
 
