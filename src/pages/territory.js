@@ -96,6 +96,8 @@ export async function mountTerritoryPage({ root, state }) {
   let municipalities = [];
   let units = [];
   let teams = [];
+  let mutationInFlight = false;
+  let refreshPromise = null;
 
   try {
     [municipalities, units, teams] = await Promise.all([listMunicipalities(), listUnits(), listTeams()]);
@@ -115,18 +117,31 @@ export async function mountTerritoryPage({ root, state }) {
   if (master && pointForm) setupMasterScopeSelectors(pointForm, municipalities, units, teams);
 
   async function refreshPoints() {
+    if (refreshPromise) return refreshPromise;
     if (!master && (!state.profile?.municipality_code || !state.profile?.unit_cnes)) {
       pointsTarget.innerHTML = '<div class="empty-state"><h3>Território não vinculado</h3><p>Vincule seu perfil a município e UBS para visualizar achados territoriais.</p></div>';
       renderPointKpis(root, []);
-      return;
+      return true;
     }
+    pointsTarget.setAttribute('aria-busy', 'true');
+    refreshPromise = (async () => {
+      try {
+        points = await listTerritoryPoints(master ? {} : { municipalityCode: state.profile.municipality_code, unitCnes: state.profile.unit_cnes });
+        renderFilteredPoints();
+        renderPointKpis(root, points);
+        return true;
+      } catch (error) {
+        console.error(error);
+        pointsTarget.innerHTML = '<div class="empty-state"><h3>Achados indisponíveis</h3><p>Não foi possível carregar os registros territoriais.</p></div>';
+        return false;
+      } finally {
+        pointsTarget.removeAttribute('aria-busy');
+      }
+    })();
     try {
-      points = await listTerritoryPoints(master ? {} : { municipalityCode: state.profile.municipality_code, unitCnes: state.profile.unit_cnes });
-      renderFilteredPoints();
-      renderPointKpis(root, points);
-    } catch (error) {
-      console.error(error);
-      pointsTarget.innerHTML = '<div class="empty-state"><h3>Achados indisponíveis</h3><p>Não foi possível carregar os registros territoriais.</p></div>';
+      return await refreshPromise;
+    } finally {
+      refreshPromise = null;
     }
   }
 
@@ -153,8 +168,10 @@ export async function mountTerritoryPage({ root, state }) {
     event.preventDefault();
     const form = event.currentTarget;
     const button = form.querySelector('button[type="submit"]');
-    if (button.disabled || !form.reportValidity()) return;
+    if (button.disabled || mutationInFlight || refreshPromise || !form.reportValidity()) return;
     const values = formToObject(form);
+    mutationInFlight = true;
+    pointsTarget.setAttribute('aria-busy', 'true');
     setButtonBusy(button, true, 'Registrando…');
     setStatus(pointStatus, 'Registrando…', 'info');
     try {
@@ -166,42 +183,57 @@ export async function mountTerritoryPage({ root, state }) {
       console.error(error);
       setStatus(pointStatus, 'Não foi possível registrar. Confira o vínculo territorial e não inclua dados pessoais.', 'error');
     } finally {
+      mutationInFlight = false;
+      pointsTarget.removeAttribute('aria-busy');
       setButtonBusy(button, false);
     }
   });
 
   pointsTarget.addEventListener('click', async (event) => {
+    if (mutationInFlight || refreshPromise) return;
     const edit = event.target.closest('[data-edit-point]');
     const resolve = event.target.closest('[data-resolve-point]');
     const remove = event.target.closest('[data-delete-point]');
     if (edit) return openPointEditor(edit.dataset.editPoint, edit);
     if (resolve) {
       if (resolve.disabled) return;
+      mutationInFlight = true;
+      pointsTarget.setAttribute('aria-busy', 'true');
       setButtonBusy(resolve, true, 'Salvando…');
       try {
         await updateTerritoryPoint(resolve.dataset.resolvePoint, { status: 'resolved' });
         await refreshPoints();
-      } catch {
+      } catch (error) {
+        console.error(error);
         window.alert('Você não tem permissão para alterar este ponto.');
       } finally {
+        mutationInFlight = false;
+        pointsTarget.removeAttribute('aria-busy');
         setButtonBusy(resolve, false);
       }
+      return;
     }
     if (remove) {
       if (remove.disabled || !window.confirm('Excluir este ponto territorial? Esta ação não pode ser desfeita.')) return;
+      mutationInFlight = true;
+      pointsTarget.setAttribute('aria-busy', 'true');
       setButtonBusy(remove, true, 'Excluindo…');
       try {
         await deleteTerritoryPoint(remove.dataset.deletePoint);
         await refreshPoints();
-      } catch {
+      } catch (error) {
+        console.error(error);
         window.alert('Você não tem permissão para excluir este ponto.');
       } finally {
+        mutationInFlight = false;
+        pointsTarget.removeAttribute('aria-busy');
         setButtonBusy(remove, false);
       }
     }
   });
 
   function openPointEditor(id, opener) {
+    if (mutationInFlight || refreshPromise) return;
     const point = points.find((row) => row.id === id);
     if (!point || !canManageTerritoryPoint(state.profile, state.user?.id, point)) return;
     const editScopeFields = master ? `
@@ -225,7 +257,9 @@ export async function mountTerritoryPage({ root, state }) {
       event.preventDefault();
       const editStatus = form.querySelector('#point-edit-status');
       const button = form.querySelector('button[type="submit"]');
-      if (button.disabled || !form.reportValidity()) return;
+      if (button.disabled || mutationInFlight || refreshPromise || !form.reportValidity()) return;
+      mutationInFlight = true;
+      pointsTarget.setAttribute('aria-busy', 'true');
       setButtonBusy(button, true, 'Salvando…');
       setStatus(editStatus, 'Salvando…', 'info');
       try {
@@ -236,6 +270,8 @@ export async function mountTerritoryPage({ root, state }) {
         console.error(error);
         setStatus(editStatus, 'Não foi possível salvar. Verifique seu escopo e os campos.', 'error');
       } finally {
+        mutationInFlight = false;
+        pointsTarget.removeAttribute('aria-busy');
         setButtonBusy(button, false);
       }
     });
