@@ -1,4 +1,5 @@
 import { escapeHtml, initials } from '../lib/dom.js';
+import { setButtonBusy } from '../lib/forms.js';
 import { navigate } from './router.js';
 import { getState } from './store.js';
 import { signOut } from '../services/auth.js';
@@ -50,36 +51,18 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
 
 export function mountAppLayout(root) {
   root.querySelectorAll('[data-nav]').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.nav)));
-  bindTabKeyboard(root);
-  root.querySelector('[data-signout]')?.addEventListener('click', async () => {
-    const button = root.querySelector('[data-signout]');
-    button.disabled = true;
+  const signout = root.querySelector('[data-signout]');
+  signout?.addEventListener('click', async () => {
+    if (signout.disabled) return;
+    setButtonBusy(signout, true, 'Saindo…');
     try {
       await signOut();
       await navigate('/');
+    } catch (error) {
+      console.error(error);
+      window.alert('Não foi possível sair agora. Tente novamente.');
     } finally {
-      button.disabled = false;
+      setButtonBusy(signout, false);
     }
-  });
-}
-
-function bindTabKeyboard(root) {
-  root.querySelectorAll('[role="tablist"]').forEach((tablist) => {
-    const tabs = [...tablist.querySelectorAll('[role="tab"]:not([disabled])')];
-    if (!tabs.length) return;
-    tabs.forEach((tab) => tab.setAttribute('tabindex', tab.getAttribute('aria-selected') === 'true' ? '0' : '-1'));
-    tablist.addEventListener('keydown', (event) => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      const current = tabs.indexOf(document.activeElement);
-      if (current < 0) return;
-      event.preventDefault();
-      let next = current;
-      if (event.key === 'ArrowRight') next = (current + 1) % tabs.length;
-      if (event.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
-      if (event.key === 'Home') next = 0;
-      if (event.key === 'End') next = tabs.length - 1;
-      tabs[next].focus();
-      tabs[next].click();
-    });
   });
 }
