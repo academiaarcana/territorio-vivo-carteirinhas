@@ -127,7 +127,7 @@ if (adminPage.includes('option.dataset.name') || adminPage.includes('option.data
 if (!/\bcreateUnit\(values\)/.test(adminPage)) errors.push('Cadastro de UBS deve enviar o formulário canônico diretamente ao serviço.');
 if (!adminPage.includes("from '../lib/forms.js'")) errors.push('Gestão precisa reutilizar o estado ocupado compartilhado.');
 if (!adminPage.includes('submitDialogForm')) errors.push('Formulários administrativos precisam centralizar busy state e tratamento de erro.');
-if (!adminPage.includes('setButtonBusy(confirmUnit') || !adminPage.includes('setButtonBusy(toggleTeam')) errors.push('Ações administrativas fora de formulário precisam bloquear cliques repetidos.');
+if (!adminPage.includes('async function runInlineMutation') || !adminPage.includes('runInlineMutation(confirmUnit') || !adminPage.includes('runInlineMutation(toggleTeam') || !adminPage.includes('setButtonBusy(button, true')) errors.push('Ações administrativas fora de formulário precisam bloquear cliques repetidos.');
 if (!adminPage.includes("content.setAttribute('aria-busy', 'true')")) errors.push('Recarregamento da gestão precisa sinalizar estado ocupado.');
 
 const migrationHistory = read('docs/MIGRATION_HISTORY.md');
