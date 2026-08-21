@@ -8,7 +8,11 @@ export async function getSession() {
 }
 
 export function onAuthChange(callback) {
-  return supabase.auth.onAuthStateChange((event, session) => callback(event, session));
+  return supabase.auth.onAuthStateChange((event, session) => {
+    setTimeout(() => {
+      Promise.resolve(callback(event, session)).catch((error) => console.error('Falha no evento de autenticação', error));
+    }, 0);
+  });
 }
 
 export async function signIn(email, password) {
