@@ -45,7 +45,7 @@ A branch `main` é publicada pelo workflow `.github/workflows/pages.yml` somente
 - indicadores;
 - educação em saúde;
 - perfil profissional/territorial;
-- gestão da rede para a conta master.
+- aprovações e gestão por escopo para `unit_admin`/master.
 
 ## Modelo territorial
 
@@ -79,7 +79,7 @@ O Território Vivo **não é prontuário** e não deve criar um segundo cadastro
 
 O Supabase guarda dados profissionais e institucionais necessários ao funcionamento. Campos usados nas carteirinhas, indicadores e notas rápidas são temporários por padrão e não são persistidos no banco.
 
-O módulo Território/Mapa Inteligente foi desenhado para referências **não pessoais**: unidades, equipes, recursos institucionais e, futuramente, pontos territoriais sem identificação clínica individual.
+O módulo Território/Mapa Inteligente foi desenhado para referências **não pessoais**: unidades, equipes, recursos institucionais e pontos territoriais sem identificação clínica individual.
 
 ## Carteirinhas
 
@@ -91,7 +91,7 @@ A biblioteca é declarativa em `src/data/cards.js`. Cada modelo define:
 - quantidade A4 sugerida;
 - recado padrão.
 
-O módulo suporta 2, 4 ou 8 unidades por A4, leitura fácil, modo econômico, impressão e PDF.
+O módulo suporta 2, 4, 8 ou 12 unidades por A4, leitura fácil, modo econômico, impressão e PDF.
 
 ## Educação em saúde
 
@@ -113,7 +113,7 @@ O comando verifica:
 - presença indevida de `service_role`;
 - IDs duplicados de carteirinhas e conteúdos educativos.
 
-O CI também executa `node --check` em todos os módulos e consulta o catálogo público real do Supabase.
+O CI também executa `node --check` em todos os módulos, consulta o catálogo público real do Supabase e confirma que `profiles` e `territory_points` rejeitam acesso anônimo.
 
 ## Configuração
 
