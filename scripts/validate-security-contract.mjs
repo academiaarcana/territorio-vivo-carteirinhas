@@ -25,7 +25,8 @@ const mustExist = [
   'supabase/migrations/023_database_input_bounds.sql',
   'supabase/migrations/024_least_privilege_table_grants.sql',
   'supabase/migrations/025_canonicalize_health_unit_municipality.sql',
-  'supabase/migrations/026_protect_health_unit_identity.sql'
+  'supabase/migrations/026_protect_health_unit_identity.sql',
+  'supabase/migrations/027_restrict_territory_point_kinds.sql'
 ];
 
 for (const file of mustExist) {
@@ -140,6 +141,12 @@ expect(migration26, 'identidade ou estrutura administrativa', 'proteção de UBS
 expect(migration26, 'revoke execute on function public.protect_health_unit_structure() from anon, authenticated', 'função de proteção da UBS não deve ser invocável pelo cliente');
 expect(migration26, 'grant execute on function public.protect_health_unit_structure() to service_role', 'função de trigger da UBS deve manter privilégio interno explícito');
 
+const migration27 = read('supabase/migrations/027_restrict_territory_point_kinds.sql');
+for (const kind of ['resource','partner','potentiality','access_barrier','risk','critical_point']) {
+  expect(migration27, `'${kind}'`, `domínio territorial precisa manter a categoria ${kind}`);
+}
+if (migration27.includes("'other'")) errors.push('Domínio territorial não deve aceitar categoria genérica other.');
+
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
 const config = read('config.js');
@@ -148,6 +155,9 @@ if (/service[_-]?role/i.test(config)) errors.push('config.js não pode conter se
 const territory = read('src/pages/territory.js');
 expect(territory, 'não pessoais', 'módulo territorial deve exibir fronteira de privacidade');
 expect(territory, 'canManageTerritoryPoint', 'ações territoriais devem respeitar a camada de permissão');
+expect(territory, 'setupEditScopeSelectors', 'master precisa conseguir corrigir município/UBS/equipe de ponto territorial');
+expect(territory, 'setButtonBusy', 'operações territoriais devem prevenir duplo envio e anunciar estado ocupado');
+if (territory.includes("['other'")) errors.push('Interface territorial não deve oferecer categoria genérica other.');
 
 const pendingPage = read('src/pages/access-pending.js');
 expect(pendingPage, 'Verificar aprovação', 'perfil pendente precisa conseguir consultar aprovação');
@@ -187,7 +197,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, identidade de UBS, município canônico, grants mínimos, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, identidade de UBS, domínio territorial fechado, município canônico, grants mínimos, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
