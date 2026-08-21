@@ -4,12 +4,13 @@ import { listMunicipalities, listUnits } from '../services/repository.js';
 
 export function renderPublicPage() {
   return `
+    <a class="skip-link" href="#public-main">Pular para o conteúdo</a>
     <div class="public-page">
       <header class="public-header">
         <a href="#/" class="brand"><span class="brand-mark" aria-hidden="true">TV</span><span><strong>Território Vivo</strong><small>Apoio à Atenção Primária</small></span></a>
         <nav aria-label="Acesso"><button type="button" class="link-button" data-login>Entrar</button><button type="button" class="button primary" data-signup>Criar conta</button></nav>
       </header>
-      <main>
+      <main id="public-main">
         <section class="public-hero">
           <div><p class="eyebrow">Territorialização que vira ação</p><h1>Informação do território organizada para apoiar quem cuida.</h1><p>Carteirinhas, 5 minutos do território, indicadores, educação em saúde, mapa inteligente e gestão da rede em uma aplicação simples, sem criar um prontuário paralelo.</p><div class="actions"><button class="button primary" data-signup>Criar minha conta</button><button class="button" data-login>Já tenho acesso</button></div></div>
           <aside class="public-summary"><strong>O fluxo</strong><ol><li>Profissional cria e confirma sua conta.</li><li>Informa município, unidade, equipe e microárea.</li><li>A gestão da UBS confirma o vínculo profissional.</li><li>O perfil aprovado alimenta automaticamente os materiais.</li><li>Dados temporários de famílias não ficam salvos por padrão.</li></ol></aside>
