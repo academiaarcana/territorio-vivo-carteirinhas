@@ -11,7 +11,7 @@ const required = [
   'src/main.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js','src/core/a11y.js',
   'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/services/access.js','src/data/cards.js','src/data/education.js','src/data/indicators.js',
   'src/pages/public.js','src/pages/auth.js','src/pages/access-pending.js','src/pages/access-management.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
-  'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css',
+  'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/lib/forms.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css',
   'scripts/validate-security-contract.mjs','scripts/test-permissions.mjs'
 ];
 
@@ -73,6 +73,11 @@ if (!printCss.includes('count-12')) errors.push('Impressão econômica precisa s
 const printJs = read('src/utils/print.js');
 if (!printJs.includes('[2, 4, 8, 12]')) errors.push('Utilitário de impressão precisa aceitar 2, 4, 8 e 12 por A4.');
 
+const formsUtil = read('src/lib/forms.js');
+if (!formsUtil.includes('setButtonBusy')) errors.push('Utilitário compartilhado precisa centralizar estado ocupado dos botões.');
+if (!formsUtil.includes("setAttribute('aria-busy', 'true')")) errors.push('Estado ocupado compartilhado precisa expor aria-busy.');
+if (!formsUtil.includes('canSubmitForm')) errors.push('Utilitário compartilhado precisa prevenir submissão repetida e validar formulários.');
+
 const appFiles = walk(src).filter((file) => file.endsWith('.js')).concat([path.join(root, 'config.js'), path.join(root, 'index.html')]);
 const appText = appFiles.filter(fs.existsSync).map((file) => fs.readFileSync(file,'utf8')).join('\n');
 if (/service[_-]?role/i.test(appText)) errors.push('Referência proibida a service role encontrada no frontend.');
@@ -101,7 +106,11 @@ if (repository.includes('municipality: payload.municipality')) errors.push('Rót
 
 const adminPage = read('src/pages/admin.js');
 if (adminPage.includes('option.dataset.name') || adminPage.includes('option.dataset.state')) errors.push('Gestão não deve montar município/UF textual ao cadastrar UBS.');
-if (!adminPage.includes('await createUnit(values)')) errors.push('Cadastro de UBS deve enviar o formulário canônico diretamente ao serviço.');
+if (!/\bcreateUnit\(values\)/.test(adminPage)) errors.push('Cadastro de UBS deve enviar o formulário canônico diretamente ao serviço.');
+if (!adminPage.includes("from '../lib/forms.js'")) errors.push('Gestão precisa reutilizar o estado ocupado compartilhado.');
+if (!adminPage.includes('submitDialogForm')) errors.push('Formulários administrativos precisam centralizar busy state e tratamento de erro.');
+if (!adminPage.includes('setButtonBusy(confirmUnit') || !adminPage.includes('setButtonBusy(toggleTeam')) errors.push('Ações administrativas fora de formulário precisam bloquear cliques repetidos.');
+if (!adminPage.includes("content.setAttribute('aria-busy', 'true')")) errors.push('Recarregamento da gestão precisa sinalizar estado ocupado.');
 
 const migrationHistory = read('docs/MIGRATION_HISTORY.md');
 if (!migrationHistory.includes('harden_profile_functions')) errors.push('Histórico precisa registrar o hotfix harden_profile_functions.');
