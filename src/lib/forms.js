@@ -1,17 +1,31 @@
+const buttonBusyStates = new WeakMap();
+
 export function setButtonBusy(button, busy, label = '') {
   if (!button) return;
+
   if (busy) {
-    if (button.disabled) return;
-    button.dataset.previousLabel = button.textContent;
+    if (buttonBusyStates.has(button)) return;
+    buttonBusyStates.set(button, {
+      disabled: button.disabled,
+      ariaDisabled: button.getAttribute('aria-disabled'),
+      ariaBusy: button.getAttribute('aria-busy'),
+      label: button.textContent
+    });
     button.disabled = true;
+    button.setAttribute('aria-disabled', 'true');
     button.setAttribute('aria-busy', 'true');
     if (label) button.textContent = label;
     return;
   }
-  button.disabled = false;
-  button.removeAttribute('aria-busy');
-  button.textContent = button.dataset.previousLabel || button.dataset.defaultLabel || button.textContent;
-  delete button.dataset.previousLabel;
+
+  const previous = buttonBusyStates.get(button);
+  if (!previous) return;
+
+  button.disabled = previous.disabled;
+  restoreAttribute(button, 'aria-disabled', previous.ariaDisabled);
+  restoreAttribute(button, 'aria-busy', previous.ariaBusy);
+  button.textContent = previous.label ?? button.dataset.defaultLabel ?? button.textContent;
+  buttonBusyStates.delete(button);
 }
 
 export function setSelectLoading(select, label = 'Carregando…') {
@@ -43,6 +57,11 @@ export function canSubmitForm(form, button) {
     .some((select) => select.required);
   if (blockedCatalog) return false;
   return form.reportValidity();
+}
+
+function restoreAttribute(element, name, value) {
+  if (value === null) element.removeAttribute(name);
+  else element.setAttribute(name, value);
 }
 
 function replaceSelectMessage(select, label) {
