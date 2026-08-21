@@ -1,4 +1,5 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
+import { openAccessibleDialog } from '../core/a11y.js';
 import { cardCategories, cardTemplates, getCardTemplate } from '../data/cards.js';
 import { escapeHtml, formatDateBr } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
@@ -41,7 +42,7 @@ export function mountCardsPage({ root, state }) {
     if (!trigger) return;
     const template = getCardTemplate(trigger.dataset.template);
     if (!template) return;
-    mountEditor(dialog, editorBody, template, state);
+    mountEditor(dialog, editorBody, template, state, trigger);
   });
 }
 
@@ -57,7 +58,7 @@ function renderLibrary(filter, query) {
     <article class="template-card"><div><span class="category-label">${escapeHtml(categoryLabel(template.category))}</span><h3>${escapeHtml(template.title)}</h3><p>${escapeHtml(template.description)}</p></div><div class="template-meta"><small>${template.defaultCount}/A4 sugerido</small><button class="button" type="button" data-template="${escapeHtml(template.id)}">Abrir</button></div></article>`).join('');
 }
 
-function mountEditor(dialog, body, template, state) {
+function mountEditor(dialog, body, template, state, opener) {
   body.innerHTML = `
     <header class="editor-header"><div><p class="eyebrow">${escapeHtml(categoryLabel(template.category))}</p><h2 id="card-editor-title">${escapeHtml(template.title)}</h2><p>${escapeHtml(template.description)}</p></div></header>
     <div class="editor-grid">
@@ -108,7 +109,7 @@ function mountEditor(dialog, body, template, state) {
   });
 
   update();
-  dialog.showModal();
+  openAccessibleDialog(dialog, opener);
 }
 
 function validateForm(form, status) {
