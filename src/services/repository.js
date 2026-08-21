@@ -8,10 +8,25 @@ function pickAllowed(patch, allowed) {
   return Object.fromEntries(Object.entries(patch).filter(([key]) => allowed.includes(key)));
 }
 
-function nullableNumber(value) {
+function normalizeCoordinate(value, label, min, max) {
   if (value === '' || value === null || value === undefined) return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
+  const normalized = String(value).trim().replace(',', '.');
+  const number = Number(normalized);
+  if (!Number.isFinite(number) || number < min || number > max) {
+    throw new RangeError(`${label} inválida. Use um valor entre ${min} e ${max}.`);
+  }
+  return number;
+}
+
+function normalizeCoordinates(payload) {
+  const hasLatitude = Object.prototype.hasOwnProperty.call(payload, 'latitude');
+  const hasLongitude = Object.prototype.hasOwnProperty.call(payload, 'longitude');
+  if (!hasLatitude && !hasLongitude) return {};
+  if (hasLatitude !== hasLongitude) throw new Error('Informe latitude e longitude juntas.');
+  const latitude = normalizeCoordinate(payload.latitude, 'Latitude', -90, 90);
+  const longitude = normalizeCoordinate(payload.longitude, 'Longitude', -180, 180);
+  if ((latitude === null) !== (longitude === null)) throw new Error('Informe latitude e longitude juntas.');
+  return { latitude, longitude };
 }
 
 export async function getProfile(userId) {
@@ -48,12 +63,7 @@ export async function listMunicipalities({ includeInactive = false } = {}) {
 }
 
 export async function createMunicipality(payload) {
-  const clean = {
-    code: payload.code.trim(),
-    name: payload.name.trim(),
-    state_code: payload.state_code.trim().toUpperCase(),
-    active: payload.active ?? true
-  };
+  const clean = { code: payload.code.trim(), name: payload.name.trim(), state_code: payload.state_code.trim().toUpperCase(), active: payload.active ?? true };
   const { data, error } = await supabase.from('municipalities').insert(clean).select('*').single();
   assertNoError(error);
   return data;
@@ -103,27 +113,16 @@ export async function getTeam(teamId) {
 export async function buildContext(profile) {
   if (!profile) return null;
   const [municipality, unit, team] = await Promise.all([
-    profile.municipality_code
-      ? supabase.from('municipalities').select('*').eq('code', profile.municipality_code).maybeSingle()
-      : Promise.resolve({ data: null, error: null }),
-    profile.unit_cnes
-      ? supabase.from('health_units').select('*').eq('cnes', profile.unit_cnes).maybeSingle()
-      : Promise.resolve({ data: null, error: null }),
-    profile.team_id
-      ? supabase.from('teams').select('*').eq('id', profile.team_id).maybeSingle()
-      : Promise.resolve({ data: null, error: null })
+    profile.municipality_code ? supabase.from('municipalities').select('*').eq('code', profile.municipality_code).maybeSingle() : Promise.resolve({ data: null, error: null }),
+    profile.unit_cnes ? supabase.from('health_units').select('*').eq('cnes', profile.unit_cnes).maybeSingle() : Promise.resolve({ data: null, error: null }),
+    profile.team_id ? supabase.from('teams').select('*').eq('id', profile.team_id).maybeSingle() : Promise.resolve({ data: null, error: null })
   ]);
   [municipality, unit, team].forEach((result) => assertNoError(result.error));
   return { municipality: municipality.data, unit: unit.data, team: team.data };
 }
 
 export async function listProfiles() {
-  const { data, error } = await supabase.from('profiles')
-    .select('*')
-    .order('role', { ascending: false })
-    .order('unit_name')
-    .order('team_name')
-    .order('full_name');
+  const { data, error } = await supabase.from('profiles').select('*').order('role', { ascending: false }).order('unit_name').order('team_name').order('full_name');
   assertNoError(error);
   return data || [];
 }
@@ -134,15 +133,10 @@ export async function adminUpdateProfile(userId, patch) {
 
 export async function createTeam(payload) {
   const clean = {
-    unit_cnes: payload.unit_cnes,
-    name: payload.name.trim(),
-    ine: payload.ine?.trim() || null,
+    unit_cnes: payload.unit_cnes, name: payload.name.trim(), ine: payload.ine?.trim() || null,
     verification_status: payload.verification_status || 'confirmed',
-    source_label: payload.source_label?.trim() || 'Confirmado pela gestão/equipe',
-    source_url: payload.source_url?.trim() || '',
-    source_checked_on: payload.source_checked_on || new Date().toISOString().slice(0, 10),
-    source_note: payload.source_note?.trim() || '',
-    active: payload.active ?? true
+    source_label: payload.source_label?.trim() || 'Confirmado pela gestão/equipe', source_url: payload.source_url?.trim() || '',
+    source_checked_on: payload.source_checked_on || new Date().toISOString().slice(0, 10), source_note: payload.source_note?.trim() || '', active: payload.active ?? true
   };
   const { data, error } = await supabase.from('teams').insert(clean).select('*').single();
   assertNoError(error);
@@ -150,8 +144,7 @@ export async function createTeam(payload) {
 }
 
 export async function updateTeam(teamId, patch) {
-  const allowed = ['name','ine','verification_status','source_label','source_url','source_checked_on','source_note','active'];
-  const clean = pickAllowed(patch, allowed);
+  const clean = pickAllowed(patch, ['name','ine','verification_status','source_label','source_url','source_checked_on','source_note','active']);
   if (clean.name !== undefined) clean.name = clean.name.trim();
   if (clean.ine !== undefined) clean.ine = clean.ine?.trim() || null;
   const { data, error } = await supabase.from('teams').update(clean).eq('id', teamId).select('*').single();
@@ -160,8 +153,7 @@ export async function updateTeam(teamId, patch) {
 }
 
 export async function updateUnit(cnes, patch) {
-  const allowed = ['name','short_name','unit_type','address','neighborhood','phone','hours','data_status','source_label','source_url','source_checked_on','source_note','is_active','display_order'];
-  const clean = pickAllowed(patch, allowed);
+  const clean = pickAllowed(patch, ['name','short_name','unit_type','address','neighborhood','phone','hours','data_status','source_label','source_url','source_checked_on','source_note','is_active','display_order']);
   const { data, error } = await supabase.from('health_units').update(clean).eq('cnes', cnes).select('*').single();
   assertNoError(error);
   return data;
@@ -169,24 +161,12 @@ export async function updateUnit(cnes, patch) {
 
 export async function createUnit(payload) {
   const clean = {
-    cnes: payload.cnes.trim(),
-    name: payload.name.trim(),
-    short_name: payload.short_name?.trim() || payload.name.trim(),
-    unit_type: payload.unit_type || 'ubs',
-    address: payload.address?.trim() || '',
-    neighborhood: payload.neighborhood?.trim() || '',
-    phone: payload.phone?.trim() || '',
-    hours: payload.hours?.trim() || '',
-    municipality_code: payload.municipality_code,
-    municipality: payload.municipality?.trim() || '',
-    state: payload.state?.trim() || 'RO',
-    source_label: payload.source_label?.trim() || 'Cadastro administrativo',
-    source_url: payload.source_url?.trim() || '',
-    source_checked_on: payload.source_checked_on || new Date().toISOString().slice(0, 10),
-    source_note: payload.source_note?.trim() || '',
-    data_status: payload.data_status || 'needs_review',
-    is_active: payload.is_active ?? true,
-    display_order: Number(payload.display_order || 100)
+    cnes: payload.cnes.trim(), name: payload.name.trim(), short_name: payload.short_name?.trim() || payload.name.trim(), unit_type: payload.unit_type || 'ubs',
+    address: payload.address?.trim() || '', neighborhood: payload.neighborhood?.trim() || '', phone: payload.phone?.trim() || '', hours: payload.hours?.trim() || '',
+    municipality_code: payload.municipality_code, municipality: payload.municipality?.trim() || '', state: payload.state?.trim() || 'RO',
+    source_label: payload.source_label?.trim() || 'Cadastro administrativo', source_url: payload.source_url?.trim() || '',
+    source_checked_on: payload.source_checked_on || new Date().toISOString().slice(0, 10), source_note: payload.source_note?.trim() || '',
+    data_status: payload.data_status || 'needs_review', is_active: payload.is_active ?? true, display_order: Number(payload.display_order || 100)
   };
   const { data, error } = await supabase.from('health_units').insert(clean).select('*').single();
   assertNoError(error);
@@ -206,20 +186,13 @@ export async function listTerritoryPoints({ municipalityCode = null, unitCnes = 
 }
 
 export async function createTerritoryPoint(payload) {
+  const coordinates = normalizeCoordinates(payload);
   const clean = {
-    municipality_code: payload.municipality_code,
-    unit_cnes: payload.unit_cnes || null,
-    team_id: payload.team_id || null,
-    kind: payload.kind,
-    name: payload.name.trim(),
-    description: payload.description?.trim() || '',
-    address: payload.address?.trim() || '',
-    latitude: nullableNumber(payload.latitude),
-    longitude: nullableNumber(payload.longitude),
-    observed_on: payload.observed_on || new Date().toISOString().slice(0, 10),
-    status: payload.status || 'active',
-    source_label: payload.source_label?.trim() || 'Observação territorial',
-    source_note: payload.source_note?.trim() || ''
+    municipality_code: payload.municipality_code, unit_cnes: payload.unit_cnes || null, team_id: payload.team_id || null,
+    kind: payload.kind, name: payload.name.trim(), description: payload.description?.trim() || '', address: payload.address?.trim() || '',
+    ...coordinates,
+    observed_on: payload.observed_on || new Date().toISOString().slice(0, 10), status: payload.status || 'active',
+    source_label: payload.source_label?.trim() || 'Observação territorial', source_note: payload.source_note?.trim() || ''
   };
   const { data, error } = await supabase.from('territory_points').insert(clean).select('*').single();
   assertNoError(error);
@@ -227,13 +200,11 @@ export async function createTerritoryPoint(payload) {
 }
 
 export async function updateTerritoryPoint(pointId, patch) {
-  const allowed = ['kind','name','description','address','latitude','longitude','observed_on','status','source_label','source_note','municipality_code','unit_cnes','team_id'];
-  const clean = pickAllowed(patch, allowed);
+  const clean = pickAllowed(patch, ['kind','name','description','address','latitude','longitude','observed_on','status','source_label','source_note','municipality_code','unit_cnes','team_id']);
   if (clean.name !== undefined) clean.name = clean.name.trim();
   if (clean.description !== undefined) clean.description = clean.description?.trim() || '';
   if (clean.address !== undefined) clean.address = clean.address?.trim() || '';
-  if (clean.latitude !== undefined) clean.latitude = nullableNumber(clean.latitude);
-  if (clean.longitude !== undefined) clean.longitude = nullableNumber(clean.longitude);
+  Object.assign(clean, normalizeCoordinates(clean));
   const { data, error } = await supabase.from('territory_points').update(clean).eq('id', pointId).select('*').single();
   assertNoError(error);
   return data;
