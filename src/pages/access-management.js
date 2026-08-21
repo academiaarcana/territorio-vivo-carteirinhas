@@ -1,5 +1,6 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { escapeHtml, setStatus } from '../lib/dom.js';
+import { setButtonBusy } from '../lib/forms.js';
 import { accessStatusLabel, canChangeAccessStatus, isMaster } from '../core/permissions.js';
 import { listAccessProfiles, setProfileAccessStatus } from '../services/access.js';
 
@@ -13,10 +14,10 @@ export function renderAccessManagementPage({ state }) {
     <div id="access-kpis" class="kpi-grid"></div>
     <section class="panel">
       <div class="filter-row" role="group" aria-label="Filtrar por status">
-        <button class="filter-button active" type="button" data-access-filter="all">Todos</button>
-        <button class="filter-button" type="button" data-access-filter="pending">Pendentes</button>
-        <button class="filter-button" type="button" data-access-filter="active">Ativos</button>
-        <button class="filter-button" type="button" data-access-filter="suspended">Suspensos</button>
+        <button class="filter-button active" type="button" data-access-filter="all" aria-pressed="true">Todos</button>
+        <button class="filter-button" type="button" data-access-filter="pending" aria-pressed="false">Pendentes</button>
+        <button class="filter-button" type="button" data-access-filter="active" aria-pressed="false">Ativos</button>
+        <button class="filter-button" type="button" data-access-filter="suspended" aria-pressed="false">Suspensos</button>
       </div>
       <div id="access-list"><p>Carregando perfis…</p></div>
       <p id="access-status" class="form-status" aria-live="polite"></p>
@@ -31,8 +32,12 @@ export async function mountAccessManagementPage({ root, state }) {
   const search = root.querySelector('#access-search');
   let rows = [];
   let filter = 'all';
+  let refreshing = false;
 
   async function refresh() {
+    if (refreshing) return;
+    refreshing = true;
+    target.setAttribute('aria-busy', 'true');
     target.innerHTML = '<p>Carregando perfis…</p>';
     try {
       rows = await listAccessProfiles();
@@ -41,6 +46,9 @@ export async function mountAccessManagementPage({ root, state }) {
     } catch (error) {
       console.error(error);
       target.innerHTML = '<div class="empty-state"><h3>Não foi possível carregar os acessos</h3><p>Atualize a página ou confira sua permissão.</p></div>';
+    } finally {
+      refreshing = false;
+      target.removeAttribute('aria-busy');
     }
   }
 
@@ -70,14 +78,18 @@ export async function mountAccessManagementPage({ root, state }) {
 
   root.querySelectorAll('[data-access-filter]').forEach((button) => button.addEventListener('click', () => {
     filter = button.dataset.accessFilter;
-    root.querySelectorAll('[data-access-filter]').forEach((item) => item.classList.toggle('active', item === button));
+    root.querySelectorAll('[data-access-filter]').forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
     renderRows();
   }));
   search.addEventListener('input', renderRows);
 
   target.addEventListener('click', async (event) => {
     const action = event.target.closest('[data-access-action]');
-    if (!action) return;
+    if (!action || action.disabled) return;
     const profile = rows.find((row) => row.id === action.dataset.profileId);
     if (!profile || !canChangeAccessStatus(state.profile, profile)) return;
 
@@ -89,7 +101,7 @@ export async function mountAccessManagementPage({ root, state }) {
         : 'Alterar o status deste acesso?';
     if (!window.confirm(message)) return;
 
-    action.disabled = true;
+    setButtonBusy(action, true, 'Atualizando…');
     setStatus(status, 'Atualizando acesso…', 'info');
     try {
       await setProfileAccessStatus(profile.id, nextStatus);
@@ -99,7 +111,7 @@ export async function mountAccessManagementPage({ root, state }) {
       console.error(error);
       setStatus(status, 'Não foi possível alterar o acesso. O banco protege escopos e privilégios.', 'error');
     } finally {
-      action.disabled = false;
+      setButtonBusy(action, false);
     }
   });
 
