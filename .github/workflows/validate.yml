@@ -54,7 +54,14 @@ jobs:
               "${SUPABASE_URL}/rest/v1/${PRIVATE_TABLE}?select=id&limit=1" \
               -H "apikey: ${SUPABASE_KEY}" \
               -H "Authorization: Bearer ${SUPABASE_KEY}")
-            test "${PRIVATE_CODE}" != "200"
+            case "${PRIVATE_CODE}" in
+              401|403) ;;
+              *)
+                echo "${PRIVATE_TABLE} deveria rejeitar acesso anônimo com 401/403, mas respondeu HTTP ${PRIVATE_CODE}."
+                cat "/tmp/${PRIVATE_TABLE}.json" || true
+                exit 1
+                ;;
+            esac
           done
 
-          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK; profiles e territory_points protegidos de acesso anônimo.')"
+          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK; profiles e territory_points rejeitam acesso anônimo com status de autorização esperado.')"
