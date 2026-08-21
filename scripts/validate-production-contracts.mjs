@@ -38,6 +38,9 @@ const forms = read('src/lib/forms.js');
 for (const helper of ['setButtonBusy', 'canSubmitForm', 'setSelectLoading', 'setSelectReady', 'setSelectError']) {
   expect(forms, helper, `Utilitário de formulários precisa manter ${helper}.`);
 }
+expect(forms, "setAttribute('aria-disabled', 'true')", 'Busy state precisa expor aria-disabled junto do disabled nativo.');
+expect(forms, 'buttonBusyStates', 'Busy state precisa preservar o estado anterior do botão antes de bloquear a interação.');
+expect(forms, "restoreAttribute(button, 'aria-disabled'", 'Busy state precisa restaurar aria-disabled ao estado anterior.');
 expect(forms, 'select[data-load-state="loading"]', 'Submissão precisa reconhecer catálogo obrigatório em carregamento.');
 expect(forms, 'select[data-load-state="error"]', 'Submissão precisa reconhecer catálogo obrigatório com erro.');
 
