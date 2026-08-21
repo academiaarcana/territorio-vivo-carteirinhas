@@ -1,5 +1,6 @@
 import { getState } from './store.js';
 import { isActiveProfile, isManagement, isMaster } from './permissions.js';
+import { hydrateSession } from './session.js';
 
 const routes = new Map();
 let renderNotFound = () => '<main class="standalone"><h1>Página não encontrada</h1></main>';
@@ -42,9 +43,22 @@ export async function renderCurrentRoute() {
     return;
   }
 
-  const state = getState();
+  let state = getState();
   if (route.auth && !state.session) return navigate('/entrar', { replace: true });
   if (route.guestOnly && state.session) return navigate('/app/inicio', { replace: true });
+
+  if ((route.active || route.management || route.master) && state.session) {
+    try {
+      await hydrateSession(state.session);
+      state = getState();
+    } catch (error) {
+      console.error('Falha ao revalidar acesso', error);
+      root.innerHTML = '<main class="standalone"><h1>Não foi possível validar seu acesso</h1><p>Recarregue a página. Se o problema continuar, procure a administração do sistema.</p></main>';
+      focusPageHeading(root);
+      return;
+    }
+  }
+
   if (route.active && !isActiveProfile(state.profile)) return navigate('/app/aguardando', { replace: true });
   if (route.management && !isManagement(state.profile)) return navigate('/app/inicio', { replace: true });
   if (route.master && !isMaster(state.profile)) return navigate('/app/inicio', { replace: true });
