@@ -1,6 +1,7 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { cardCategories, cardTemplates, getCardTemplate } from '../data/cards.js';
 import { escapeHtml, formatDateBr } from '../lib/dom.js';
+import { setButtonBusy } from '../lib/forms.js';
 import { printHtml, downloadPdf, repeatForSheet } from '../utils/print.js';
 
 export function renderCardsPage() {
@@ -82,31 +83,32 @@ function mountEditor(dialog, body, template, state) {
     if (!validateForm(form, status)) return;
     const card = buildCardHtml(template, currentValues(), state, options(body));
     printHtml(repeatForSheet(card, Number(count.value)), { className: 'cards-print', title: template.title });
+    status.textContent = 'Janela de impressão aberta.';
+    status.dataset.status = 'success';
   });
 
   body.querySelector('#card-pdf').addEventListener('click', async (event) => {
     if (!validateForm(form, status)) return;
     const button = event.currentTarget;
-    button.disabled = true;
+    setButtonBusy(button, true, 'Gerando PDF…');
     status.textContent = 'Gerando PDF…';
     status.dataset.status = 'info';
     try {
       const card = buildCardHtml(template, currentValues(), state, options(body));
-      await downloadPdf(repeatForSheet(card, Number(count.value)), { className: 'cards-print', title: template.title });
-      status.textContent = 'PDF gerado.';
-      status.dataset.status = 'success';
+      const result = await downloadPdf(repeatForSheet(card, Number(count.value)), { className: 'cards-print', title: template.title });
+      status.textContent = result.mode === 'pdf' ? 'PDF gerado.' : 'Gerador de PDF indisponível; a impressão foi aberta como alternativa.';
+      status.dataset.status = result.mode === 'pdf' ? 'success' : 'info';
     } catch (error) {
       console.error(error);
       status.textContent = 'Não foi possível gerar o PDF.';
       status.dataset.status = 'error';
     } finally {
-      button.disabled = false;
+      setButtonBusy(button, false);
     }
   });
 
   update();
   dialog.showModal();
-  body.querySelector('input,select,textarea,button')?.focus();
 }
 
 function validateForm(form, status) {
