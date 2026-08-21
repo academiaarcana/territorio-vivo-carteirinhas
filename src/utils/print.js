@@ -25,7 +25,7 @@ export function printHtml(html, { className = '', title = 'Território Vivo' } =
 export async function downloadPdf(html, { className = '', title = 'Território Vivo', filename = null, margin = 8 } = {}) {
   if (!window.html2pdf) {
     printHtml(html, { className, title });
-    return;
+    return { mode: 'print-fallback' };
   }
   const wrapper = document.createElement('section');
   wrapper.className = `pdf-document ${className}`;
@@ -45,6 +45,7 @@ export async function downloadPdf(html, { className = '', title = 'Território V
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'] }
     }).from(wrapper).save();
+    return { mode: 'pdf' };
   } finally {
     wrapper.remove();
   }
