@@ -1,4 +1,5 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
+import { openAccessibleDialog } from '../core/a11y.js';
 import { educationTopics, getEducationTopic } from '../data/education.js';
 import { escapeHtml, formatDateBr, setStatus } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
@@ -40,7 +41,7 @@ export function mountEducationPage({ root, state }) {
         setButtonBusy(pdfButton, false);
       }
     });
-    dialog.showModal();
+    openAccessibleDialog(dialog, button);
   }));
 }
 
