@@ -37,12 +37,12 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
         <div class="account-card">
           <span class="avatar" aria-hidden="true">${escapeHtml(initials(profile?.full_name))}</span>
           <div><strong>${escapeHtml(profile?.full_name || 'Profissional')}</strong><small>${escapeHtml(roleLabel(profile))}${profile?.microarea && !isMaster(profile) ? ` • Microárea ${escapeHtml(profile.microarea)}` : ''}</small><small>${escapeHtml(accessStatusLabel(profile))}</small></div>
-          <button type="button" class="link-button" data-signout>Sair</button>
         </div>
       </aside>
       <div class="workspace">
         <header class="workspace-header">
           <div><p class="eyebrow">${escapeHtml(municipalityLabel)}</p><h1>${escapeHtml(title)}</h1>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div>
+          <button type="button" class="button workspace-signout" data-signout>Sair da conta</button>
         </header>
         <main id="main-content" class="page-content" tabindex="-1">${content}</main>
       </div>
