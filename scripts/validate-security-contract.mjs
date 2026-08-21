@@ -19,7 +19,8 @@ const mustExist = [
   'supabase/migrations/017_restrict_unit_admin_access_status_management.sql',
   'supabase/migrations/018_canonicalize_profile_network_labels.sql',
   'supabase/migrations/019_restrict_unit_admin_profile_updates_to_acs.sql',
-  'supabase/migrations/020_protect_approved_profile_microarea_scope.sql'
+  'supabase/migrations/020_protect_approved_profile_microarea_scope.sql',
+  'supabase/migrations/021_least_privilege_unit_admin_visibility.sql'
 ];
 
 for (const file of mustExist) {
@@ -66,6 +67,8 @@ expect(migration15, 'new.municipality_code is distinct from old.municipality_cod
 const migration16 = read('supabase/migrations/016_profile_access_approval_and_membership.sql');
 expect(migration16, "access_status in ('pending','active','suspended')", 'perfil precisa ter ciclo de aprovação explícito');
 expect(migration16, 'private.is_active_member()', 'acesso territorial precisa exigir membro ativo');
+expect(migration16, "role = 'admin'\n      and access_status = 'active'", 'master suspenso não pode manter privilégio administrativo');
+expect(migration16, "role = 'unit_admin' and access_status = 'active'", 'administrador de UBS suspenso não pode manter privilégio administrativo');
 expect(migration16, 'initial_status := case', 'novas contas precisam nascer pendentes, exceto master');
 expect(migration16, 'O usuário não pode alterar o próprio status de acesso', 'usuário não pode se autoaprovar');
 
@@ -88,6 +91,11 @@ expect(migration20, 'new.microarea is distinct from old.microarea', 'microárea 
 expect(migration20, "old.role = 'acs' and old.access_status <> 'pending'", 'ACS aprovado não pode alterar o próprio escopo');
 expect(migration20, 'Profissional ativo não pode alterar o próprio vínculo institucional', 'tentativa de alteração do vínculo aprovado precisa falhar no banco');
 expect(migration20, 'before update of id, access_status, municipality_code, unit_cnes, team_id, microarea, unit_name, team_name', 'trigger precisa observar todo o vínculo territorial');
+
+const migration21 = read('supabase/migrations/021_least_privilege_unit_admin_visibility.sql');
+expect(migration21, "and role = 'acs'", 'unit_admin só deve enxergar perfis profissionais da própria UBS além de si mesmo');
+expect(migration21, 'or private.is_unit_admin_for(unit_cnes)', 'unit_admin precisa enxergar equipes inativas da própria UBS para poder reativá-las');
+expect(migration21, 'or private.is_unit_admin_for(cnes)', 'unit_admin precisa enxergar a própria unidade mesmo se ficar inativa');
 
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
@@ -131,7 +139,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos, autoria, dados temporários e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, escopos, autoria, dados temporários e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
