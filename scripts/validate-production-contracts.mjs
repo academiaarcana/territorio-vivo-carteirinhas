@@ -51,6 +51,13 @@ for (const file of ['src/pages/auth.js', 'src/pages/profile.js', 'src/pages/acce
   expect(content, 'setSelectError', `${file} precisa invalidar selects dependentes quando o catálogo falha.`);
 }
 
+for (const file of ['src/pages/cards.js', 'src/pages/five.js', 'src/pages/indicators.js']) {
+  const content = read(file);
+  for (const forbidden of ["../services/repository.js", "../services/supabase.js", 'localStorage', 'sessionStorage', 'indexedDB', 'IndexedDB']) {
+    if (content.includes(forbidden)) errors.push(`${file} deve manter dados temporários fora de persistência: referência proibida ${forbidden}.`);
+  }
+}
+
 const main = read('src/main.js');
 expect(main, "registerRoute('/recuperar-senha', { auth: true", 'Tela de nova senha deve exigir sessão de recuperação/autenticada.');
 
@@ -116,4 +123,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contratos de produção OK: Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos, busy states, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
+console.log('Contratos de produção OK: Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos, busy states, dados temporários sem persistência, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
