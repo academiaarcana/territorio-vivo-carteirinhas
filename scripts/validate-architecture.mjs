@@ -8,7 +8,7 @@ const errors = [];
 
 const required = [
   'index.html','config.js','package.json','docs/MIGRATION_HISTORY.md',
-  'src/main.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js',
+  'src/main.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js','src/core/a11y.js',
   'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/services/access.js','src/data/cards.js','src/data/education.js','src/data/indicators.js',
   'src/pages/public.js','src/pages/auth.js','src/pages/access-pending.js','src/pages/access-management.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
   'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css',
@@ -48,8 +48,16 @@ if (!layout.includes('/app/aprovacoes')) errors.push('Navegação de gestão pre
 const main = read('src/main.js');
 if (!main.includes("'/app/aguardando'")) errors.push('Aplicação precisa ter rota para cadastro aguardando aprovação.');
 if (!main.includes("'/app/aprovacoes'")) errors.push('Aplicação precisa ter rota de gestão de aprovações.');
+if (!main.includes('installGlobalA11y()')) errors.push('Aplicação precisa instalar o controlador global de acessibilidade.');
 const activeRouteCount = [...main.matchAll(/active:\s*true/g)].length;
 if (activeRouteCount < 8) errors.push('Rotas internas precisam exigir perfil ativo por padrão.');
+
+const a11y = read('src/core/a11y.js');
+for (const key of ['ArrowRight','ArrowLeft','Home','End']) {
+  if (!a11y.includes(key)) errors.push(`Controlador de tabs precisa tratar a tecla ${key}.`);
+}
+if (!a11y.includes('[role="tablist"]') || !a11y.includes('[role="tab"]')) errors.push('Controlador de tabs precisa usar a semântica ARIA correta.');
+if (!a11y.includes('event.preventDefault()')) errors.push('Navegação por setas em tabs precisa impedir o scroll/ação padrão.');
 
 const structural = read('src/styles/structural.css');
 if (!structural.includes(':focus-visible')) errors.push('Camada estrutural precisa definir foco de teclado visível.');
@@ -98,10 +106,6 @@ for (const [file, dialogId, labelId] of dialogContracts) {
   if (!content.includes(`id="${dialogId}"`) || !content.includes(`aria-labelledby="${labelId}"`) || !content.includes(`id="${labelId}"`)) {
     errors.push(`${file} precisa manter o diálogo ${dialogId} rotulado por ${labelId}.`);
   }
-}
-const adminPage = read('src/pages/admin.js');
-for (const key of ['ArrowRight','ArrowLeft','Home','End']) {
-  if (!adminPage.includes(key)) errors.push(`Tabs da gestão precisam tratar a tecla ${key}.`);
 }
 
 const cardsModule = await import(pathToFileUrl(path.join(root, 'src/data/cards.js')));
