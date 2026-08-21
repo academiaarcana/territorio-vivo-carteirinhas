@@ -115,22 +115,25 @@ export async function mountSignupPage({ root }) {
   }
 
   async function loadUnits() {
-    setSelectLoading(unit, municipality.value ? 'Carregando unidades…' : 'Selecione o município');
+    const municipalityCode = municipality.value;
+    setSelectLoading(unit, municipalityCode ? 'Carregando unidades…' : 'Selecione o município');
     setSelectLoading(team, 'Selecione a unidade');
     customWrap.hidden = true;
     customWrap.querySelector('input').value = '';
-    if (!municipality.value) {
+    if (!municipalityCode) {
       setSelectReady(unit);
       setSelectReady(team);
       return;
     }
     try {
-      const rows = await listUnits({ municipalityCode: municipality.value });
+      const rows = await listUnits({ municipalityCode });
+      if (municipality.value !== municipalityCode) return;
       unit.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}${row.neighborhood ? ` — ${escapeHtml(row.neighborhood)}` : ''}</option>`).join('');
       setSelectReady(unit);
       team.innerHTML = '<option value="">Selecione a unidade</option>';
       setSelectReady(team);
     } catch (error) {
+      if (municipality.value !== municipalityCode) return;
       setSelectError(unit, 'Não foi possível carregar as unidades');
       setSelectError(team, 'Equipes indisponíveis');
       throw error;
@@ -138,18 +141,21 @@ export async function mountSignupPage({ root }) {
   }
 
   async function loadTeams() {
-    setSelectLoading(team, unit.value ? 'Carregando equipes…' : 'Selecione a unidade');
+    const unitCnes = unit.value;
+    setSelectLoading(team, unitCnes ? 'Carregando equipes…' : 'Selecione a unidade');
     customWrap.hidden = true;
     customWrap.querySelector('input').value = '';
-    if (!unit.value) {
+    if (!unitCnes) {
       setSelectReady(team);
       return;
     }
     try {
-      const rows = await listTeams({ unitCnes: unit.value });
+      const rows = await listTeams({ unitCnes });
+      if (unit.value !== unitCnes) return;
       team.innerHTML = '<option value="">Equipe ainda não informada</option>' + rows.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + '<option value="__other__">Minha equipe não aparece</option>';
       setSelectReady(team);
     } catch (error) {
+      if (unit.value !== unitCnes) return;
       setSelectError(team, 'Não foi possível carregar as equipes');
       throw error;
     }
