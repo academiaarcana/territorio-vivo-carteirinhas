@@ -254,7 +254,7 @@ function authErrorMessage(error, context) {
   const message = String(error?.message || '').toLowerCase();
   if (code.includes('email_not_confirmed') || message.includes('email not confirmed')) return 'Seu e-mail ainda não foi confirmado. Abra a mensagem enviada pelo Território Vivo e tente novamente.';
   if (code.includes('invalid_credentials') || message.includes('invalid login credentials')) return 'E-mail ou senha incorretos.';
-  if (code.includes('user_already_exists') || message.includes('already registered')) return 'Este e-mail já possui uma conta. Use “Já tenho conta” ou recupere a senha.';
+  if (code.includes('user_already_exists') || message.includes('already registered')) return 'Não foi possível concluir o cadastro. Se você já tiver uma conta, use “Já tenho conta” ou recupere a senha.';
   if (code.includes('weak_password') || message.includes('weak password')) return `Escolha uma senha mais forte, com pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
   if (code.includes('over_request_rate_limit') || code.includes('rate_limit') || message.includes('rate limit')) return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
   if (context === 'reset') return 'Não foi possível enviar o link agora. Aguarde um pouco e tente novamente.';
