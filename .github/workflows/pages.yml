@@ -42,12 +42,13 @@ jobs:
           grep -q "type=\"module\"" index.html
           ! grep -R "service_role" src config.js index.html --exclude-dir=.git
 
-      - name: Testar catálogo público do Supabase
+      - name: Testar fronteiras públicas do Supabase
         shell: bash
         run: |
           set -euo pipefail
           SUPABASE_URL=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabaseUrl:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
           SUPABASE_KEY=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabasePublishableKey:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+
           for TABLE in municipalities health_units teams; do
             CODE=$(curl --silent --show-error --output "/tmp/${TABLE}.json" --write-out "%{http_code}" \
               "${SUPABASE_URL}/rest/v1/${TABLE}?select=*&limit=20" \
@@ -55,6 +56,14 @@ jobs:
               -H "Authorization: Bearer ${SUPABASE_KEY}")
             test "${CODE}" = "200"
           done
+
+          PRIVATE_CODE=$(curl --silent --show-error --output /tmp/territory_points.json --write-out "%{http_code}" \
+            "${SUPABASE_URL}/rest/v1/territory_points?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}")
+          test "${PRIVATE_CODE}" != "200"
+
+          echo "Catálogo público acessível e territory_points protegido de acesso anônimo."
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
