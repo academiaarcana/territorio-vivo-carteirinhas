@@ -2,7 +2,7 @@ import { escapeHtml, initials } from '../lib/dom.js';
 import { navigate } from './router.js';
 import { getState } from './store.js';
 import { signOut } from '../services/auth.js';
-import { isManagement, isMaster, roleLabel } from './permissions.js';
+import { accessStatusLabel, isManagement, isMaster, roleLabel } from './permissions.js';
 
 const navItems = [
   ['/app/inicio', 'Início'],
@@ -17,10 +17,13 @@ const navItems = [
 export function appLayout({ title, subtitle = '', activePath, content }) {
   const { profile, context } = getState();
   const management = isManagement(profile);
-  const items = management ? [...navItems, ['/app/gestao', isMaster(profile) ? 'Gestão da rede' : 'Gestão da UBS']] : navItems;
+  const managementItems = management
+    ? [['/app/aprovacoes', 'Aprovações'], ['/app/gestao', isMaster(profile) ? 'Gestão da rede' : 'Gestão da UBS']]
+    : [];
+  const items = [...navItems, ...managementItems];
   const contextLabel = [context?.unit?.short_name || profile?.unit_name, context?.team?.name || profile?.team_name]
     .filter(Boolean).join(' • ') || 'Atenção Primária';
-  const municipalityLabel = [context?.municipality?.name || 'Pimenta Bueno', context?.municipality?.state_code || 'RO'].filter(Boolean).join(' • ');
+  const municipalityLabel = [context?.municipality?.name, context?.municipality?.state_code].filter(Boolean).join(' • ') || 'Rede de Atenção Primária';
 
   return `
     <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
@@ -32,7 +35,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
         </nav>
         <div class="account-card">
           <span class="avatar" aria-hidden="true">${escapeHtml(initials(profile?.full_name))}</span>
-          <div><strong>${escapeHtml(profile?.full_name || 'Profissional')}</strong><small>${escapeHtml(roleLabel(profile))}${profile?.microarea && !isMaster(profile) ? ` • Microárea ${escapeHtml(profile.microarea)}` : ''}</small></div>
+          <div><strong>${escapeHtml(profile?.full_name || 'Profissional')}</strong><small>${escapeHtml(roleLabel(profile))}${profile?.microarea && !isMaster(profile) ? ` • Microárea ${escapeHtml(profile.microarea)}` : ''}</small><small>${escapeHtml(accessStatusLabel(profile))}</small></div>
           <button type="button" class="link-button" data-signout>Sair</button>
         </div>
       </aside>
