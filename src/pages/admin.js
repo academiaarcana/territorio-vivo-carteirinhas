@@ -1,4 +1,5 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
+import { openAccessibleDialog } from '../core/a11y.js';
 import { escapeHtml, formToObject, setStatus, formatDateBr } from '../lib/dom.js';
 import { setButtonBusy, canSubmitForm } from '../lib/forms.js';
 import { isMaster, isUnitAdmin, roleLabel, canChangeProfileRole } from '../core/permissions.js';
@@ -226,7 +227,7 @@ export async function mountAdminPage({ root, state }) {
         }
       });
     });
-    dialog.showModal();
+    openAccessibleDialog(dialog);
   }
 
   function openTeamEditor({ teamId = null, pendingProfileId = null } = {}) {
@@ -262,7 +263,7 @@ export async function mountAdminPage({ root, state }) {
         }
       });
     });
-    dialog.showModal();
+    openAccessibleDialog(dialog);
   }
 
   function openUnitEditor(cnes) {
@@ -290,7 +291,7 @@ export async function mountAdminPage({ root, state }) {
         task: () => updateUnit(cnes, values)
       });
     });
-    dialog.showModal();
+    openAccessibleDialog(dialog);
   }
 
   function openUnitCreate() {
@@ -310,7 +311,7 @@ export async function mountAdminPage({ root, state }) {
         task: () => createUnit(values)
       });
     });
-    dialog.showModal();
+    openAccessibleDialog(dialog);
   }
 
   function openMunicipalityCreate() {
@@ -325,7 +326,7 @@ export async function mountAdminPage({ root, state }) {
         task: () => createMunicipality(formToObject(form))
       });
     });
-    dialog.showModal();
+    openAccessibleDialog(dialog);
   }
 
   function openMunicipalityEditor(code) {
@@ -344,7 +345,7 @@ export async function mountAdminPage({ root, state }) {
         task: () => updateMunicipality(code, values)
       });
     });
-    dialog.showModal();
+    openAccessibleDialog(dialog);
   }
 
   await refresh();
