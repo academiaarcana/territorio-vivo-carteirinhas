@@ -15,7 +15,8 @@ const mustExist = [
   'supabase/migrations/014_restrict_territory_point_reads_by_unit.sql',
   'supabase/migrations/015_protect_unit_admin_institutional_scope.sql',
   'supabase/migrations/016_profile_access_approval_and_membership.sql',
-  'supabase/migrations/017_restrict_unit_admin_access_status_management.sql'
+  'supabase/migrations/017_restrict_unit_admin_access_status_management.sql',
+  'supabase/migrations/018_canonicalize_profile_network_labels.sql'
 ];
 
 for (const file of mustExist) {
@@ -65,6 +66,13 @@ const migration17 = read('supabase/migrations/017_restrict_unit_admin_access_sta
 expect(migration17, "old.role <> 'acs'", 'unit_admin só pode aprovar ou suspender perfil profissional');
 expect(migration17, 'Somente o master pode alterar o acesso de administradores', 'administradores devem ser controlados pelo master');
 
+const migration18 = read('supabase/migrations/018_canonicalize_profile_network_labels.sql');
+expect(migration18, 'new.unit_name := resolved_unit_name', 'nome da unidade no perfil deve vir do cadastro institucional');
+expect(migration18, 'new.team_name := resolved_team_name', 'nome da equipe vinculada deve vir do cadastro institucional');
+expect(migration18, "new.role <> 'admin' and new.access_status = 'active'", 'perfil profissional ativo precisa exigir UBS válida');
+expect(migration18, 'new.unit_name is distinct from old.unit_name', 'rótulo textual da UBS deve participar da proteção do escopo');
+expect(migration18, 'new.team_name is distinct from old.team_name', 'rótulo textual da equipe deve participar da proteção do escopo');
+
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
 const config = read('config.js');
@@ -87,7 +95,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos e fronteiras de privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos, vínculo canônico e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
