@@ -171,7 +171,11 @@ expect(adminPage, 'canEditManagedProfile', 'gestão local não deve oferecer edi
 expect(adminPage, 'const identityFields = master', 'formulário da UBS deve separar identidade oficial de dados operacionais');
 expect(adminPage, '<span>Nome oficial</span>', 'unit_admin deve ver nome oficial da UBS como somente leitura');
 expect(adminPage, '<span>Nome curto</span>', 'unit_admin deve ver nome curto da UBS como somente leitura');
-expect(adminPage, 'await createUnit(values)', 'cadastro de UBS deve enviar o vínculo municipal por código e deixar rótulos canônicos ao banco');
+if (!/\bcreateUnit\(values\)/.test(adminPage)) errors.push('cadastro de UBS deve enviar o vínculo municipal por código e deixar rótulos canônicos ao banco');
+expect(adminPage, "from '../lib/forms.js'", 'gestão precisa reutilizar utilitário compartilhado de estado ocupado');
+expect(adminPage, 'submitDialogForm', 'formulários administrativos precisam centralizar prevenção de duplo envio');
+expect(adminPage, 'setButtonBusy(confirmUnit', 'confirmação de UBS precisa bloquear cliques repetidos');
+expect(adminPage, 'setButtonBusy(toggleTeam', 'ativação/desativação de equipe precisa bloquear cliques repetidos');
 if (adminPage.includes('option.dataset.name') || adminPage.includes('option.dataset.state')) errors.push('Cadastro de UBS não deve montar município/UF textuais no navegador.');
 
 const accessService = read('src/services/access.js');
