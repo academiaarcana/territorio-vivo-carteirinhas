@@ -17,7 +17,8 @@ const mustExist = [
   'supabase/migrations/016_profile_access_approval_and_membership.sql',
   'supabase/migrations/017_restrict_unit_admin_access_status_management.sql',
   'supabase/migrations/018_canonicalize_profile_network_labels.sql',
-  'supabase/migrations/019_restrict_unit_admin_profile_updates_to_acs.sql'
+  'supabase/migrations/019_restrict_unit_admin_profile_updates_to_acs.sql',
+  'supabase/migrations/020_protect_approved_profile_microarea_scope.sql'
 ];
 
 for (const file of mustExist) {
@@ -59,9 +60,8 @@ expect(migration15, 'new.municipality_code is distinct from old.municipality_cod
 const migration16 = read('supabase/migrations/016_profile_access_approval_and_membership.sql');
 expect(migration16, "access_status in ('pending','active','suspended')", 'perfil precisa ter ciclo de aprovação explícito');
 expect(migration16, 'private.is_active_member()', 'acesso territorial precisa exigir membro ativo');
-expect(migration16, "initial_status := case", 'novas contas precisam nascer pendentes, exceto master');
+expect(migration16, 'initial_status := case', 'novas contas precisam nascer pendentes, exceto master');
 expect(migration16, 'O usuário não pode alterar o próprio status de acesso', 'usuário não pode se autoaprovar');
-expect(migration16, 'Profissional ativo não pode alterar o próprio vínculo institucional', 'ACS ativo não pode trocar o próprio escopo');
 
 const migration17 = read('supabase/migrations/017_restrict_unit_admin_access_status_management.sql');
 expect(migration17, "old.role <> 'acs'", 'unit_admin só pode aprovar ou suspender perfil profissional');
@@ -71,13 +71,17 @@ const migration18 = read('supabase/migrations/018_canonicalize_profile_network_l
 expect(migration18, 'new.unit_name := resolved_unit_name', 'nome da unidade no perfil deve vir do cadastro institucional');
 expect(migration18, 'new.team_name := resolved_team_name', 'nome da equipe vinculada deve vir do cadastro institucional');
 expect(migration18, "new.role <> 'admin' and new.access_status = 'active'", 'perfil profissional ativo precisa exigir UBS válida');
-expect(migration18, 'new.unit_name is distinct from old.unit_name', 'rótulo textual da UBS deve participar da proteção do escopo');
-expect(migration18, 'new.team_name is distinct from old.team_name', 'rótulo textual da equipe deve participar da proteção do escopo');
 
 const migration19 = read('supabase/migrations/019_restrict_unit_admin_profile_updates_to_acs.sql');
 expect(migration19, "and role = 'acs'", 'unit_admin só pode atualizar perfil profissional dentro da própria UBS');
 expect(migration19, 'unit_cnes = private.current_unit_cnes()', 'edição local de perfil precisa permanecer na própria UBS');
 expect(migration19, 'profiles_update_by_scope', 'policy de atualização de perfis precisa estar versionada');
+
+const migration20 = read('supabase/migrations/020_protect_approved_profile_microarea_scope.sql');
+expect(migration20, 'new.microarea is distinct from old.microarea', 'microárea precisa integrar o vínculo territorial protegido');
+expect(migration20, "old.role = 'acs' and old.access_status <> 'pending'", 'ACS aprovado não pode alterar o próprio escopo');
+expect(migration20, 'Profissional ativo não pode alterar o próprio vínculo institucional', 'tentativa de alteração do vínculo aprovado precisa falhar no banco');
+expect(migration20, 'before update of id, access_status, municipality_code, unit_cnes, team_id, microarea, unit_name, team_name', 'trigger precisa observar todo o vínculo territorial');
 
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
@@ -92,6 +96,12 @@ const pendingPage = read('src/pages/access-pending.js');
 expect(pendingPage, 'Verificar aprovação', 'perfil pendente precisa conseguir consultar aprovação');
 expect(pendingPage, 'Depois da aprovação', 'onboarding precisa explicar que vínculo aprovado fica protegido');
 
+const profilePage = read('src/pages/profile.js');
+expect(profilePage, 'scopeLocked', 'perfil ativo precisa refletir vínculo territorial bloqueado na interface');
+
+const adminPage = read('src/pages/admin.js');
+expect(adminPage, 'canEditManagedProfile', 'gestão local não deve oferecer edição de perfis administrativos protegidos');
+
 const accessService = read('src/services/access.js');
 if (accessService.includes("'role'")) errors.push('Serviço de aprovação não deve alterar papel de acesso junto com status.');
 
@@ -101,7 +111,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos, vínculo canônico, hierarquia de perfis e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos, microárea, vínculo canônico, hierarquia e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
