@@ -10,7 +10,7 @@ export function renderAdminPage({ state }) {
   const master = isMaster(state.profile);
   const content = `
     <section class="page-toolbar">
-      <div><p class="eyebrow">${master ? 'Gestão municipal' : 'Administração da UBS'}</p><h2>${master ? 'Gestão da rede' : escapeHtml(state.context?.unit?.short_name || state.profile?.unit_name || 'Minha UBS')}</h2><p>${master ? 'Administre dados profissionais e institucionais da rede.' : 'Administre perfis profissionais, dados institucionais e equipes somente da sua unidade.'} Dados temporários das carteirinhas não aparecem aqui.</p></div>
+      <div><p class="eyebrow">${master ? 'Gestão municipal' : 'Administração da UBS'}</p><h2>${master ? 'Gestão da rede' : escapeHtml(state.context?.unit?.short_name || state.profile?.unit_name || 'Minha UBS')}</h2><p>${master ? 'Administre dados profissionais e institucionais da rede.' : 'Administre perfis profissionais, dados operacionais e equipes somente da sua unidade.'} Dados temporários das carteirinhas não aparecem aqui.</p></div>
       <div class="toolbar-actions"><label class="compact-search">Buscar<input id="admin-search" type="search" placeholder="Nome, CNES, equipe, microárea…"></label><button class="button" id="admin-refresh" type="button">Atualizar</button></div>
     </section>
     <div id="admin-kpis" class="kpi-grid" aria-live="polite"></div>
@@ -25,7 +25,7 @@ export function renderAdminPage({ state }) {
       <p id="admin-status" class="form-status" aria-live="polite"></p>
     </section>
     <dialog id="admin-dialog" class="editor-dialog" aria-labelledby="admin-dialog-title"><form method="dialog"><button class="dialog-close" value="cancel" aria-label="Fechar">×</button></form><div id="admin-dialog-body"></div></dialog>`;
-  return appLayout({ title: master ? 'Gestão da rede' : 'Gestão da UBS', subtitle: master ? 'Perfis, municípios, unidades e equipes.' : 'Perfis profissionais, unidade e equipes do seu escopo.', activePath: '/app/gestao', content });
+  return appLayout({ title: master ? 'Gestão da rede' : 'Gestão da UBS', subtitle: master ? 'Perfis, municípios, unidades e equipes.' : 'Perfis profissionais, dados operacionais da unidade e equipes do seu escopo.', activePath: '/app/gestao', content });
 }
 
 export async function mountAdminPage({ root, state }) {
@@ -192,7 +192,7 @@ export async function mountAdminPage({ root, state }) {
         <label>Nome da equipe<input name="name" required maxlength="120" value="${escapeHtml(existing?.name || pendingProfile?.team_name || '')}"></label>
         <label>INE / identificador<input name="ine" maxlength="30" value="${escapeHtml(existing?.ine || '')}"></label>
         <label>Status<select name="verification_status"><option value="confirmed" ${(existing?.verification_status || 'confirmed') === 'confirmed' ? 'selected' : ''}>Confirmada</option><option value="pending" ${existing?.verification_status === 'pending' ? 'selected' : ''}>Pendente</option></select></label>
-        <label>Observação<textarea name="source_note" rows="3">${escapeHtml(existing?.source_note || '')}</textarea></label>
+        <label>Observação<textarea name="source_note" rows="3" maxlength="1000">${escapeHtml(existing?.source_note || '')}</textarea></label>
         <button class="button primary">${existing ? 'Salvar equipe' : 'Cadastrar equipe'}</button>
       </form></section>`;
     dialogBody.querySelector('#team-form').addEventListener('submit', async (event) => {
@@ -215,12 +215,15 @@ export async function mountAdminPage({ root, state }) {
   function openUnitEditor(cnes) {
     const unit = data.units.find((row) => row.cnes === cnes);
     if (!unit) return;
+    const identityFields = master
+      ? `<label>Nome completo<input name="name" value="${escapeHtml(unit.name || '')}" required maxlength="180"></label><label>Nome curto<input name="short_name" value="${escapeHtml(unit.short_name || '')}" required maxlength="140"></label>`
+      : `<div class="readonly-field"><span>Nome oficial</span><strong>${escapeHtml(unit.name || '—')}</strong></div><div class="readonly-field"><span>Nome curto</span><strong>${escapeHtml(unit.short_name || '—')}</strong></div>`;
     dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar unidade</h2><form id="unit-edit-form" class="stack-form">
       <div class="readonly-field"><span>CNES</span><strong>${escapeHtml(unit.cnes)}</strong></div>
-      <label>Nome completo<input name="name" value="${escapeHtml(unit.name || '')}" required></label><label>Nome curto<input name="short_name" value="${escapeHtml(unit.short_name || '')}" required></label>
-      <label>Endereço<input name="address" value="${escapeHtml(unit.address || '')}"></label><label>Bairro / localidade<input name="neighborhood" value="${escapeHtml(unit.neighborhood || '')}"></label><label>Telefone<input name="phone" value="${escapeHtml(unit.phone || '')}"></label><label>Horário<input name="hours" value="${escapeHtml(unit.hours || '')}"></label>
+      ${identityFields}
+      <label>Endereço<input name="address" value="${escapeHtml(unit.address || '')}" maxlength="240"></label><label>Bairro / localidade<input name="neighborhood" value="${escapeHtml(unit.neighborhood || '')}" maxlength="120"></label><label>Telefone<input name="phone" value="${escapeHtml(unit.phone || '')}" maxlength="80"></label><label>Horário<input name="hours" value="${escapeHtml(unit.hours || '')}" maxlength="160"></label>
       <label>Status do dado<select name="data_status"><option value="public_source" ${unit.data_status==='public_source'?'selected':''}>Fonte pública</option><option value="team_confirmed" ${unit.data_status==='team_confirmed'?'selected':''}>Confirmado localmente</option><option value="needs_review" ${unit.data_status==='needs_review'?'selected':''}>Precisa revisão</option></select></label>
-      <label>Nota da fonte<textarea name="source_note" rows="3">${escapeHtml(unit.source_note || '')}</textarea></label>
+      <label>Nota da fonte<textarea name="source_note" rows="3" maxlength="1000">${escapeHtml(unit.source_note || '')}</textarea></label>
       ${master ? `<label class="check"><input type="checkbox" name="is_active" ${unit.is_active ? 'checked' : ''}> Unidade ativa</label>` : ''}<button class="button primary">Salvar</button></form></section>`;
     dialogBody.querySelector('#unit-edit-form').addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -234,16 +237,15 @@ export async function mountAdminPage({ root, state }) {
 
   function openUnitCreate() {
     dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Cadastrar unidade</h2><form id="unit-create-form" class="stack-form">
-      <label>Município<select name="municipality_code" required>${data.municipalities.filter((m) => m.active).map((m) => `<option value="${escapeHtml(m.code)}" data-name="${escapeHtml(m.name)}" data-state="${escapeHtml(m.state_code)}">${escapeHtml(m.name)} — ${escapeHtml(m.state_code)}</option>`).join('')}</select></label>
+      <label>Município<select name="municipality_code" required>${data.municipalities.filter((m) => m.active).map((m) => `<option value="${escapeHtml(m.code)}">${escapeHtml(m.name)} — ${escapeHtml(m.state_code)}</option>`).join('')}</select></label>
       <label>CNES<input name="cnes" required maxlength="20"></label><label>Nome completo<input name="name" required maxlength="180"></label><label>Nome curto<input name="short_name" maxlength="140"></label>
       <label>Tipo<select name="unit_type"><option value="ubs">UBS</option><option value="rural">Rural</option><option value="district">Distrito / ponto</option><option value="other">Outro</option></select></label>
-      <label>Endereço<input name="address"></label><label>Bairro/localidade<input name="neighborhood"></label><label>Telefone<input name="phone"></label><label>Horário<input name="hours"></label><button class="button primary">Cadastrar unidade</button></form></section>`;
+      <label>Endereço<input name="address" maxlength="240"></label><label>Bairro/localidade<input name="neighborhood" maxlength="120"></label><label>Telefone<input name="phone" maxlength="80"></label><label>Horário<input name="hours" maxlength="160"></label><button class="button primary">Cadastrar unidade</button></form></section>`;
     dialogBody.querySelector('#unit-create-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const values = formToObject(event.currentTarget);
-      const option = event.currentTarget.elements.municipality_code.selectedOptions[0];
-      try { await createUnit({ ...values, municipality: option.dataset.name, state: option.dataset.state }); dialog.close(); await refresh(); setStatus(status, 'Unidade cadastrada.', 'success'); }
-      catch { setStatus(status, 'Não foi possível cadastrar a unidade. Confira o CNES.', 'error'); }
+      try { await createUnit(values); dialog.close(); await refresh(); setStatus(status, 'Unidade cadastrada.', 'success'); }
+      catch { setStatus(status, 'Não foi possível cadastrar a unidade. Confira o CNES e o município.', 'error'); }
     });
     dialog.showModal();
   }
@@ -261,7 +263,7 @@ export async function mountAdminPage({ root, state }) {
   function openMunicipalityEditor(code) {
     const item = data.municipalities.find((row) => row.code === code);
     if (!item) return;
-    dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar município</h2><form id="municipality-edit-form" class="stack-form"><div class="readonly-field"><span>Código IBGE</span><strong>${escapeHtml(item.code)}</strong></div><label>Município<input name="name" required value="${escapeHtml(item.name)}"></label><label>UF<input name="state_code" required maxlength="2" value="${escapeHtml(item.state_code)}"></label><label class="check"><input type="checkbox" name="active" ${item.active ? 'checked' : ''}> Município ativo</label><button class="button primary">Salvar</button></form></section>`;
+    dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar município</h2><form id="municipality-edit-form" class="stack-form"><div class="readonly-field"><span>Código IBGE</span><strong>${escapeHtml(item.code)}</strong></div><label>Município<input name="name" required maxlength="160" value="${escapeHtml(item.name)}"></label><label>UF<input name="state_code" required maxlength="2" pattern="[A-Za-z]{2}" value="${escapeHtml(item.state_code)}"></label><label class="check"><input type="checkbox" name="active" ${item.active ? 'checked' : ''}> Município ativo</label><button class="button primary">Salvar</button></form></section>`;
     dialogBody.querySelector('#municipality-edit-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const values = formToObject(event.currentTarget);
@@ -287,7 +289,7 @@ function renderKpis(root, data, { master }) {
 
 function renderProfiles(data, query, { master, actor }) {
   const rows = filterRows(data.profiles, query, (p) => [p.full_name,p.unit_name,p.team_name,p.microarea,p.acs_phone,roleLabel(p)]);
-  return `<div class="section-actions"><div><h3>Perfis profissionais</h3><p class="field-hint">${master ? 'O master pode administrar profissionais e definir administradores de UBS.' : 'Administradores são visíveis para contexto, mas somente perfis profissionais/ACS podem ser editados pela gestão local.'}</p></div></div>
+  return `<div class="section-actions"><div><h3>Perfis profissionais</h3><p class="field-hint">${master ? 'O master pode administrar profissionais e definir administradores de UBS.' : 'A gestão local vê o próprio perfil e os profissionais/ACS da unidade; somente perfis profissionais/ACS podem ser editados.'}</p></div></div>
     ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Unidade</th><th>Equipe</th><th>Microárea</th><th>Função</th><th>Ações</th></tr></thead><tbody>${rows.map((p) => {
       const editable = canEditManagedProfile(actor, p);
       const pendingTeam = editable && p.role === 'acs' && !p.team_id && p.team_name?.trim() && p.unit_cnes;
@@ -297,7 +299,7 @@ function renderProfiles(data, query, { master, actor }) {
 
 function renderUnits(data, query, { master }) {
   const rows = filterRows(data.units, query, (u) => [u.cnes,u.name,u.short_name,u.address,u.neighborhood,u.phone,u.data_status]);
-  return `<div class="section-actions"><div><h3>${master ? 'Unidades e pontos' : 'Minha unidade'}</h3><p class="field-hint">Dados institucionais; não inclua informações de pacientes.</p></div>${master ? '<button class="button" data-add-unit type="button">Cadastrar unidade</button>' : ''}</div>
+  return `<div class="section-actions"><div><h3>${master ? 'Unidades e pontos' : 'Minha unidade'}</h3><p class="field-hint">${master ? 'Identidade oficial e dados institucionais da rede.' : 'A gestão local pode manter dados operacionais; identidade oficial e estrutura administrativa são protegidas pelo master.'} Não inclua informações de pacientes.</p></div>${master ? '<button class="button" data-add-unit type="button">Cadastrar unidade</button>' : ''}</div>
     ${rows.length ? `<div class="unit-grid">${rows.map((u) => `<article class="unit-card"><div><span class="status-badge">${u.data_status === 'team_confirmed' ? 'Confirmado' : u.data_status === 'needs_review' ? 'Revisar' : 'Fonte pública'}</span><h3>${escapeHtml(u.short_name)}</h3><small>CNES ${escapeHtml(u.cnes)} • ${u.is_active ? 'ativa' : 'inativa'}</small></div><p>${escapeHtml([u.address,u.neighborhood].filter(Boolean).join(' — ') || 'Endereço a confirmar')}</p><p>${escapeHtml(u.phone || 'Telefone a confirmar')}</p><small>Fonte: ${escapeHtml(u.source_label || '—')}${u.source_checked_on ? ` • ${formatDateBr(u.source_checked_on)}` : ''}</small><div class="actions"><button class="link-button" data-edit-unit="${escapeHtml(u.cnes)}">Editar</button>${u.data_status !== 'team_confirmed' ? `<button class="link-button" data-confirm-unit="${escapeHtml(u.cnes)}">Confirmar localmente</button>` : ''}</div></article>`).join('')}</div>` : empty('Nenhuma unidade encontrada')}`;
 }
 
