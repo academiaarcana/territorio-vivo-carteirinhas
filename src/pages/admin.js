@@ -10,7 +10,7 @@ export function renderAdminPage({ state }) {
   const master = isMaster(state.profile);
   const content = `
     <section class="page-toolbar">
-      <div><p class="eyebrow">${master ? 'Gestão municipal' : 'Administração da UBS'}</p><h2>${master ? 'Gestão da rede' : escapeHtml(state.context?.unit?.short_name || state.profile?.unit_name || 'Minha UBS')}</h2><p>${master ? 'Administre dados profissionais e institucionais da rede.' : 'Administre perfis, dados institucionais e equipes somente da sua unidade.'} Dados temporários das carteirinhas não aparecem aqui.</p></div>
+      <div><p class="eyebrow">${master ? 'Gestão municipal' : 'Administração da UBS'}</p><h2>${master ? 'Gestão da rede' : escapeHtml(state.context?.unit?.short_name || state.profile?.unit_name || 'Minha UBS')}</h2><p>${master ? 'Administre dados profissionais e institucionais da rede.' : 'Administre perfis profissionais, dados institucionais e equipes somente da sua unidade.'} Dados temporários das carteirinhas não aparecem aqui.</p></div>
       <div class="toolbar-actions"><label class="compact-search">Buscar<input id="admin-search" type="search" placeholder="Nome, CNES, equipe, microárea…"></label><button class="button" id="admin-refresh" type="button">Atualizar</button></div>
     </section>
     <div id="admin-kpis" class="kpi-grid" aria-live="polite"></div>
@@ -25,7 +25,7 @@ export function renderAdminPage({ state }) {
       <p id="admin-status" class="form-status" aria-live="polite"></p>
     </section>
     <dialog id="admin-dialog" class="editor-dialog" aria-labelledby="admin-dialog-title"><form method="dialog"><button class="dialog-close" value="cancel" aria-label="Fechar">×</button></form><div id="admin-dialog-body"></div></dialog>`;
-  return appLayout({ title: master ? 'Gestão da rede' : 'Gestão da UBS', subtitle: master ? 'Perfis, municípios, unidades e equipes.' : 'Perfis, unidade e equipes do seu escopo.', activePath: '/app/gestao', content });
+  return appLayout({ title: master ? 'Gestão da rede' : 'Gestão da UBS', subtitle: master ? 'Perfis, municípios, unidades e equipes.' : 'Perfis profissionais, unidade e equipes do seu escopo.', activePath: '/app/gestao', content });
 }
 
 export async function mountAdminPage({ root, state }) {
@@ -46,14 +46,12 @@ export async function mountAdminPage({ root, state }) {
       const [profilesRaw, unitsRaw, teamsRaw, municipalitiesRaw] = await Promise.all([
         listProfiles(), listUnits({ includeInactive: true }), listTeams({ includeInactive: true }), listMunicipalities({ includeInactive: true })
       ]);
-
       const ownUnit = state.profile?.unit_cnes;
       const ownMunicipality = state.profile?.municipality_code;
       const units = master ? unitsRaw : unitsRaw.filter((unit) => unit.cnes === ownUnit);
       const teams = master ? teamsRaw : teamsRaw.filter((team) => team.unit_cnes === ownUnit);
       const profiles = master ? profilesRaw : profilesRaw.filter((profile) => profile.unit_cnes === ownUnit);
       const municipalities = master ? municipalitiesRaw : municipalitiesRaw.filter((item) => item.code === ownMunicipality);
-
       data = { profiles, units, teams, municipalities };
       renderKpis(root, data, { master });
       renderActive();
@@ -66,9 +64,9 @@ export async function mountAdminPage({ root, state }) {
   }
 
   function renderActive() {
-    if (active === 'profiles') content.innerHTML = renderProfiles(data, searchQuery, { master });
+    if (active === 'profiles') content.innerHTML = renderProfiles(data, searchQuery, { master, actor: state.profile });
     if (active === 'units') content.innerHTML = renderUnits(data, searchQuery, { master, unitAdmin });
-    if (active === 'teams') content.innerHTML = renderTeams(data, searchQuery, { master, unitAdmin });
+    if (active === 'teams') content.innerHTML = renderTeams(data, searchQuery);
     if (active === 'municipalities') content.innerHTML = renderMunicipalities(data, searchQuery, { master });
   }
 
@@ -101,7 +99,11 @@ export async function mountAdminPage({ root, state }) {
     const editMunicipality = event.target.closest('[data-edit-municipality]');
 
     if (editProfile) return openProfileEditor(editProfile.dataset.editProfile);
-    if (confirmPending) return openTeamEditor({ pendingProfileId: confirmPending.dataset.confirmPendingTeam });
+    if (confirmPending) {
+      const pending = data.profiles.find((row) => row.id === confirmPending.dataset.confirmPendingTeam);
+      if (!canEditManagedProfile(state.profile, pending)) return;
+      return openTeamEditor({ pendingProfileId: confirmPending.dataset.confirmPendingTeam });
+    }
     if (editUnit) return openUnitEditor(editUnit.dataset.editUnit);
     if (editTeam) return openTeamEditor({ teamId: editTeam.dataset.editTeam });
     if (addTeam) return openTeamEditor();
@@ -114,9 +116,7 @@ export async function mountAdminPage({ root, state }) {
         await updateUnit(confirmUnit.dataset.confirmUnit, { data_status: 'team_confirmed', source_checked_on: today() });
         await refresh();
         setStatus(status, 'Unidade marcada como confirmada localmente.', 'success');
-      } catch {
-        setStatus(status, 'Não foi possível confirmar a unidade.', 'error');
-      }
+      } catch { setStatus(status, 'Não foi possível confirmar a unidade.', 'error'); }
     }
 
     if (toggleTeam) {
@@ -126,20 +126,17 @@ export async function mountAdminPage({ root, state }) {
         await updateTeam(team.id, { active: !team.active });
         await refresh();
         setStatus(status, team.active ? 'Equipe desativada.' : 'Equipe ativada.', 'success');
-      } catch {
-        setStatus(status, 'Não foi possível alterar a equipe.', 'error');
-      }
+      } catch { setStatus(status, 'Não foi possível alterar a equipe.', 'error'); }
     }
   });
 
   function openProfileEditor(id) {
     const profile = data.profiles.find((row) => row.id === id);
-    if (!profile) return;
+    if (!canEditManagedProfile(state.profile, profile)) return;
     const roleEditable = canChangeProfileRole(state.profile, profile);
     const availableUnits = master ? data.units : data.units.filter((unit) => unit.cnes === state.profile?.unit_cnes);
     const profileUnit = availableUnits.find((unit) => unit.cnes === profile.unit_cnes);
-
-    dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar perfil profissional</h2><p>${master ? 'O master pode ajustar vínculo e, para contas não master, definir administração de UBS.' : 'Você pode atualizar profissionais da sua UBS. A função de acesso e a UBS permanecem protegidas.'}</p>
+    dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar perfil profissional</h2><p>${master ? 'O master pode ajustar vínculo e, para contas não master, definir administração de UBS.' : 'A gestão local pode atualizar somente profissionais/ACS da própria UBS.'}</p>
       <form id="admin-profile-form" class="stack-form">
         <label>Nome<input name="full_name" value="${escapeHtml(profile.full_name || '')}" required maxlength="160"></label>
         <label>Microárea<input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40"></label>
@@ -149,19 +146,15 @@ export async function mountAdminPage({ root, state }) {
         ${roleEditable ? `<label>Função de acesso<select name="role"><option value="acs" ${profile.role === 'acs' ? 'selected' : ''}>Profissional / ACS</option><option value="unit_admin" ${profile.role === 'unit_admin' ? 'selected' : ''}>Administrador da UBS</option></select></label>` : `<div class="readonly-field"><span>Função</span><strong>${escapeHtml(roleLabel(profile))}</strong></div>`}
         <button class="button primary">Salvar</button>
       </form></section>`;
-
     const form = dialogBody.querySelector('#admin-profile-form');
     const unitSelect = form.querySelector('#admin-profile-unit');
     const teamSelect = form.querySelector('#admin-profile-team');
-
     function syncTeams(unitCnes, selectedId = '') {
       const rows = data.teams.filter((team) => team.unit_cnes === unitCnes && team.active);
       teamSelect.innerHTML = '<option value="">—</option>' + rows.map((team) => `<option value="${escapeHtml(team.id)}" ${team.id === selectedId ? 'selected' : ''}>${escapeHtml(team.name)}${team.ine ? ` • INE ${escapeHtml(team.ine)}` : ''}</option>`).join('');
     }
-
     syncTeams(profile.unit_cnes, profile.team_id || '');
     unitSelect?.addEventListener('change', () => syncTeams(unitSelect.value));
-
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const values = formToObject(event.currentTarget);
@@ -169,13 +162,10 @@ export async function mountAdminPage({ root, state }) {
       const unit = data.units.find((row) => row.cnes === unitCnes);
       const team = data.teams.find((row) => row.id === values.team_id && row.unit_cnes === unitCnes);
       const requestedRole = roleEditable ? values.role : profile.role;
-      if (requestedRole === 'unit_admin' && !unitCnes) {
-        setStatus(status, 'Administrador de UBS precisa estar vinculado a uma unidade.', 'error');
-        return;
-      }
+      if (requestedRole === 'unit_admin' && !unitCnes) return setStatus(status, 'Administrador de UBS precisa estar vinculado a uma unidade.', 'error');
       try {
         await adminUpdateProfile(id, {
-          full_name: values.full_name.trim(), microarea: values.microarea.trim(), acs_phone: values.acs_phone.trim(),
+          full_name: (values.full_name || '').trim(), microarea: (values.microarea || '').trim(), acs_phone: (values.acs_phone || '').trim(),
           municipality_code: unit?.municipality_code || profile.municipality_code || null,
           unit_cnes: unitCnes, team_id: team?.id || null,
           unit_name: unit?.name || profile.unit_name || '', team_name: team?.name || (team ? '' : profile.team_name || '')
@@ -184,10 +174,7 @@ export async function mountAdminPage({ root, state }) {
         dialog.close();
         await refresh();
         setStatus(status, 'Perfil atualizado.', 'success');
-      } catch (error) {
-        console.error(error);
-        setStatus(status, 'Não foi possível atualizar o perfil.', 'error');
-      }
+      } catch (error) { console.error(error); setStatus(status, 'Não foi possível atualizar o perfil.', 'error'); }
     });
     dialog.showModal();
   }
@@ -195,9 +182,9 @@ export async function mountAdminPage({ root, state }) {
   function openTeamEditor({ teamId = null, pendingProfileId = null } = {}) {
     const existing = teamId ? data.teams.find((row) => row.id === teamId) : null;
     const pendingProfile = pendingProfileId ? data.profiles.find((row) => row.id === pendingProfileId) : null;
+    if (pendingProfile && !canEditManagedProfile(state.profile, pendingProfile)) return;
     const fixedUnitCnes = unitAdmin ? state.profile?.unit_cnes : (existing?.unit_cnes || pendingProfile?.unit_cnes || '');
     const availableUnits = master ? data.units.filter((unit) => unit.is_active) : data.units.filter((unit) => unit.cnes === fixedUnitCnes);
-
     dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">${existing ? 'Editar equipe' : pendingProfile ? 'Confirmar equipe informada' : 'Cadastrar equipe'}</h2>
       ${pendingProfile ? `<p>Esta equipe foi informada no perfil de <strong>${escapeHtml(pendingProfile.full_name || 'profissional')}</strong> e ainda não está vinculada a um cadastro de equipe.</p>` : ''}
       <form id="team-form" class="stack-form">
@@ -208,33 +195,19 @@ export async function mountAdminPage({ root, state }) {
         <label>Observação<textarea name="source_note" rows="3">${escapeHtml(existing?.source_note || '')}</textarea></label>
         <button class="button primary">${existing ? 'Salvar equipe' : 'Cadastrar equipe'}</button>
       </form></section>`;
-
     dialogBody.querySelector('#team-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const values = formToObject(event.currentTarget);
       try {
-        let team;
-        if (existing) team = await updateTeam(existing.id, values);
-        else team = await createTeam(values);
-
-        if (pendingProfile && team) {
-          const unit = data.units.find((row) => row.cnes === team.unit_cnes);
-          await adminUpdateProfile(pendingProfile.id, {
-            municipality_code: unit?.municipality_code || pendingProfile.municipality_code,
-            unit_cnes: team.unit_cnes,
-            team_id: team.id,
-            unit_name: unit?.name || pendingProfile.unit_name || '',
-            team_name: team.name
-          });
+        const saved = existing ? await updateTeam(existing.id, values) : await createTeam(values);
+        if (pendingProfile && saved) {
+          const unit = data.units.find((row) => row.cnes === saved.unit_cnes);
+          await adminUpdateProfile(pendingProfile.id, { municipality_code: unit?.municipality_code || pendingProfile.municipality_code, unit_cnes: saved.unit_cnes, team_id: saved.id, unit_name: unit?.name || pendingProfile.unit_name || '', team_name: saved.name });
         }
-
         dialog.close();
         await refresh();
         setStatus(status, pendingProfile ? 'Equipe confirmada e vinculada ao perfil.' : 'Equipe salva.', 'success');
-      } catch (error) {
-        console.error(error);
-        setStatus(status, 'Não foi possível salvar a equipe. Confira se o INE já existe e se a unidade está no seu escopo.', 'error');
-      }
+      } catch (error) { console.error(error); setStatus(status, 'Não foi possível salvar a equipe. Confira se o INE já existe e se a unidade está no seu escopo.', 'error'); }
     });
     dialog.showModal();
   }
@@ -244,28 +217,17 @@ export async function mountAdminPage({ root, state }) {
     if (!unit) return;
     dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar unidade</h2><form id="unit-edit-form" class="stack-form">
       <div class="readonly-field"><span>CNES</span><strong>${escapeHtml(unit.cnes)}</strong></div>
-      <label>Nome completo<input name="name" value="${escapeHtml(unit.name || '')}" required></label>
-      <label>Nome curto<input name="short_name" value="${escapeHtml(unit.short_name || '')}" required></label>
-      <label>Endereço<input name="address" value="${escapeHtml(unit.address || '')}"></label>
-      <label>Bairro / localidade<input name="neighborhood" value="${escapeHtml(unit.neighborhood || '')}"></label>
-      <label>Telefone<input name="phone" value="${escapeHtml(unit.phone || '')}"></label>
-      <label>Horário<input name="hours" value="${escapeHtml(unit.hours || '')}"></label>
+      <label>Nome completo<input name="name" value="${escapeHtml(unit.name || '')}" required></label><label>Nome curto<input name="short_name" value="${escapeHtml(unit.short_name || '')}" required></label>
+      <label>Endereço<input name="address" value="${escapeHtml(unit.address || '')}"></label><label>Bairro / localidade<input name="neighborhood" value="${escapeHtml(unit.neighborhood || '')}"></label><label>Telefone<input name="phone" value="${escapeHtml(unit.phone || '')}"></label><label>Horário<input name="hours" value="${escapeHtml(unit.hours || '')}"></label>
       <label>Status do dado<select name="data_status"><option value="public_source" ${unit.data_status==='public_source'?'selected':''}>Fonte pública</option><option value="team_confirmed" ${unit.data_status==='team_confirmed'?'selected':''}>Confirmado localmente</option><option value="needs_review" ${unit.data_status==='needs_review'?'selected':''}>Precisa revisão</option></select></label>
       <label>Nota da fonte<textarea name="source_note" rows="3">${escapeHtml(unit.source_note || '')}</textarea></label>
-      ${master ? `<label class="check"><input type="checkbox" name="is_active" ${unit.is_active ? 'checked' : ''}> Unidade ativa</label>` : ''}
-      <button class="button primary">Salvar</button></form></section>`;
+      ${master ? `<label class="check"><input type="checkbox" name="is_active" ${unit.is_active ? 'checked' : ''}> Unidade ativa</label>` : ''}<button class="button primary">Salvar</button></form></section>`;
     dialogBody.querySelector('#unit-edit-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const values = formToObject(event.currentTarget);
       if (master) values.is_active = event.currentTarget.elements.is_active.checked;
-      try {
-        await updateUnit(cnes, values);
-        dialog.close();
-        await refresh();
-        setStatus(status, 'Unidade atualizada.', 'success');
-      } catch {
-        setStatus(status, 'Não foi possível atualizar a unidade.', 'error');
-      }
+      try { await updateUnit(cnes, values); dialog.close(); await refresh(); setStatus(status, 'Unidade atualizada.', 'success'); }
+      catch { setStatus(status, 'Não foi possível atualizar a unidade.', 'error'); }
     });
     dialog.showModal();
   }
@@ -275,20 +237,13 @@ export async function mountAdminPage({ root, state }) {
       <label>Município<select name="municipality_code" required>${data.municipalities.filter((m) => m.active).map((m) => `<option value="${escapeHtml(m.code)}" data-name="${escapeHtml(m.name)}" data-state="${escapeHtml(m.state_code)}">${escapeHtml(m.name)} — ${escapeHtml(m.state_code)}</option>`).join('')}</select></label>
       <label>CNES<input name="cnes" required maxlength="20"></label><label>Nome completo<input name="name" required maxlength="180"></label><label>Nome curto<input name="short_name" maxlength="140"></label>
       <label>Tipo<select name="unit_type"><option value="ubs">UBS</option><option value="rural">Rural</option><option value="district">Distrito / ponto</option><option value="other">Outro</option></select></label>
-      <label>Endereço<input name="address"></label><label>Bairro/localidade<input name="neighborhood"></label><label>Telefone<input name="phone"></label><label>Horário<input name="hours"></label>
-      <button class="button primary">Cadastrar unidade</button></form></section>`;
+      <label>Endereço<input name="address"></label><label>Bairro/localidade<input name="neighborhood"></label><label>Telefone<input name="phone"></label><label>Horário<input name="hours"></label><button class="button primary">Cadastrar unidade</button></form></section>`;
     dialogBody.querySelector('#unit-create-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const values = formToObject(event.currentTarget);
       const option = event.currentTarget.elements.municipality_code.selectedOptions[0];
-      try {
-        await createUnit({ ...values, municipality: option.dataset.name, state: option.dataset.state });
-        dialog.close();
-        await refresh();
-        setStatus(status, 'Unidade cadastrada.', 'success');
-      } catch {
-        setStatus(status, 'Não foi possível cadastrar a unidade. Confira o CNES.', 'error');
-      }
+      try { await createUnit({ ...values, municipality: option.dataset.name, state: option.dataset.state }); dialog.close(); await refresh(); setStatus(status, 'Unidade cadastrada.', 'success'); }
+      catch { setStatus(status, 'Não foi possível cadastrar a unidade. Confira o CNES.', 'error'); }
     });
     dialog.showModal();
   }
@@ -297,14 +252,8 @@ export async function mountAdminPage({ root, state }) {
     dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Cadastrar município</h2><form id="municipality-create-form" class="stack-form"><label>Código IBGE<input name="code" required maxlength="12"></label><label>Município<input name="name" required maxlength="160"></label><label>UF<input name="state_code" required maxlength="2" pattern="[A-Za-z]{2}"></label><button class="button primary">Cadastrar município</button></form></section>`;
     dialogBody.querySelector('#municipality-create-form').addEventListener('submit', async (event) => {
       event.preventDefault();
-      try {
-        await createMunicipality(formToObject(event.currentTarget));
-        dialog.close();
-        await refresh();
-        setStatus(status, 'Município cadastrado.', 'success');
-      } catch {
-        setStatus(status, 'Não foi possível cadastrar o município. Confira o código IBGE.', 'error');
-      }
+      try { await createMunicipality(formToObject(event.currentTarget)); dialog.close(); await refresh(); setStatus(status, 'Município cadastrado.', 'success'); }
+      catch { setStatus(status, 'Não foi possível cadastrar o município. Confira o código IBGE.', 'error'); }
     });
     dialog.showModal();
   }
@@ -317,14 +266,8 @@ export async function mountAdminPage({ root, state }) {
       event.preventDefault();
       const values = formToObject(event.currentTarget);
       values.active = event.currentTarget.elements.active.checked;
-      try {
-        await updateMunicipality(code, values);
-        dialog.close();
-        await refresh();
-        setStatus(status, 'Município atualizado.', 'success');
-      } catch {
-        setStatus(status, 'Não foi possível atualizar o município.', 'error');
-      }
+      try { await updateMunicipality(code, values); dialog.close(); await refresh(); setStatus(status, 'Município atualizado.', 'success'); }
+      catch { setStatus(status, 'Não foi possível atualizar o município.', 'error'); }
     });
     dialog.showModal();
   }
@@ -333,9 +276,8 @@ export async function mountAdminPage({ root, state }) {
 }
 
 function renderKpis(root, data, { master }) {
-  const pendingTeams = data.profiles.filter((p) => !p.team_id && p.team_name?.trim()).length;
-  const kpis = root.querySelector('#admin-kpis');
-  kpis.innerHTML = [
+  const pendingTeams = data.profiles.filter((p) => p.role === 'acs' && !p.team_id && p.team_name?.trim()).length;
+  root.querySelector('#admin-kpis').innerHTML = [
     ['Perfis', data.profiles.length],
     [master ? 'Unidades ativas' : 'Minha unidade', master ? data.units.filter((u) => u.is_active).length : data.units.length],
     ['Equipes ativas', data.teams.filter((t) => t.active).length],
@@ -343,10 +285,14 @@ function renderKpis(root, data, { master }) {
   ].map(([label,value]) => `<article class="kpi"><small>${escapeHtml(label)}</small><strong>${value}</strong></article>`).join('');
 }
 
-function renderProfiles(data, query, { master }) {
+function renderProfiles(data, query, { master, actor }) {
   const rows = filterRows(data.profiles, query, (p) => [p.full_name,p.unit_name,p.team_name,p.microarea,p.acs_phone,roleLabel(p)]);
-  return `<div class="section-actions"><div><h3>Perfis profissionais</h3><p class="field-hint">${master ? 'O master pode designar administradores de UBS.' : 'São exibidos somente os perfis autorizados pelo RLS da sua unidade.'}</p></div></div>
-    ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Unidade</th><th>Equipe</th><th>Microárea</th><th>Função</th><th>Ações</th></tr></thead><tbody>${rows.map((p) => `<tr><td>${escapeHtml(p.full_name || '—')}</td><td>${escapeHtml(p.unit_name || '—')}</td><td>${escapeHtml(p.team_name || '—')}${!p.team_id && p.team_name?.trim() ? '<br><span class="status-badge warning">A confirmar</span>' : ''}</td><td>${escapeHtml(p.microarea || '—')}</td><td>${escapeHtml(roleLabel(p))}</td><td><div class="actions"><button class="link-button" data-edit-profile="${escapeHtml(p.id)}">Editar</button>${!p.team_id && p.team_name?.trim() && p.unit_cnes ? `<button class="link-button" data-confirm-pending-team="${escapeHtml(p.id)}">Confirmar equipe</button>` : ''}</div></td></tr>`).join('')}</tbody></table></div>` : empty('Nenhum perfil encontrado')}`;
+  return `<div class="section-actions"><div><h3>Perfis profissionais</h3><p class="field-hint">${master ? 'O master pode administrar profissionais e definir administradores de UBS.' : 'Administradores são visíveis para contexto, mas somente perfis profissionais/ACS podem ser editados pela gestão local.'}</p></div></div>
+    ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Unidade</th><th>Equipe</th><th>Microárea</th><th>Função</th><th>Ações</th></tr></thead><tbody>${rows.map((p) => {
+      const editable = canEditManagedProfile(actor, p);
+      const pendingTeam = editable && p.role === 'acs' && !p.team_id && p.team_name?.trim() && p.unit_cnes;
+      return `<tr><td>${escapeHtml(p.full_name || '—')}</td><td>${escapeHtml(p.unit_name || '—')}</td><td>${escapeHtml(p.team_name || '—')}${!p.team_id && p.team_name?.trim() ? '<br><span class="status-badge warning">A confirmar</span>' : ''}</td><td>${escapeHtml(p.microarea || '—')}</td><td>${escapeHtml(roleLabel(p))}</td><td><div class="actions">${editable ? `<button class="link-button" data-edit-profile="${escapeHtml(p.id)}">Editar</button>` : '<span class="field-hint">Protegido</span>'}${pendingTeam ? `<button class="link-button" data-confirm-pending-team="${escapeHtml(p.id)}">Confirmar equipe</button>` : ''}</div></td></tr>`;
+    }).join('')}</tbody></table></div>` : empty('Nenhum perfil encontrado')}`;
 }
 
 function renderUnits(data, query, { master }) {
@@ -368,6 +314,12 @@ function renderMunicipalities(data, query, { master }) {
     ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Código IBGE</th><th>Município</th><th>UF</th><th>Ativo</th><th></th></tr></thead><tbody>${rows.map((m) => `<tr><td>${escapeHtml(m.code)}</td><td>${escapeHtml(m.name)}</td><td>${escapeHtml(m.state_code)}</td><td>${m.active ? 'Sim' : 'Não'}</td><td><button class="link-button" data-edit-municipality="${escapeHtml(m.code)}">Editar</button></td></tr>`).join('')}</tbody></table></div>` : empty('Nenhum município encontrado')}`;
 }
 
+function canEditManagedProfile(actor, target) {
+  if (!target) return false;
+  if (isMaster(actor)) return true;
+  return isUnitAdmin(actor) && target.role === 'acs' && target.unit_cnes === actor.unit_cnes;
+}
+
 function filterRows(rows, query, values) {
   if (!query) return rows;
   return rows.filter((row) => values(row).filter(Boolean).join(' ').toLowerCase().includes(query));
@@ -377,6 +329,4 @@ function empty(title) {
   return `<div class="empty-state"><h3>${escapeHtml(title)}</h3><p>Altere o filtro ou atualize os dados.</p></div>`;
 }
 
-function today() {
-  return new Date().toISOString().slice(0,10);
-}
+function today() { return new Date().toISOString().slice(0,10); }
