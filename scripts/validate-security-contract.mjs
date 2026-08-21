@@ -24,7 +24,8 @@ const mustExist = [
   'supabase/migrations/022_enforce_profile_access_on_insert.sql',
   'supabase/migrations/023_database_input_bounds.sql',
   'supabase/migrations/024_least_privilege_table_grants.sql',
-  'supabase/migrations/025_canonicalize_health_unit_municipality.sql'
+  'supabase/migrations/025_canonicalize_health_unit_municipality.sql',
+  'supabase/migrations/026_protect_health_unit_identity.sql'
 ];
 
 for (const file of mustExist) {
@@ -132,6 +133,13 @@ expect(migration25, 'new.municipality := resolved_name', 'nome textual do munic�
 expect(migration25, 'new.state := upper(resolved_state)', 'UF textual deve vir do cadastro municipal');
 expect(migration25, 'revoke execute on function public.canonicalize_health_unit_municipality() from anon, authenticated', 'função canônica de unidade não deve ser invocável pelo cliente');
 
+const migration26 = read('supabase/migrations/026_protect_health_unit_identity.sql');
+expect(migration26, 'new.name is distinct from old.name', 'unit_admin não pode alterar o nome oficial da UBS');
+expect(migration26, 'new.short_name is distinct from old.short_name', 'unit_admin não pode alterar o nome curto da UBS');
+expect(migration26, 'identidade ou estrutura administrativa', 'proteção de UBS precisa tratar identidade e estrutura como campos do master');
+expect(migration26, 'revoke execute on function public.protect_health_unit_structure() from anon, authenticated', 'função de proteção da UBS não deve ser invocável pelo cliente');
+expect(migration26, 'grant execute on function public.protect_health_unit_structure() to service_role', 'função de trigger da UBS deve manter privilégio interno explícito');
+
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
 const config = read('config.js');
@@ -150,6 +158,11 @@ expect(profilePage, 'scopeLocked', 'perfil ativo precisa refletir vínculo terri
 
 const adminPage = read('src/pages/admin.js');
 expect(adminPage, 'canEditManagedProfile', 'gestão local não deve oferecer edição de perfis administrativos protegidos');
+expect(adminPage, 'const identityFields = master', 'formulário da UBS deve separar identidade oficial de dados operacionais');
+expect(adminPage, '<span>Nome oficial</span>', 'unit_admin deve ver nome oficial da UBS como somente leitura');
+expect(adminPage, '<span>Nome curto</span>', 'unit_admin deve ver nome curto da UBS como somente leitura');
+expect(adminPage, 'await createUnit(values)', 'cadastro de UBS deve enviar o vínculo municipal por código e deixar rótulos canônicos ao banco');
+if (adminPage.includes('option.dataset.name') || adminPage.includes('option.dataset.state')) errors.push('Cadastro de UBS não deve montar município/UF textuais no navegador.');
 
 const accessService = read('src/services/access.js');
 if (accessService.includes("'role'")) errors.push('Serviço de aprovação não deve alterar papel de acesso junto com status.');
@@ -174,7 +187,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, município canônico, grants mínimos, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, menor privilégio, identidade de UBS, município canônico, grants mínimos, limites de entrada, escopos, autoria, dados temporários e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
