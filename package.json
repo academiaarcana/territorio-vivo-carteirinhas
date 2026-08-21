@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "npm run check:architecture && npm run check:security && npm run check:production && npm run test:layout && npm run test:permissions",
+    "check": "npm run check:architecture && npm run check:security && npm run check:production && npm run test:layout && npm run test:access-management && npm run test:permissions",
     "check:architecture": "node scripts/validate-architecture.mjs",
     "check:security": "node scripts/validate-security-contract.mjs",
     "check:production": "node scripts/validate-production-contracts.mjs",
     "test:layout": "node scripts/test-layout-contract.mjs",
+    "test:access-management": "node scripts/test-access-management-contract.mjs",
     "test:permissions": "node scripts/test-permissions.mjs"
   }
 }
