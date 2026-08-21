@@ -49,6 +49,10 @@ for (const file of ['src/pages/auth.js', 'src/pages/profile.js', 'src/pages/acce
   expect(content, "from '../lib/forms.js'", `${file} precisa usar o estado compartilhado de formulários.`);
   expect(content, 'setSelectLoading', `${file} precisa mostrar carregamento dos selects dependentes.`);
   expect(content, 'setSelectError', `${file} precisa invalidar selects dependentes quando o catálogo falha.`);
+  expect(content, 'listUnits({ municipalityCode })', `${file} precisa consultar UBS com o município capturado no início da requisição.`);
+  expect(content, 'municipality.value !== municipalityCode', `${file} precisa ignorar resposta assíncrona de UBS quando o município já mudou.`);
+  expect(content, 'listTeams({ unitCnes })', `${file} precisa consultar equipes com a UBS capturada no início da requisição.`);
+  expect(content, 'unit.value !== unitCnes', `${file} precisa ignorar resposta assíncrona de equipes quando a UBS já mudou.`);
 }
 
 for (const file of ['src/pages/cards.js', 'src/pages/five.js', 'src/pages/indicators.js']) {
@@ -123,4 +127,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contratos de produção OK: Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos, busy states, dados temporários sem persistência, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
+console.log('Contratos de produção OK: Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos sem respostas obsoletas, busy states, dados temporários sem persistência, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
