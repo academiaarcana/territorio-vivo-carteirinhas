@@ -1,6 +1,6 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
-import { canSubmitForm, setButtonBusy } from '../lib/forms.js';
+import { canSubmitForm, setButtonBusy, setSelectError, setSelectLoading, setSelectReady } from '../lib/forms.js';
 import { isMaster, roleLabel } from '../core/permissions.js';
 import { listMunicipalities, listUnits, listTeams, updateProfile, buildContext } from '../services/repository.js';
 import { setState } from '../core/store.js';
@@ -37,11 +37,18 @@ export async function mountProfilePage({ root, state }) {
 
   async function loadMunicipalities() {
     form.setAttribute('aria-busy', 'true');
+    setSelectLoading(municipality, 'Carregando municípios…');
     try {
       const rows = await listMunicipalities();
       municipality.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.code)}">${escapeHtml(row.name)} — ${escapeHtml(row.state_code)}</option>`).join('');
+      setSelectReady(municipality);
       municipality.value = state.profile?.municipality_code || '';
       await loadUnits(false);
+    } catch (error) {
+      setSelectError(municipality, 'Catálogo de municípios indisponível');
+      setSelectError(unit, 'Unidades indisponíveis');
+      setSelectError(team, 'Equipes indisponíveis');
+      throw error;
     } finally {
       form.removeAttribute('aria-busy');
     }
@@ -49,32 +56,69 @@ export async function mountProfilePage({ root, state }) {
 
   async function loadUnits(reset = true) {
     const municipalityCode = scopeLocked ? state.profile?.municipality_code : (municipality.value || null);
-    units = await listUnits({ municipalityCode });
-    if (scopeLocked) units = units.filter((row) => row.cnes === state.profile?.unit_cnes);
-    unit.innerHTML = '<option value="">Selecione</option>' + units.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}${row.neighborhood ? ` — ${escapeHtml(row.neighborhood)}` : ''}</option>`).join('');
-    if (!reset || scopeLocked) unit.value = state.profile?.unit_cnes || '';
-    await loadTeams(reset && !scopeLocked);
-    syncUnitFields(reset && !scopeLocked);
+    setSelectLoading(unit, municipalityCode ? 'Carregando unidades…' : 'Selecione o município');
+    setSelectLoading(team, 'Selecione a unidade');
+    customWrap.hidden = true;
+    if (!municipalityCode) {
+      units = [];
+      teams = [];
+      setSelectReady(unit);
+      setSelectReady(team);
+      syncUnitFields(reset && !scopeLocked);
+      return;
+    }
+    try {
+      units = await listUnits({ municipalityCode });
+      if (scopeLocked) units = units.filter((row) => row.cnes === state.profile?.unit_cnes);
+      unit.innerHTML = '<option value="">Selecione</option>' + units.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}${row.neighborhood ? ` — ${escapeHtml(row.neighborhood)}` : ''}</option>`).join('');
+      setSelectReady(unit);
+      if (!reset || scopeLocked) unit.value = state.profile?.unit_cnes || '';
+      await loadTeams(reset && !scopeLocked);
+      syncUnitFields(reset && !scopeLocked);
+    } catch (error) {
+      units = [];
+      teams = [];
+      setSelectError(unit, 'Não foi possível carregar as unidades');
+      setSelectError(team, 'Equipes indisponíveis');
+      source.textContent = '';
+      throw error;
+    }
   }
 
   async function loadTeams(reset = true) {
     const unitCnes = scopeLocked ? state.profile?.unit_cnes : unit.value;
-    teams = unitCnes ? await listTeams({ unitCnes }) : [];
-    team.innerHTML = '<option value="">Equipe ainda não informada</option>' + teams.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + (!scopeLocked && unitCnes ? '<option value="__other__">Minha equipe não aparece</option>' : '');
-    if ((!reset || scopeLocked) && state.profile?.team_id && teams.some((row) => row.id === state.profile.team_id)) team.value = state.profile.team_id;
-    if (!scopeLocked && !reset && state.profile?.team_name && !state.profile?.team_id) {
-      team.value = '__other__';
-      customWrap.hidden = false;
-      customWrap.querySelector('input').value = state.profile.team_name;
-    } else {
-      customWrap.hidden = true;
+    setSelectLoading(team, unitCnes ? 'Carregando equipes…' : 'Selecione a unidade');
+    customWrap.hidden = true;
+    if (!unitCnes) {
+      teams = [];
+      team.innerHTML = '<option value="">Equipe ainda não informada</option>';
+      setSelectReady(team);
+      return;
+    }
+    try {
+      teams = await listTeams({ unitCnes });
+      team.innerHTML = '<option value="">Equipe ainda não informada</option>' + teams.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + (!scopeLocked ? '<option value="__other__">Minha equipe não aparece</option>' : '');
+      setSelectReady(team);
+      if ((!reset || scopeLocked) && state.profile?.team_id && teams.some((row) => row.id === state.profile.team_id)) team.value = state.profile.team_id;
+      if (!scopeLocked && !reset && state.profile?.team_name && !state.profile?.team_id) {
+        team.value = '__other__';
+        customWrap.hidden = false;
+        customWrap.querySelector('input').value = state.profile.team_name;
+      }
+    } catch (error) {
+      teams = [];
+      setSelectError(team, 'Não foi possível carregar as equipes');
+      throw error;
     }
   }
 
   function syncUnitFields(overwrite = true) {
     const selectedCnes = scopeLocked ? state.profile?.unit_cnes : unit.value;
     const selected = units.find((row) => row.cnes === selectedCnes);
-    if (!selected) return source.textContent = '';
+    if (!selected) {
+      source.textContent = '';
+      return;
+    }
     source.textContent = `CNES ${selected.cnes} • ${selected.data_status === 'team_confirmed' ? 'confirmado localmente' : selected.data_status === 'needs_review' ? 'dados públicos a confirmar' : 'referência pública'}${scopeLocked ? ' • vínculo validado pela gestão' : ''}`;
     if (overwrite) {
       form.elements.unit_phone.value = selected.phone || '';
@@ -86,25 +130,24 @@ export async function mountProfilePage({ root, state }) {
   if (!scopeLocked) {
     municipality.addEventListener('change', () => loadUnits(true).catch((error) => {
       console.error(error);
-      setStatus(status, 'Não foi possível carregar as unidades.', 'error');
+      setStatus(status, 'Não foi possível carregar as unidades. Selecione o município novamente para tentar.', 'error');
     }));
-    unit.addEventListener('change', async () => {
-      try {
-        await loadTeams(true);
-        syncUnitFields(true);
-      } catch (error) {
-        console.error(error);
-        setStatus(status, 'Não foi possível carregar as equipes.', 'error');
-      }
-    });
+    unit.addEventListener('change', () => loadTeams(true).then(() => syncUnitFields(true)).catch((error) => {
+      console.error(error);
+      setStatus(status, 'Não foi possível carregar as equipes. Selecione a unidade novamente para tentar.', 'error');
+    }));
     team.addEventListener('change', () => {
       customWrap.hidden = team.value !== '__other__';
       if (!customWrap.hidden) customWrap.querySelector('input').focus();
     });
   }
 
-  try { await loadMunicipalities(); }
-  catch (error) { console.error(error); setStatus(status, 'Não foi possível carregar o catálogo territorial.', 'error'); }
+  try {
+    await loadMunicipalities();
+  } catch (error) {
+    console.error(error);
+    setStatus(status, 'Não foi possível carregar o catálogo territorial.', 'error');
+  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
