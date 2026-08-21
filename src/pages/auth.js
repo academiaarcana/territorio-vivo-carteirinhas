@@ -1,4 +1,5 @@
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
+import { canSubmitForm, setButtonBusy, setSelectError, setSelectLoading, setSelectReady } from '../lib/forms.js';
 import { navigate } from '../core/router.js';
 import { signIn, signUp, signOut, sendPasswordReset, updatePassword } from '../services/auth.js';
 import { listMunicipalities, listUnits, listTeams } from '../services/repository.js';
@@ -31,7 +32,7 @@ export function mountLoginPage({ root }) {
     if (forgot.disabled) return;
     const email = root.querySelector('[name="email"]').value.trim();
     if (!email) return setStatus(status, 'Digite seu e-mail primeiro.', 'error');
-    forgot.disabled = true;
+    setButtonBusy(forgot, true, 'Enviando…');
     setStatus(status, 'Enviando link…', 'info');
     try {
       await sendPasswordReset(email);
@@ -40,17 +41,17 @@ export function mountLoginPage({ root }) {
       console.error(error);
       setStatus(status, authErrorMessage(error, 'reset'), 'error');
     } finally {
-      forgot.disabled = false;
+      setButtonBusy(forgot, false);
     }
   });
 
-  root.querySelector('#login-form').addEventListener('submit', async (event) => {
+  const form = root.querySelector('#login-form');
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const form = event.currentTarget;
     const button = form.querySelector('[type="submit"]');
-    if (button.disabled || !form.reportValidity()) return;
+    if (!canSubmitForm(form, button)) return;
     const { email, password } = formToObject(form);
-    setBusy(button, true, 'Entrando…');
+    setButtonBusy(button, true, 'Entrando…');
     setStatus(status, 'Validando sua conta…', 'info');
     try {
       await signIn(email, password);
@@ -59,7 +60,7 @@ export function mountLoginPage({ root }) {
       console.error(error);
       setStatus(status, authErrorMessage(error, 'login'), 'error');
     } finally {
-      setBusy(button, false);
+      setButtonBusy(button, false);
     }
   });
 }
@@ -98,27 +99,60 @@ export async function mountSignupPage({ root }) {
   const hint = root.querySelector('#master-hint');
 
   async function loadMunicipalities() {
-    const rows = await listMunicipalities();
-    municipality.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.code)}">${escapeHtml(row.name)} — ${escapeHtml(row.state_code)}</option>`).join('');
-    if (rows.length === 1) municipality.value = rows[0].code;
-    await loadUnits();
+    setSelectLoading(municipality, 'Carregando municípios…');
+    try {
+      const rows = await listMunicipalities();
+      municipality.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.code)}">${escapeHtml(row.name)} — ${escapeHtml(row.state_code)}</option>`).join('');
+      setSelectReady(municipality);
+      if (rows.length === 1) municipality.value = rows[0].code;
+      await loadUnits();
+    } catch (error) {
+      setSelectError(municipality, 'Catálogo de municípios indisponível');
+      setSelectError(unit, 'Unidades indisponíveis');
+      setSelectError(team, 'Equipes indisponíveis');
+      throw error;
+    }
   }
 
   async function loadUnits() {
-    const rows = municipality.value ? await listUnits({ municipalityCode: municipality.value }) : [];
-    unit.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}${row.neighborhood ? ` — ${escapeHtml(row.neighborhood)}` : ''}</option>`).join('');
-    team.innerHTML = '<option value="">Selecione a unidade</option>';
+    setSelectLoading(unit, municipality.value ? 'Carregando unidades…' : 'Selecione o município');
+    setSelectLoading(team, 'Selecione a unidade');
     customWrap.hidden = true;
     customWrap.querySelector('input').value = '';
+    if (!municipality.value) {
+      setSelectReady(unit);
+      setSelectReady(team);
+      return;
+    }
+    try {
+      const rows = await listUnits({ municipalityCode: municipality.value });
+      unit.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}${row.neighborhood ? ` — ${escapeHtml(row.neighborhood)}` : ''}</option>`).join('');
+      setSelectReady(unit);
+      team.innerHTML = '<option value="">Selecione a unidade</option>';
+      setSelectReady(team);
+    } catch (error) {
+      setSelectError(unit, 'Não foi possível carregar as unidades');
+      setSelectError(team, 'Equipes indisponíveis');
+      throw error;
+    }
   }
 
   async function loadTeams() {
+    setSelectLoading(team, unit.value ? 'Carregando equipes…' : 'Selecione a unidade');
+    customWrap.hidden = true;
+    customWrap.querySelector('input').value = '';
     if (!unit.value) {
-      team.innerHTML = '<option value="">Selecione a unidade</option>';
+      setSelectReady(team);
       return;
     }
-    const rows = await listTeams({ unitCnes: unit.value });
-    team.innerHTML = '<option value="">Equipe ainda não informada</option>' + rows.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + '<option value="__other__">Minha equipe não aparece</option>';
+    try {
+      const rows = await listTeams({ unitCnes: unit.value });
+      team.innerHTML = '<option value="">Equipe ainda não informada</option>' + rows.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('') + '<option value="__other__">Minha equipe não aparece</option>';
+      setSelectReady(team);
+    } catch (error) {
+      setSelectError(team, 'Não foi possível carregar as equipes');
+      throw error;
+    }
   }
 
   function syncCustomTeam() {
@@ -134,15 +168,21 @@ export async function mountSignupPage({ root }) {
     hint.textContent = master ? 'Conta master: município, unidade, equipe e microárea são opcionais.' : 'Após o cadastro, a gestão da UBS confirmará este vínculo antes de liberar o ambiente interno.';
   }
 
-  municipality.addEventListener('change', () => loadUnits().catch(() => setStatus(status, 'Não foi possível carregar as unidades.', 'error')));
-  unit.addEventListener('change', () => loadTeams().catch(() => setStatus(status, 'Não foi possível carregar as equipes.', 'error')));
+  municipality.addEventListener('change', () => loadUnits().catch((error) => {
+    console.error(error);
+    setStatus(status, 'Não foi possível carregar as unidades. Tente selecionar o município novamente.', 'error');
+  }));
+  unit.addEventListener('change', () => loadTeams().catch((error) => {
+    console.error(error);
+    setStatus(status, 'Não foi possível carregar as equipes. Tente selecionar a unidade novamente.', 'error');
+  }));
   team.addEventListener('change', syncCustomTeam);
   email.addEventListener('input', syncMaster);
 
-  try { await loadMunicipalities(); }
-  catch (error) {
+  try {
+    await loadMunicipalities();
+  } catch (error) {
     console.error(error);
-    municipality.innerHTML = '<option value="">Catálogo indisponível</option>';
     setStatus(status, 'Não foi possível carregar o catálogo territorial. Tente novamente mais tarde.', 'error');
   }
   syncMaster();
@@ -150,7 +190,10 @@ export async function mountSignupPage({ root }) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const button = form.querySelector('[type="submit"]');
-    if (button.disabled || !form.reportValidity()) return;
+    if (!canSubmitForm(form, button)) {
+      if (form.querySelector('select[required][data-load-state="error"]')) setStatus(status, 'O catálogo territorial não carregou corretamente. Tente novamente antes de criar a conta.', 'error');
+      return;
+    }
     const values = formToObject(form);
     const master = values.email.trim().toLowerCase() === appConfig.masterEmail.toLowerCase();
     const passwordError = validatePassword(values.password);
@@ -168,7 +211,7 @@ export async function mountSignupPage({ root }) {
       teamName = team.selectedOptions[0]?.dataset.name || '';
     }
 
-    setBusy(button, true, 'Criando conta…');
+    setButtonBusy(button, true, 'Criando conta…');
     setStatus(status, 'Criando sua conta profissional…', 'info');
     try {
       const data = await signUp({ ...values, teamId, teamName });
@@ -184,7 +227,7 @@ export async function mountSignupPage({ root }) {
       console.error(error);
       setStatus(status, authErrorMessage(error, 'signup'), 'error');
     } finally {
-      setBusy(button, false);
+      setButtonBusy(button, false);
     }
   });
 }
@@ -207,13 +250,13 @@ export function mountRecoveryPage({ root }) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const button = form.querySelector('[type="submit"]');
-    if (button.disabled || !form.reportValidity()) return;
+    if (!canSubmitForm(form, button)) return;
     const { password, password2 } = formToObject(form);
     const passwordError = validatePassword(password);
     if (passwordError) return setStatus(status, passwordError, 'error');
     if (password !== password2) return setStatus(status, 'As senhas não são iguais.', 'error');
 
-    setBusy(button, true, 'Salvando…');
+    setButtonBusy(button, true, 'Salvando…');
     try {
       await updatePassword(password);
       await signOut();
@@ -223,7 +266,7 @@ export function mountRecoveryPage({ root }) {
       console.error(error);
       setStatus(status, authErrorMessage(error, 'password'), 'error');
     } finally {
-      setBusy(button, false);
+      setButtonBusy(button, false);
     }
   });
 }
@@ -232,21 +275,6 @@ function validatePassword(password) {
   if (String(password || '').length < PASSWORD_MIN_LENGTH) return `A senha precisa ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
   if (!/[A-Za-zÀ-ÿ]/.test(password) || !/\d/.test(password)) return 'Use uma senha com letras e pelo menos um número.';
   return '';
-}
-
-function setBusy(button, busy, label = '') {
-  if (!button) return;
-  if (busy) {
-    button.dataset.previousLabel = button.textContent;
-    button.disabled = true;
-    button.setAttribute('aria-busy', 'true');
-    if (label) button.textContent = label;
-    return;
-  }
-  button.disabled = false;
-  button.removeAttribute('aria-busy');
-  button.textContent = button.dataset.previousLabel || button.dataset.defaultLabel || button.textContent;
-  delete button.dataset.previousLabel;
 }
 
 function authErrorMessage(error, context) {
