@@ -100,7 +100,7 @@ export async function mountSignupPage({ root }) {
   async function loadMunicipalities() {
     const rows = await listMunicipalities();
     municipality.innerHTML = '<option value="">Selecione</option>' + rows.map((row) => `<option value="${escapeHtml(row.code)}">${escapeHtml(row.name)} — ${escapeHtml(row.state_code)}</option>`).join('');
-    if (rows.some((row) => row.code === '110018')) municipality.value = '110018';
+    if (rows.length === 1) municipality.value = rows[0].code;
     await loadUnits();
   }
 
