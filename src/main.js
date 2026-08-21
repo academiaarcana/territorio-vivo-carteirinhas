@@ -22,7 +22,7 @@ registerRoute('/', { render: renderPublicPage, mount: mountPublicPage });
 registerRoute('/entrar', { guestOnly: true, render: renderLoginPage, mount: mountLoginPage });
 registerRoute('/criar-conta', { guestOnly: true, render: renderSignupPage, mount: mountSignupPage });
 registerRoute('/recuperar-senha', { auth: true, render: renderRecoveryPage, mount: mountRecoveryPage });
-registerRoute('/app/aguardando', { auth: true, render: renderAccessPendingPage, mount: mountAccessPendingPage });
+registerRoute('/app/aguardando', { auth: true, accessGate: true, render: renderAccessPendingPage, mount: mountAccessPendingPage });
 registerRoute('/app/inicio', { auth: true, active: true, render: renderDashboard, mount: mountDashboard });
 registerRoute('/app/territorio', { auth: true, active: true, render: renderTerritoryPage, mount: mountTerritoryPage });
 registerRoute('/app/carteirinhas', { auth: true, active: true, render: renderCardsPage, mount: mountCardsPage });
