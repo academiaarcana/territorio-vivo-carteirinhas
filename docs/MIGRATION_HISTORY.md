@@ -53,6 +53,7 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `025_canonicalize_health_unit_municipality.sql` | `canonicalize_health_unit_municipality` |
 | `026_protect_health_unit_identity.sql` | `protect_health_unit_identity` |
 | `027_restrict_territory_point_kinds.sql` | `restrict_territory_point_kinds` |
+| `028_sync_profile_network_labels_on_catalog_update.sql` | `sync_profile_network_labels_on_catalog_update` |
 
 ## Regra para novas alterações
 
