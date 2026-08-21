@@ -33,6 +33,7 @@ export async function mountAccessManagementPage({ root, state }) {
   let rows = [];
   let filter = 'all';
   let refreshing = false;
+  let mutationInFlight = false;
 
   async function refresh() {
     if (refreshing) return;
@@ -89,7 +90,7 @@ export async function mountAccessManagementPage({ root, state }) {
 
   target.addEventListener('click', async (event) => {
     const action = event.target.closest('[data-access-action]');
-    if (!action || action.disabled) return;
+    if (!action || action.disabled || mutationInFlight) return;
     const profile = rows.find((row) => row.id === action.dataset.profileId);
     if (!profile || !canChangeAccessStatus(state.profile, profile)) return;
 
@@ -101,6 +102,8 @@ export async function mountAccessManagementPage({ root, state }) {
         : 'Alterar o status deste acesso?';
     if (!window.confirm(message)) return;
 
+    mutationInFlight = true;
+    target.setAttribute('aria-busy', 'true');
     setButtonBusy(action, true, 'Atualizando…');
     setStatus(status, 'Atualizando acesso…', 'info');
     try {
@@ -111,6 +114,8 @@ export async function mountAccessManagementPage({ root, state }) {
       console.error(error);
       setStatus(status, 'Não foi possível alterar o acesso. O banco protege escopos e privilégios.', 'error');
     } finally {
+      mutationInFlight = false;
+      target.removeAttribute('aria-busy');
       setButtonBusy(action, false);
     }
   });
