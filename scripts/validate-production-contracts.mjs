@@ -48,10 +48,28 @@ for (const file of ['src/pages/auth.js', 'src/pages/profile.js', 'src/pages/acce
   expect(content, 'setSelectError', `${file} precisa invalidar selects dependentes quando o catálogo falha.`);
 }
 
+const main = read('src/main.js');
+expect(main, "registerRoute('/recuperar-senha', { auth: true", 'Tela de nova senha deve exigir sessão de recuperação/autenticada.');
+
+const router = read('src/core/router.js');
+expect(router, 'focusPageHeading(root)', 'Navegação SPA precisa mover foco para o título da página.');
+expect(router, "heading.setAttribute('tabindex', '-1')", 'Título focado após navegação precisa aceitar foco programático sem entrar na ordem de tabulação.');
+expect(router, 'heading.focus({ preventScroll: true })', 'Foco pós-navegação não deve reposicionar a página depois do scroll controlado.');
+expect(router, "window.scrollTo({ top: 0, behavior: 'auto' })", 'Navegação SPA precisa retornar ao topo sem animação forçada.');
+
 const admin = read('src/pages/admin.js');
 expect(admin, 'submitDialogForm', 'Gestão precisa centralizar busy state de formulários administrativos.');
 expect(admin, 'refreshAfterMutation', 'Gestão não pode anunciar sucesso se o reload pós-mutation falhar silenciosamente.');
 expect(admin, 'ensureFormStatus', 'Erros de formulário administrativo precisam ser anunciados dentro do diálogo ativo.');
+
+const repository = read('src/services/repository.js');
+const createPoint = repository.match(/export async function createTerritoryPoint[\s\S]*?export async function updateTerritoryPoint/)?.[0] || '';
+if (!createPoint) errors.push('Serviço territorial precisa manter createTerritoryPoint.');
+if (/created_by/.test(createPoint)) errors.push('Cliente não deve enviar created_by ao criar ponto territorial; autoria pertence ao trigger do banco.');
+expect(repository, "String(value).trim().replace(',', '.')", 'Coordenadas precisam aceitar vírgula decimal no cliente.');
+expect(repository, "'Latitude', -90, 90", 'Serviço territorial precisa validar latitude.');
+expect(repository, "'Longitude', -180, 180", 'Serviço territorial precisa validar longitude.');
+expect(repository, 'Informe latitude e longitude juntas.', 'Serviço territorial precisa exigir coordenadas em par.');
 
 const printUtil = read('src/utils/print.js');
 expect(printUtil, "return { mode: 'print-fallback' }", 'Utilitário de PDF precisa distinguir fallback de impressão.');
@@ -91,4 +109,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contratos de produção OK: sincronização canônica, catálogos assíncronos, busy states, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
+console.log('Contratos de produção OK: recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos, busy states, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
