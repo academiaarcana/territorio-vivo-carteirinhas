@@ -58,6 +58,11 @@ for (const key of ['ArrowRight','ArrowLeft','Home','End']) {
 }
 if (!a11y.includes('[role="tablist"]') || !a11y.includes('[role="tab"]')) errors.push('Controlador de tabs precisa usar a semântica ARIA correta.');
 if (!a11y.includes('event.preventDefault()')) errors.push('Navegação por setas em tabs precisa impedir o scroll/ação padrão.');
+if (!a11y.includes('new WeakMap()')) errors.push('Acessibilidade global precisa memorizar o elemento que abriu cada diálogo.');
+if (!a11y.includes("attributeFilter: ['open']")) errors.push('Acessibilidade global precisa observar abertura de dialogs nativos.');
+if (!a11y.includes('focusDialog(dialog)')) errors.push('Dialogs precisam receber foco inicial controlado.');
+if (!a11y.includes('restoreDialogFocus')) errors.push('Dialogs precisam devolver foco ao elemento de origem quando fechados.');
+if (!a11y.includes("document.addEventListener('close', restoreDialogFocus, true)")) errors.push('Retorno de foco dos dialogs precisa funcionar também com Escape/method=dialog.');
 
 const structural = read('src/styles/structural.css');
 if (!structural.includes(':focus-visible')) errors.push('Camada estrutural precisa definir foco de teclado visível.');
