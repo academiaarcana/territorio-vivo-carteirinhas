@@ -10,6 +10,7 @@ const mustExist = [
   'src/services/access.js',
   'src/pages/access-pending.js',
   'src/pages/access-management.js',
+  'supabase/migrations/010_territory_points.sql',
   'supabase/migrations/012_unit_admin_roles_and_policies.sql',
   'supabase/migrations/013_harden_unit_admin_and_territory_scope.sql',
   'supabase/migrations/014_restrict_territory_point_reads_by_unit.sql',
@@ -37,6 +38,11 @@ const main = read('src/main.js');
 expect(main, 'management: true', 'rota de gestão deve exigir nível de gestão');
 expect(main, 'active: true', 'rotas internas devem exigir perfil aprovado');
 expect(main, "'/app/aguardando'", 'perfil não aprovado precisa de rota segura de espera');
+
+const migration10 = read('supabase/migrations/010_territory_points.sql');
+expect(migration10, 'new.created_by := auth.uid()', 'autoria territorial precisa ser definida pelo banco no insert');
+expect(migration10, 'new.created_by := old.created_by', 'autoria territorial precisa ser imutável em updates');
+expect(migration10, 'revoke all on public.territory_points from anon', 'territory_points não pode conceder acesso anônimo');
 
 const migration12 = read('supabase/migrations/012_unit_admin_roles_and_policies.sql');
 expect(migration12, "role in ('acs','unit_admin','admin')", 'constraint de papéis deve conter os três níveis');
@@ -105,13 +111,27 @@ expect(adminPage, 'canEditManagedProfile', 'gestão local não deve oferecer edi
 const accessService = read('src/services/access.js');
 if (accessService.includes("'role'")) errors.push('Serviço de aprovação não deve alterar papel de acesso junto com status.');
 
+for (const file of ['src/pages/cards.js','src/pages/five.js','src/pages/indicators.js']) {
+  const content = read(file);
+  for (const forbidden of ['localStorage','sessionStorage','indexedDB']) {
+    if (content.includes(forbidden)) errors.push(`${file} não pode persistir dados temporários via ${forbidden}.`);
+  }
+  if (/from\s+['"][^'"]*(supabase|repository)\.js['"]/.test(content)) {
+    errors.push(`${file} não pode importar camada de persistência; seus dados devem permanecer temporários.`);
+  }
+}
+
+expect(read('src/pages/cards.js'), 'não são gravados no banco', 'carteirinhas devem declarar não persistência ao usuário');
+expect(read('src/pages/five.js'), 'não é salvo no banco', '5 minutos deve declarar não persistência ao usuário');
+expect(read('src/pages/indicators.js'), 'não é salvo automaticamente', 'indicadores devem declarar não persistência ao usuário');
+
 if (errors.length) {
   console.error('\nCONTRATO DE SEGURANÇA FALHOU\n');
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos, microárea, vínculo canônico, hierarquia e privacidade versionados.');
+console.log('Contrato de segurança V2 OK: aprovação, papéis, escopos, autoria, dados temporários e privacidade versionados.');
 
 function read(file) {
   const target = path.join(root, file);
