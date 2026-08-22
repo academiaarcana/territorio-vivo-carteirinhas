@@ -2,7 +2,7 @@ import { appLayout, mountAppLayout } from '../core/layout.js';
 import { openAccessibleDialog } from '../core/a11y.js';
 import { escapeHtml, formToObject, setStatus, formatDateBr } from '../lib/dom.js';
 import { setButtonBusy, canSubmitForm } from '../lib/forms.js';
-import { isMaster, isUnitAdmin, roleLabel, canChangeProfileRole } from '../core/permissions.js';
+import { isMaster, isMasterAccount, isUnitAdmin, roleLabel, canChangeProfileRole } from '../core/permissions.js';
 import {
   listProfiles, listUnits, listTeams, listMunicipalities, adminUpdateProfile, setProfileRole,
   createTeam, updateTeam, updateUnit, createUnit, createMunicipality, updateMunicipality
@@ -10,9 +10,10 @@ import {
 
 export function renderAdminPage({ state }) {
   const master = isMaster(state.profile);
+  const masterAccount = isMasterAccount(state.profile);
   const content = `
     <section class="page-toolbar">
-      <div><p class="eyebrow">${master ? 'Gestão municipal' : 'Administração da UBS'}</p><h2>${master ? 'Gestão da rede' : escapeHtml(state.context?.unit?.short_name || state.profile?.unit_name || 'Minha UBS')}</h2><p>${master ? 'Administre dados profissionais e institucionais da rede.' : 'Administre perfis profissionais, dados operacionais e equipes somente da sua unidade.'} Dados temporários das carteirinhas não aparecem aqui.</p></div>
+      <div><p class="eyebrow">${master ? (masterAccount ? 'Administração técnica' : 'Gestão municipal') : 'Administração da UBS'}</p><h2>${master ? 'Gestão da rede' : escapeHtml(state.context?.unit?.short_name || state.profile?.unit_name || 'Minha UBS')}</h2><p>${master ? (masterAccount ? 'Administre a configuração superior de acessos e os dados institucionais da rede.' : 'Administre dados profissionais e institucionais da rede como Gestor Municipal.') : 'Administre perfis profissionais, dados operacionais e equipes somente da sua unidade.'} Dados temporários das carteirinhas não aparecem aqui.</p></div>
       <div class="toolbar-actions"><label class="compact-search">Buscar<input id="admin-search" type="search" placeholder="Nome, CNES, equipe, microárea…"></label><button class="button" id="admin-refresh" type="button">Atualizar</button></div>
     </section>
     <div id="admin-kpis" class="kpi-grid" aria-live="polite"></div>
@@ -27,12 +28,13 @@ export function renderAdminPage({ state }) {
       <p id="admin-status" class="form-status" aria-live="polite"></p>
     </section>
     <dialog id="admin-dialog" class="editor-dialog" aria-labelledby="admin-dialog-title"><form method="dialog"><button class="dialog-close" value="cancel" aria-label="Fechar">×</button></form><div id="admin-dialog-body"></div></dialog>`;
-  return appLayout({ title: master ? 'Gestão da rede' : 'Gestão da UBS', subtitle: master ? 'Perfis, municípios, unidades e equipes.' : 'Perfis profissionais, dados operacionais da unidade e equipes do seu escopo.', activePath: '/app/gestao', content });
+  return appLayout({ title: master ? 'Gestão da rede' : 'Gestão da UBS', subtitle: master ? (masterAccount ? 'Administração técnica da rede.' : 'Perfis, municípios, unidades e equipes.') : 'Perfis profissionais, dados operacionais da unidade e equipes do seu escopo.', activePath: '/app/gestao', content });
 }
 
 export async function mountAdminPage({ root, state }) {
   mountAppLayout(root);
   const master = isMaster(state.profile);
+  const masterAccount = isMasterAccount(state.profile);
   const unitAdmin = isUnitAdmin(state.profile);
   let data = { profiles: [], units: [], teams: [], municipalities: [] };
   let active = 'profiles';
@@ -133,7 +135,7 @@ export async function mountAdminPage({ root, state }) {
   }
 
   function renderActive() {
-    if (active === 'profiles') content.innerHTML = renderProfiles(data, searchQuery, { master, actor: state.profile });
+    if (active === 'profiles') content.innerHTML = renderProfiles(data, searchQuery, { master, masterAccount, actor: state.profile });
     if (active === 'units') content.innerHTML = renderUnits(data, searchQuery, { master, unitAdmin });
     if (active === 'teams') content.innerHTML = renderTeams(data, searchQuery);
     if (active === 'municipalities') content.innerHTML = renderMunicipalities(data, searchQuery, { master });
@@ -178,7 +180,7 @@ export async function mountAdminPage({ root, state }) {
       return openTeamEditor({ pendingProfileId: confirmPending.dataset.confirmPendingTeam });
     }
     if (editUnit) return openUnitEditor(editUnit.dataset.editUnit);
-    if (editTeam) return openTeamEditor({ teamId: editTeam.dataset.editTeam });
+    if (editTeam) return openTeamEditor({ teamId: editTeam.dataset.editTeam);
     if (addTeam) return openTeamEditor();
     if (addUnit && master) return openUnitCreate();
     if (addMunicipality && master) return openMunicipalityCreate();
@@ -211,14 +213,20 @@ export async function mountAdminPage({ root, state }) {
     const roleEditable = canChangeProfileRole(state.profile, profile);
     const availableUnits = master ? data.units : data.units.filter((unit) => unit.cnes === state.profile?.unit_cnes);
     const profileUnit = availableUnits.find((unit) => unit.cnes === profile.unit_cnes);
-    dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar perfil profissional</h2><p>${master ? 'O master pode ajustar vínculo e, para contas não master, definir administração de UBS.' : 'A gestão local pode atualizar somente profissionais/ACS da própria UBS.'}</p>
+    const adminOption = masterAccount ? `<option value="admin" ${profile.role === 'admin' ? 'selected' : ''}>Gestor Municipal</option>` : '';
+    const editorIntro = masterAccount
+      ? 'A conta Master / Desenvolvimento pode ajustar vínculo e definir ACS, Administrador da UBS ou Gestor Municipal.'
+      : master
+        ? 'O Gestor Municipal pode administrar perfis não administrativos e definir administradores de UBS.'
+        : 'A gestão local pode atualizar somente profissionais/ACS da própria UBS.';
+    dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar perfil profissional</h2><p>${editorIntro}</p>
       <form id="admin-profile-form" class="stack-form">
         <label>Nome<input name="full_name" value="${escapeHtml(profile.full_name || '')}" required maxlength="160"></label>
         <label>Microárea<input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40"></label>
         <label>Contato<input name="acs_phone" value="${escapeHtml(profile.acs_phone || '')}" maxlength="80"></label>
         ${master ? `<label>Unidade<select name="unit_cnes" id="admin-profile-unit"><option value="">—</option>${availableUnits.map((unit) => `<option value="${escapeHtml(unit.cnes)}" ${unit.cnes === profile.unit_cnes ? 'selected' : ''}>${escapeHtml(unit.short_name)}</option>`).join('')}</select></label>` : `<div class="readonly-field"><span>Unidade</span><strong>${escapeHtml(profileUnit?.short_name || profile.unit_name || '—')}</strong></div>`}
         <label>Equipe<select name="team_id" id="admin-profile-team"><option value="">—</option></select></label>
-        ${roleEditable ? `<label>Função de acesso<select name="role"><option value="acs" ${profile.role === 'acs' ? 'selected' : ''}>Profissional / ACS</option><option value="unit_admin" ${profile.role === 'unit_admin' ? 'selected' : ''}>Administrador da UBS</option></select></label>` : `<div class="readonly-field"><span>Função</span><strong>${escapeHtml(roleLabel(profile))}</strong></div>`}
+        ${roleEditable ? `<label>Função de acesso<select name="role"><option value="acs" ${profile.role === 'acs' ? 'selected' : ''}>Profissional / ACS</option><option value="unit_admin" ${profile.role === 'unit_admin' ? 'selected' : ''}>Administrador da UBS</option>${adminOption}</select></label>` : `<div class="readonly-field"><span>Função</span><strong>${escapeHtml(roleLabel(profile))}</strong></div>`}
         <button class="button primary" type="submit">Salvar</button>
       </form></section>`;
     const form = dialogBody.querySelector('#admin-profile-form');
@@ -238,10 +246,10 @@ export async function mountAdminPage({ root, state }) {
       const team = data.teams.find((row) => row.id === values.team_id && row.unit_cnes === unitCnes);
       const requestedRole = roleEditable ? values.role : profile.role;
       const localStatus = ensureFormStatus(form);
-      if (requestedRole === 'unit_admin' && !unitCnes) return setStatus(localStatus, 'Administrador de UBS precisa estar vinculado a uma unidade.', 'error');
+      if (requestedRole !== 'admin' && !unitCnes) return setStatus(localStatus, 'Perfil profissional precisa estar vinculado a uma unidade.', 'error');
       await submitDialogForm(form, {
         busyLabel: 'Salvando…',
-        successMessage: 'Perfil atualizado.',
+        successMessage: requestedRole === 'admin' ? 'Perfil atualizado como Gestor Municipal.' : 'Perfil atualizado.',
         errorMessage: 'Não foi possível atualizar o perfil.',
         task: async () => {
           await adminUpdateProfile(id, {
@@ -399,9 +407,14 @@ function renderKpis(root, data, { master }) {
   ].map(([label,value]) => `<article class="kpi"><small>${escapeHtml(label)}</small><strong>${value}</strong></article>`).join('');
 }
 
-function renderProfiles(data, query, { master, actor }) {
+function renderProfiles(data, query, { master, masterAccount, actor }) {
   const rows = filterRows(data.profiles, query, (p) => [p.full_name,p.unit_name,p.team_name,p.microarea,p.acs_phone,roleLabel(p)]);
-  return `<div class="section-actions"><div><h3>Perfis profissionais</h3><p class="field-hint">${master ? 'O master pode administrar profissionais e definir administradores de UBS.' : 'A gestão local vê o próprio perfil e os profissionais/ACS da unidade; somente perfis profissionais/ACS podem ser editados.'}</p></div></div>
+  const hint = masterAccount
+    ? 'A conta Master / Desenvolvimento pode administrar profissionais, administradores de UBS e gestores municipais; a própria conta Master permanece protegida.'
+    : master
+      ? 'O Gestor Municipal administra profissionais e administradores de UBS, mas não altera outra conta de Gestor nem a conta Master.'
+      : 'A gestão local vê o próprio perfil e os profissionais/ACS da unidade; somente perfis profissionais/ACS podem ser editados.';
+  return `<div class="section-actions"><div><h3>Perfis profissionais</h3><p class="field-hint">${hint}</p></div></div>
     ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Unidade</th><th>Equipe</th><th>Microárea</th><th>Função</th><th>Ações</th></tr></thead><tbody>${rows.map((p) => {
       const editable = canEditManagedProfile(actor, p);
       const pendingTeam = editable && p.role === 'acs' && !p.team_id && p.team_name?.trim() && p.unit_cnes;
@@ -411,7 +424,7 @@ function renderProfiles(data, query, { master, actor }) {
 
 function renderUnits(data, query, { master }) {
   const rows = filterRows(data.units, query, (u) => [u.cnes,u.name,u.short_name,u.address,u.neighborhood,u.phone,u.data_status]);
-  return `<div class="section-actions"><div><h3>${master ? 'Unidades e pontos' : 'Minha unidade'}</h3><p class="field-hint">${master ? 'Identidade oficial e dados institucionais da rede.' : 'A gestão local pode manter dados operacionais; identidade oficial e estrutura administrativa são protegidas pelo master.'} Não inclua informações de pacientes.</p></div>${master ? '<button class="button" data-add-unit type="button">Cadastrar unidade</button>' : ''}</div>
+  return `<div class="section-actions"><div><h3>${master ? 'Unidades e pontos' : 'Minha unidade'}</h3><p class="field-hint">${master ? 'Identidade oficial e dados institucionais da rede.' : 'A gestão local pode manter dados operacionais; identidade oficial e estrutura administrativa são protegidas pela gestão municipal.'} Não inclua informações de pacientes.</p></div>${master ? '<button class="button" data-add-unit type="button">Cadastrar unidade</button>' : ''}</div>
     ${rows.length ? `<div class="unit-grid">${rows.map((u) => `<article class="unit-card"><div><span class="status-badge">${u.data_status === 'team_confirmed' ? 'Confirmado' : u.data_status === 'needs_review' ? 'Revisar' : 'Fonte pública'}</span><h3>${escapeHtml(u.short_name)}</h3><small>CNES ${escapeHtml(u.cnes)} • ${u.is_active ? 'ativa' : 'inativa'}</small></div><p>${escapeHtml([u.address,u.neighborhood].filter(Boolean).join(' — ') || 'Endereço a confirmar')}</p><p>${escapeHtml(u.phone || 'Telefone a confirmar')}</p><small>Fonte: ${escapeHtml(u.source_label || '—')}${u.source_checked_on ? ` • ${formatDateBr(u.source_checked_on)}` : ''}</small><div class="actions"><button class="link-button" type="button" data-edit-unit="${escapeHtml(u.cnes)}">Editar</button>${u.data_status !== 'team_confirmed' ? `<button class="link-button" type="button" data-confirm-unit="${escapeHtml(u.cnes)}">Confirmar localmente</button>` : ''}</div></article>`).join('')}</div>` : empty('Nenhuma unidade encontrada')}`;
 }
 
@@ -422,15 +435,16 @@ function renderTeams(data, query) {
 }
 
 function renderMunicipalities(data, query, { master }) {
-  if (!master) return empty('Área restrita ao master municipal');
+  if (!master) return empty('Área restrita à gestão municipal');
   const rows = filterRows(data.municipalities, query, (m) => [m.code,m.name,m.state_code]);
   return `<div class="section-actions"><div><h3>Municípios</h3><p class="field-hint">A arquitetura aceita outros municípios sem alterar o código da aplicação.</p></div><button class="button" data-add-municipality type="button">Cadastrar município</button></div>
     ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Código IBGE</th><th>Município</th><th>UF</th><th>Ativo</th><th></th></tr></thead><tbody>${rows.map((m) => `<tr><td>${escapeHtml(m.code)}</td><td>${escapeHtml(m.name)}</td><td>${escapeHtml(m.state_code)}</td><td>${m.active ? 'Sim' : 'Não'}</td><td><button class="link-button" type="button" data-edit-municipality="${escapeHtml(m.code)}">Editar</button></td></tr>`).join('')}</tbody></table></div>` : empty('Nenhum município encontrado')}`;
 }
 
 function canEditManagedProfile(actor, target) {
-  if (!target) return false;
-  if (isMaster(actor)) return true;
+  if (!target || target.is_master_account === true) return false;
+  if (isMasterAccount(actor)) return true;
+  if (isMaster(actor)) return target.role !== 'admin';
   return isUnitAdmin(actor) && target.role === 'acs' && target.unit_cnes === actor.unit_cnes;
 }
 
