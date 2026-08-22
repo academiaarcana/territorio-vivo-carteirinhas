@@ -55,10 +55,13 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `027_restrict_territory_point_kinds.sql` | `restrict_territory_point_kinds` |
 | `028_sync_profile_network_labels_on_catalog_update.sql` | `sync_profile_network_labels_on_catalog_update` |
 | `029_separate_gestor_and_master_account.sql` | `separate_gestor_and_master_account` |
+| `030_optimize_gestor_profile_policy.sql` | `optimize_gestor_profile_policy` |
 
 ### Nota sobre Gestor × Master
 
 A migration 029 mantém os três papéis de autorização (`acs`, `unit_admin`, `admin`) e passa a distinguir a conta técnica Master/Desenvolvimento por `profiles.is_master_account`. Assim, um perfil `admin/active` comum representa **Gestor Municipal**, enquanto a conta técnica existente permanece `admin/active` com `is_master_account=true`. Somente a conta Master pode promover outro perfil a Gestor Municipal ou administrar outra conta `admin`.
+
+A migration 030 preserva esse mesmo escopo e apenas otimiza a policy `profiles_update_by_scope`, avaliando `auth.uid()` uma única vez por consulta conforme recomendação do Performance Advisor.
 
 ## Regra para novas alterações
 
