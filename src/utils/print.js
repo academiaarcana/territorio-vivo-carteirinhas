@@ -51,10 +51,17 @@ export async function downloadPdf(html, { className = '', title = 'Território V
   }
 }
 
+export function cardsForSheet(cardHtmlList, count = 4) {
+  const numeric = Number(count);
+  const safeCount = [2, 4, 8, 12].includes(numeric) ? numeric : 4;
+  const cards = Array.isArray(cardHtmlList) ? cardHtmlList.slice(0, safeCount) : [];
+  return `<div class="card-sheet count-${safeCount}">${Array.from({ length: safeCount }, (_, index) => `<div class="sheet-slot">${cards[index] || ''}</div>`).join('')}</div>`;
+}
+
 export function repeatForSheet(cardHtml, count = 4) {
   const numeric = Number(count);
   const safeCount = [2, 4, 8, 12].includes(numeric) ? numeric : 4;
-  return `<div class="card-sheet count-${safeCount}">${Array.from({ length: safeCount }, () => `<div class="sheet-slot">${cardHtml}</div>`).join('')}</div>`;
+  return cardsForSheet(Array.from({ length: safeCount }, () => cardHtml), safeCount);
 }
 
 function ensurePrintRoot() {
