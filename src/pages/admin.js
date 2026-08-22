@@ -252,13 +252,22 @@ export async function mountAdminPage({ root, state }) {
         successMessage: requestedRole === 'admin' ? 'Perfil atualizado como Gestor Municipal.' : 'Perfil atualizado.',
         errorMessage: 'Não foi possível atualizar o perfil.',
         task: async () => {
+          const roleChanged = roleEditable && requestedRole !== profile.role;
+          const gestorScope = requestedRole === 'admin';
+          if (roleChanged && gestorScope) await setProfileRole(id, requestedRole);
+          const managedUnit = gestorScope ? null : unit;
+          const managedTeam = gestorScope ? null : team;
           await adminUpdateProfile(id, {
-            full_name: (values.full_name || '').trim(), microarea: (values.microarea || '').trim(), acs_phone: (values.acs_phone || '').trim(),
-            municipality_code: unit?.municipality_code || profile.municipality_code || null,
-            unit_cnes: unitCnes, team_id: team?.id || null,
-            unit_name: unit?.name || profile.unit_name || '', team_name: team?.name || (team ? '' : profile.team_name || '')
+            full_name: (values.full_name || '').trim(),
+            microarea: gestorScope ? '' : (values.microarea || '').trim(),
+            acs_phone: (values.acs_phone || '').trim(),
+            municipality_code: managedUnit?.municipality_code || (gestorScope ? null : profile.municipality_code || null),
+            unit_cnes: gestorScope ? null : unitCnes,
+            team_id: managedTeam?.id || null,
+            unit_name: managedUnit?.name || '',
+            team_name: managedTeam?.name || ''
           });
-          if (roleEditable && requestedRole !== profile.role) await setProfileRole(id, requestedRole);
+          if (roleChanged && !gestorScope) await setProfileRole(id, requestedRole);
         }
       });
     });
