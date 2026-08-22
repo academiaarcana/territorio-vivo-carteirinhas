@@ -3,7 +3,7 @@ import fs from 'node:fs';
 
 const auth = fs.readFileSync('src/pages/auth.js', 'utf8');
 
-assert.match(auth, /const PASSWORD_MIN_LENGTH = 10;/, 'Frontend precisa manter o mínimo de dez caracteres.');
+assert.match(auth, /const PASSWORD_MIN_LENGTH = 8;/, 'Frontend precisa manter o mínimo de oito caracteres.');
 assert.ok(auth.includes('const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;'), 'Mensagem precisa explicar somente o tamanho mínimo.');
 assert.match(auth, /Não é obrigatório misturar letras maiúsculas, números e símbolos\./, 'Cadastro e recuperação precisam explicar a política simples.');
 assert.doesNotMatch(auth, /const PASSWORD_SYMBOLS = /, 'Frontend não deve impor uma lista obrigatória de símbolos.');
@@ -16,4 +16,4 @@ assert.match(auth, /passwordGuidance\('signup-password-help'\)[\s\S]*name="passw
 assert.match(auth, /name="password2"[^>]+aria-describedby="signup-password-help"/, 'Confirmação de senha precisa apontar para a mesma orientação.');
 assert.match(auth, /passwordGuidance\('recovery-password-help'\)[\s\S]*Nova senha/, 'Recuperação precisa mostrar a orientação antes da nova senha.');
 
-console.log('Contrato da política de senha OK: frontend exige somente o mínimo de dez caracteres.');
+console.log('Contrato da política de senha OK: frontend exige somente o mínimo de oito caracteres.');
