@@ -13,7 +13,7 @@ assert.match(cards, /cardsForSheet\(cards, sheetCount\)/, 'Impressão em lote de
 assert.match(cards, /Apoio visual/, 'Editor precisa oferecer apoio visual com pictogramas.');
 assert.match(cards, /Letra ampliada/, 'Editor precisa oferecer letra ampliada.');
 assert.match(cards, /Number\(count\.value\) > 4/, 'Letra ampliada deve limitar densidade da folha.');
-assert.match(cards, /localStorage/, 'Aviso de privacidade deve deixar explícito que o lote não usa armazenamento persistente do navegador.');
+assert.match(cards, /armazenamento persistente do navegador/, 'Aviso de privacidade deve explicar que o lote existe somente em memória.');
 assert.match(cards, /field-pictogram/, 'Cartões com apoio visual devem renderizar pictogramas junto ao texto.');
 
 assert.match(print, /export function cardsForSheet/, 'Utilitário de impressão precisa aceitar cartões diferentes por folha.');
