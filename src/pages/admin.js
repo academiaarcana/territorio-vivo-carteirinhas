@@ -180,7 +180,7 @@ export async function mountAdminPage({ root, state }) {
       return openTeamEditor({ pendingProfileId: confirmPending.dataset.confirmPendingTeam });
     }
     if (editUnit) return openUnitEditor(editUnit.dataset.editUnit);
-    if (editTeam) return openTeamEditor({ teamId: editTeam.dataset.editTeam);
+    if (editTeam) return openTeamEditor({ teamId: editTeam.dataset.editTeam });
     if (addTeam) return openTeamEditor();
     if (addUnit && master) return openUnitCreate();
     if (addMunicipality && master) return openMunicipalityCreate();
