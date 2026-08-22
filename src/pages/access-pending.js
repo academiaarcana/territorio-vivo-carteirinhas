@@ -23,10 +23,10 @@ export function renderAccessPendingPage({ state }) {
         <h1>${escapeHtml(title)}</h1>
         <p>${escapeHtml(intro)}</p>
         <dl class="summary-list">
-          <div><dt>Profissional</dt><dd>${escapeHtml(profile.full_name || '—')}</dd></div>
-          <div><dt>Unidade</dt><dd>${escapeHtml(profile.unit_name || 'Não informada')}</dd></div>
-          <div><dt>Equipe</dt><dd>${escapeHtml(profile.team_name || 'A confirmar')}</dd></div>
-          <div><dt>Microárea</dt><dd>${escapeHtml(profile.microarea || 'Não informada')}</dd></div>
+          <div><dt>Profissional</dt><dd data-pending-summary="full_name">${escapeHtml(profile.full_name || '—')}</dd></div>
+          <div><dt>Unidade</dt><dd data-pending-summary="unit_name">${escapeHtml(profile.unit_name || 'Não informada')}</dd></div>
+          <div><dt>Equipe</dt><dd data-pending-summary="team_name">${escapeHtml(profile.team_name || 'A confirmar')}</dd></div>
+          <div><dt>Microárea</dt><dd data-pending-summary="microarea">${escapeHtml(profile.microarea || 'Não informada')}</dd></div>
         </dl>
         <div class="actions">
           <button class="button primary" type="button" id="check-access">Verificar aprovação</button>
@@ -57,6 +57,19 @@ export async function mountAccessPendingPage({ root, state }) {
   const status = root.querySelector('#pending-status');
   const actionRegion = root.querySelector('.access-gate');
   let actionInFlight = false;
+
+  function syncPendingSummary(profile = {}) {
+    const summary = {
+      full_name: profile.full_name || '—',
+      unit_name: profile.unit_name || 'Não informada',
+      team_name: profile.team_name || 'A confirmar',
+      microarea: profile.microarea || 'Não informada'
+    };
+    Object.entries(summary).forEach(([key, value]) => {
+      const node = root.querySelector(`[data-pending-summary="${key}"]`);
+      if (node) node.textContent = value;
+    });
+  }
 
   function setPendingActionsBusy(actor, busy, label = '') {
     const buttons = [...root.querySelectorAll('#check-access, #pending-signout, #pending-profile-form button[type="submit"]')];
@@ -96,6 +109,7 @@ export async function mountAccessPendingPage({ root, state }) {
       const profile = await getProfile(state.user.id);
       const context = profile ? await buildContext(profile) : null;
       setState({ profile, context });
+      syncPendingSummary(profile);
       if (profile?.access_status === 'active') {
         setStatus(status, 'Acesso aprovado. Entrando…', 'success');
         await navigate('/app/inicio', { replace: true });
@@ -246,6 +260,7 @@ export async function mountAccessPendingPage({ root, state }) {
       });
       const context = await buildContext(profile);
       setState({ profile, context });
+      syncPendingSummary(profile);
       setStatus(status, 'Solicitação atualizada. A gestão verá os dados revisados.', 'success');
     } catch (error) {
       console.error(error);
