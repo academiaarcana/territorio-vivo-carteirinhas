@@ -29,6 +29,9 @@ assert.match(admin, /<option value="admin"[^>]*>Gestor Municipal<\/option>/, 'A 
 assert.match(admin, /masterAccount \? `<option value="admin"/, 'Opção de Gestor deve existir somente para a conta Master.');
 assert.match(admin, /target\.is_master_account === true/, 'Conta Master deve permanecer protegida na gestão de perfis.');
 assert.match(admin, /target\.role !== 'admin'/, 'Gestor Municipal não deve editar outra conta admin.');
+assert.match(admin, /if \(roleChanged && gestorScope\) await setProfileRole\(id, requestedRole\);/, 'Promoção a Gestor deve ocorrer antes de remover vínculo obrigatório de perfil profissional.');
+assert.match(admin, /unit_cnes: gestorScope \? null : unitCnes/, 'Gestor Municipal não deve manter vínculo de UBS herdado do cadastro.');
+assert.match(admin, /team_name: managedTeam\?\.name \|\| ''/, 'Ao remover equipe, o rótulo antigo não pode permanecer como equipe a confirmar.');
 
 assert.match(migration29, /is_master_account boolean not null default false/, 'Banco precisa registrar a distinção Master sem criar quarto role.');
 assert.match(migration29, /private\.is_master_account\(\)/, 'Banco precisa centralizar a identificação da conta Master.');
