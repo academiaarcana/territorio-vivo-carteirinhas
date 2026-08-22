@@ -8,6 +8,7 @@ const profile = fs.readFileSync('src/pages/profile.js', 'utf8');
 const admin = fs.readFileSync('src/pages/admin.js', 'utf8');
 const territory = fs.readFileSync('src/pages/territory.js', 'utf8');
 const migration29 = fs.readFileSync('supabase/migrations/029_separate_gestor_and_master_account.sql', 'utf8');
+const migration31 = fs.readFileSync('supabase/migrations/031_enforce_management_scope_shape.sql', 'utf8');
 
 assert.match(permissions, /isMasterAccount/, 'Frontend precisa distinguir a conta técnica Master dos gestores role=admin.');
 assert.match(permissions, /return 'Master \/ Desenvolvimento'/, 'Conta técnica deve ter rótulo próprio.');
@@ -38,6 +39,12 @@ assert.match(migration29, /private\.is_master_account\(\)/, 'Banco precisa centr
 assert.match(migration29, /caller_is_master and new\.role in \('acs', 'unit_admin', 'admin'\)/, 'Somente Master pode promover um perfil a Gestor Municipal.');
 assert.match(migration29, /private\.is_admin\(\) and role <> 'admin'/, 'RLS deve impedir um gestor de alterar outro admin.');
 assert.match(migration29, /new\.is_master_account := old\.is_master_account/, 'Flag Master deve ser imutável pelo cliente.');
+
+assert.match(migration31, /if new\.role = 'admin' then[\s\S]*new\.unit_cnes := null;[\s\S]*new\.team_id := null;[\s\S]*new\.microarea := '';/, 'Gestor Municipal deve ter escopo de rede, sem UBS, equipe ou microárea herdadas.');
+assert.match(migration31, /elsif new\.role = 'unit_admin' then[\s\S]*new\.team_id := null;[\s\S]*new\.microarea := '';/, 'Administrador da UBS deve representar a unidade inteira, sem equipe ou microárea.');
+assert.match(migration31, /where role = 'admin'/, 'Migration deve limpar vínculos antigos já gravados em contas admin.');
+assert.match(migration31, /where role = 'unit_admin'/, 'Migration deve limpar vínculos antigos já gravados em administradores de UBS.');
+
 assert.match(territory, /Visão geral da rede/, 'Território da gestão de rede não deve ser limitado a uma UBS.');
 
 console.log('Contrato Gestor × Master OK: role admin operacional separado da conta técnica protegida.');
