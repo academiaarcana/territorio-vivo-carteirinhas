@@ -3,7 +3,7 @@ import { setButtonBusy } from '../lib/forms.js';
 import { navigate } from './router.js';
 import { getState } from './store.js';
 import { signOut } from '../services/auth.js';
-import { accessStatusLabel, isManagement, isMaster, roleLabel } from './permissions.js';
+import { accessStatusLabel, isManagement, isMaster, isMasterAccount, roleLabel } from './permissions.js';
 
 const navItems = [
   ['/app/inicio', 'Início'],
@@ -18,18 +18,28 @@ const navItems = [
 export function appLayout({ title, subtitle = '', activePath, content }) {
   const { profile, context } = getState();
   const management = isManagement(profile);
-  const master = isMaster(profile);
+  const networkAdmin = isMaster(profile);
+  const masterAccount = isMasterAccount(profile);
   const managementItems = management
-    ? [['/app/aprovacoes', 'Aprovações'], ['/app/gestao', master ? 'Gestão da rede' : 'Gestão da UBS']]
+    ? [['/app/aprovacoes', 'Aprovações'], ['/app/gestao', networkAdmin ? 'Gestão da rede' : 'Gestão da UBS']]
     : [];
   const items = [...navItems, ...managementItems];
-  const contextLabel = master
-    ? 'Administração geral • Rede cadastrada'
-    : [context?.unit?.short_name || profile?.unit_name, context?.team?.name || profile?.team_name]
-      .filter(Boolean).join(' • ') || 'Atenção Primária';
-  const municipalityLabel = master
-    ? 'Território Vivo • Administração superior'
-    : [context?.municipality?.name, context?.municipality?.state_code].filter(Boolean).join(' • ') || 'Rede de Atenção Primária';
+  const contextLabel = masterAccount
+    ? 'Master / Desenvolvimento • Administração técnica'
+    : networkAdmin
+      ? 'Gestão municipal • Rede cadastrada'
+      : [context?.unit?.short_name || profile?.unit_name, context?.team?.name || profile?.team_name]
+        .filter(Boolean).join(' • ') || 'Atenção Primária';
+  const municipalityLabel = masterAccount
+    ? 'Território Vivo • Master / Desenvolvimento'
+    : networkAdmin
+      ? 'Território Vivo • Gestão municipal'
+      : [context?.municipality?.name, context?.municipality?.state_code].filter(Boolean).join(' • ') || 'Rede de Atenção Primária';
+  const accountRoleLabel = masterAccount
+    ? 'Master / Desenvolvimento • Administração técnica'
+    : networkAdmin
+      ? 'Gestor Municipal • Administração geral'
+      : `${escapeHtml(roleLabel(profile))}${profile?.microarea ? ` • Microárea ${escapeHtml(profile.microarea)}` : ''}`;
 
   return `
     <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
@@ -41,7 +51,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
         </nav>
         <div class="account-card">
           <span class="avatar" aria-hidden="true">${escapeHtml(initials(profile?.full_name))}</span>
-          <div><strong>${escapeHtml(profile?.full_name || 'Profissional')}</strong><small>${master ? 'Conta Master • Administração geral' : `${escapeHtml(roleLabel(profile))}${profile?.microarea ? ` • Microárea ${escapeHtml(profile.microarea)}` : ''}`}</small><small>${escapeHtml(accessStatusLabel(profile))}</small></div>
+          <div><strong>${escapeHtml(profile?.full_name || 'Profissional')}</strong><small>${accountRoleLabel}</small><small>${escapeHtml(accessStatusLabel(profile))}</small></div>
         </div>
       </aside>
       <div class="workspace">
