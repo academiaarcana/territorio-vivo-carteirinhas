@@ -1,0 +1,24 @@
+{
+  "name": "territorio-vivo",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "npm run check:architecture && npm run check:security && npm run check:production && npm run test:layout && npm run test:access-control && npm run test:master-interface && npm run test:access-management && npm run test:session-access && npm run test:auth-concurrency && npm run test:password-policy && npm run test:admin-concurrency && npm run test:territory-concurrency && npm run test:pending-concurrency && npm run test:cards-accessibility && npm run test:permissions",
+    "check:architecture": "node scripts/validate-architecture.mjs",
+    "check:security": "node scripts/validate-security-contract.mjs",
+    "check:production": "node scripts/validate-production-contracts.mjs",
+    "test:layout": "node scripts/test-layout-contract.mjs",
+    "test:access-control": "node scripts/test-access-control-contract.mjs",
+    "test:master-interface": "node scripts/test-master-interface-contract.mjs",
+    "test:access-management": "node scripts/test-access-management-contract.mjs",
+    "test:session-access": "node scripts/test-session-access-contract.mjs",
+    "test:auth-concurrency": "node scripts/test-auth-concurrency-contract.mjs",
+    "test:password-policy": "node scripts/test-password-policy-contract.mjs",
+    "test:admin-concurrency": "node scripts/test-admin-concurrency-contract.mjs",
+    "test:territory-concurrency": "node scripts/test-territory-concurrency-contract.mjs",
+    "test:pending-concurrency": "node scripts/test-pending-concurrency-contract.mjs",
+    "test:cards-accessibility": "node scripts/test-card-batch-accessibility-contract.mjs",
+    "test:permissions": "node scripts/test-permissions.mjs"
+  }
+}

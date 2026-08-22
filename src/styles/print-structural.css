@@ -1,0 +1,10 @@
+@media print{
+  .card-sheet.count-12{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:2mm}
+  .card-sheet.count-12 .generated-card{font-size:7.5pt;padding:5px;gap:3px;border-width:1px}
+  .card-sheet.count-12 .generated-card header{padding-bottom:3px;gap:4px}
+  .card-sheet.count-12 .generated-card-fields{gap:3px}
+  .card-sheet.count-12 .generated-card-fields div{padding-bottom:2px}
+  .card-sheet.count-12 .generated-card footer{font-size:6.8pt;padding-top:3px}
+  .print-document,.pdf-document{print-color-adjust:economy;-webkit-print-color-adjust:economy}
+  .sheet-slot,.generated-card,.five-print-sheet,.indicator-print-sheet,.education-print-sheet{break-inside:avoid;page-break-inside:avoid}
+}
