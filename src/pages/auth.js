@@ -4,7 +4,7 @@ import { navigate } from '../core/router.js';
 import { signIn, signUp, signOut, sendPasswordReset, updatePassword } from '../services/auth.js';
 import { listMunicipalities, listUnits, listTeams } from '../services/repository.js';
 
-const PASSWORD_MIN_LENGTH = 10;
+const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
 
 function passwordGuidance(id) {
