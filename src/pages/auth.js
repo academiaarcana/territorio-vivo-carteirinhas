@@ -5,20 +5,13 @@ import { signIn, signUp, signOut, sendPasswordReset, updatePassword } from '../s
 import { listMunicipalities, listUnits, listTeams } from '../services/repository.js';
 
 const PASSWORD_MIN_LENGTH = 10;
-const PASSWORD_SYMBOLS = "!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~";
-const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres, com letra minúscula, letra maiúscula, número e símbolo.`;
+const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
 
 function passwordGuidance(id) {
-  return `<aside id="${id}" class="clinical-disclaimer password-guidance" aria-label="Requisitos da senha">
-    <strong>Antes de criar a senha</strong>
-    <p>A senha precisa ter todos estes requisitos:</p>
-    <ul>
-      <li>${PASSWORD_MIN_LENGTH} ou mais caracteres;</li>
-      <li>uma letra minúscula e uma letra maiúscula;</li>
-      <li>um número;</li>
-      <li>um símbolo, como !, @, # ou $.</li>
-    </ul>
-    <small>Esses requisitos protegem sua conta e são necessários para concluir o cadastro.</small>
+  return `<aside id="${id}" class="clinical-disclaimer password-guidance" aria-label="Orientação para criar a senha">
+    <strong>Crie sua senha</strong>
+    <p>Use ${PASSWORD_MIN_LENGTH} ou mais caracteres. Não é obrigatório misturar letras maiúsculas, números e símbolos.</p>
+    <small>Escolha algo que só você conheça e não reutilize a senha de outro serviço.</small>
   </aside>`;
 }
 
@@ -288,12 +281,7 @@ export function mountRecoveryPage({ root }) {
 
 function validatePassword(password) {
   const value = String(password || '');
-  if (value.length < PASSWORD_MIN_LENGTH) return `A senha precisa ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
-  const hasRequiredCharacters = /[a-z]/.test(value)
-    && /[A-Z]/.test(value)
-    && /\d/.test(value)
-    && [...value].some((character) => PASSWORD_SYMBOLS.includes(character));
-  if (!hasRequiredCharacters) return PASSWORD_REQUIREMENT;
+  if (value.length < PASSWORD_MIN_LENGTH) return PASSWORD_REQUIREMENT;
   return '';
 }
 
