@@ -4,7 +4,7 @@ import fs from 'node:fs';
 const auth = fs.readFileSync('src/pages/auth.js', 'utf8');
 
 assert.match(auth, /const PASSWORD_MIN_LENGTH = 10;/, 'Frontend precisa manter o mínimo de dez caracteres.');
-assert.match(auth, /const PASSWORD_REQUIREMENT = \`Use pelo menos \\${PASSWORD_MIN_LENGTH} caracteres\.\`;/, 'Mensagem precisa explicar somente o tamanho mínimo.');
+assert.ok(auth.includes('const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;'), 'Mensagem precisa explicar somente o tamanho mínimo.');
 assert.match(auth, /Não é obrigatório misturar letras maiúsculas, números e símbolos\./, 'Cadastro e recuperação precisam explicar a política simples.');
 assert.doesNotMatch(auth, /const PASSWORD_SYMBOLS = /, 'Frontend não deve impor uma lista obrigatória de símbolos.');
 assert.doesNotMatch(auth, /hasRequiredCharacters/, 'Frontend não deve impor regras de composição.');
