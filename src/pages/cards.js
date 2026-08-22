@@ -84,7 +84,7 @@ function mountEditor(dialog, body, template, state, opener) {
         <div id="card-preview"></div>
         <div class="actions"><button type="button" class="button" id="card-pdf">Baixar PDF</button><button type="button" class="button primary" id="card-print">Imprimir A4</button></div>
         <p id="card-action-status" class="form-status" aria-live="polite"></p>
-        <p class="privacy-note">Nenhum campo digitado neste gerador é salvo no Supabase, localStorage ou sessão do navegador. O lote existe somente na memória desta janela; ao fechar ou recarregar a página, ele desaparece.</p>
+        <p class="privacy-note">Nenhum campo digitado neste gerador é salvo no Supabase nem em armazenamento persistente do navegador. O lote existe somente na memória desta janela; ao fechar ou recarregar a página, ele desaparece.</p>
       </section>
     </div>`;
 
