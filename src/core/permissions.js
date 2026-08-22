@@ -18,8 +18,18 @@ export function isSuspendedProfile(profile) {
   return resolveAccessLevel(profile) === ACCESS_LEVELS.SUSPENDED;
 }
 
+// Mantém o significado histórico de isMaster como acesso global role=admin.
+// A distinção visual/administrativa da conta técnica usa isMasterAccount().
 export function isMaster(profile) {
   return resolveAccessLevel(profile) === ACCESS_LEVELS.MASTER_ACTIVE;
+}
+
+export function isMasterAccount(profile) {
+  return isMaster(profile) && profile?.is_master_account === true;
+}
+
+export function isGestor(profile) {
+  return isMaster(profile) && !isMasterAccount(profile);
 }
 
 export function isUnitAdmin(profile) {
@@ -31,8 +41,10 @@ export function isManagement(profile) {
 }
 
 export function roleLabel(profileOrRole) {
+  const profile = typeof profileOrRole === 'string' ? null : profileOrRole;
   const role = typeof profileOrRole === 'string' ? profileOrRole : profileOrRole?.role;
-  if (role === ROLES.ADMIN) return 'Conta Master';
+  if (role === ROLES.ADMIN && profile?.is_master_account === true) return 'Master / Desenvolvimento';
+  if (role === ROLES.ADMIN) return 'Gestor Municipal';
   if (role === ROLES.UNIT_ADMIN) return 'Administrador da UBS';
   return 'Profissional / ACS';
 }
@@ -61,11 +73,15 @@ export function canManageTerritoryPoint(profile, userId, point) {
 }
 
 export function canChangeProfileRole(actorProfile, targetProfile) {
-  return hasCapability(actorProfile, CAPABILITIES.ASSIGN_UNIT_ADMIN) && targetProfile?.role !== ROLES.ADMIN;
+  if (!targetProfile || targetProfile.is_master_account === true) return false;
+  if (isMasterAccount(actorProfile)) return true;
+  return hasCapability(actorProfile, CAPABILITIES.ASSIGN_UNIT_ADMIN) && targetProfile.role !== ROLES.ADMIN;
 }
 
 export function canChangeAccessStatus(actorProfile, targetProfile) {
-  if (!targetProfile || targetProfile.role === ROLES.ADMIN) return false;
+  if (!targetProfile || targetProfile.is_master_account === true) return false;
+  if (isMasterAccount(actorProfile)) return targetProfile.id !== actorProfile?.id;
+  if (targetProfile.role === ROLES.ADMIN) return false;
   if (hasCapability(actorProfile, CAPABILITIES.CHANGE_NON_MASTER_ACCESS)) return true;
   return hasCapability(actorProfile, CAPABILITIES.APPROVE_UNIT_ACS)
     && targetProfile.role === ROLES.ACS
