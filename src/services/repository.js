@@ -48,7 +48,7 @@ export async function updateProfile(userId, patch) {
 }
 
 export async function setProfileRole(userId, role) {
-  if (!['acs','unit_admin'].includes(role)) throw new Error('Função de acesso inválida.');
+  if (!['acs','unit_admin','admin'].includes(role)) throw new Error('Função de acesso inválida.');
   const { data, error } = await supabase.from('profiles').update({ role }).eq('id', userId).select('*').single();
   assertNoError(error);
   return data;
