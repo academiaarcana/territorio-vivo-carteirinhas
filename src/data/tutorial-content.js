@@ -66,22 +66,33 @@ export const quickTutorial = [
   ['7', 'Revise e não acumule', 'Rascunhos temporários desaparecem ao recarregar, fechar a aba ou sair. O que precisar ser registro clínico deve permanecer nos sistemas oficiais.']
 ];
 
+export const verifiedPublicTeams = [
+  { type: 'ESF', ine: '0000001511', name: 'UBS Madre Tereza de Calcutá 01', source: 'CNES / Ministério da Saúde' },
+  { type: 'ESF', ine: '0002332566', name: 'UBS Madre Tereza de Calcutá 02', source: 'CNES + relatórios e-SUS do projeto' },
+  { type: 'ESF', ine: '0002459353', name: 'UBS Madre Tereza de Calcutá 03', source: 'CNES / Ministério da Saúde' },
+  { type: 'ESF', ine: '0002431327', name: 'UBS Madre Tereza de Calcutá 04', source: 'CNES / Ministério da Saúde' },
+  { type: 'ESB', ine: '0001809490', name: 'ESB Madre Tereza de Calcutá 01', source: 'CNES / Ministério da Saúde' },
+  { type: 'ESB', ine: '0002461722', name: 'ESB Madre Tereza de Calcutá 02', source: 'CNES / Ministério da Saúde' },
+  { type: 'ESB', ine: '0002481898', name: 'ESB Madre Tereza 03', source: 'CNES / Ministério da Saúde' },
+  { type: 'eMulti', ine: '0002460459', name: 'UBS Madre Tereza eMulti', source: 'CNES / Ministério da Saúde' }
+];
+
 export const publicTeamTypes = [
   {
     title: 'Saúde da Família',
-    text: 'Composição pública pesquisada inclui medicina, enfermagem, técnico/auxiliar de enfermagem e agentes comunitários de saúde.'
+    text: 'O CNES público identifica quatro equipes ESF na UBS Madre Tereza de Calcutá: 01, 02, 03 e 04. A composição pública pesquisada inclui medicina, enfermagem, técnico/auxiliar de enfermagem e agentes comunitários de saúde.'
   },
   {
     title: 'Saúde Bucal',
-    text: 'Foram identificados cirurgiões-dentistas/odontólogos e auxiliares em saúde bucal vinculados à rede pesquisada.'
+    text: 'O CNES identifica três equipes de Saúde Bucal vinculadas à unidade: ESB 01, ESB 02 e ESB 03, além das funções de cirurgião-dentista/odontólogo e auxiliar em saúde bucal.'
   },
   {
     title: 'eMulti / apoio multiprofissional',
-    text: 'A pesquisa pública identificou fisioterapia, nutrição, psicologia, serviço social e educação física em composição multiprofissional.'
+    text: 'O CNES identifica uma eMulti vinculada à UBS. Escalas públicas municipais também mostram fisioterapia, nutrição, psicologia, serviço social e educação física no apoio multiprofissional.'
   },
   {
     title: 'Equipe rural',
-    text: 'Documentos públicos também distinguem atendimento/equipe rural vinculada à Atenção Primária, sem inferir número ou INE quando a fonte não os informa.'
+    text: 'Escalas públicas municipais distinguem atendimento/equipe rural vinculada à Atenção Primária. O tutorial não atribui número ou INE à equipe rural quando a fonte consultada não o informa.'
   }
 ];
 
@@ -112,4 +123,4 @@ export const professionalFunctions = [
   'Residente de Educação Física'
 ];
 
-export const researchNote = 'As funções e tipos de equipe acima foram consolidados a partir de fontes públicas de CNES/Ministério da Saúde e escalas públicas municipais consultadas para a apresentação. O Território Vivo não inventa número, INE ou lotação: equipes nominais só devem ser cadastradas quando a fonte permitir confirmação segura.';
+export const researchNote = 'As funções e equipes acima foram consolidadas a partir de fontes públicas do CNES/Ministério da Saúde, escalas públicas municipais e relatórios e-SUS já fornecidos ao projeto. O Território Vivo não inventa número, INE ou lotação: a lista de referência pode apresentar equipes confirmadas na fonte pública, enquanto o cadastro operacional do sistema continua sujeito à verificação administrativa adequada.';
