@@ -102,6 +102,11 @@ assert.throws(
 );
 assert.doesNotThrow(() => assertCanvasAspect({ width: 388, height: 562 }, 194, 281));
 assert.throws(
+  () => assertCanvasAspect({ width: 388, height: 563 }, 194, 281),
+  (error) => error?.code === 'PDF_CANVAS_GEOMETRY',
+  'Canvas um pixel mais alto que uma página útil deve ser rejeitado antes do jsPDF criar página extra.'
+);
+assert.throws(
   () => assertCanvasAspect({ width: 388, height: 900 }, 194, 281),
   (error) => error?.code === 'PDF_CANVAS_GEOMETRY',
   'Canvas muito mais alto que a área A4 precisa ser rejeitado.'
@@ -144,7 +149,7 @@ assert.match(print, /expectedCount/, 'Validação precisa conferir a quantidade 
 assert.match(print, /await worker\.toCanvas\(\)/, 'Pipeline deve parar no canvas antes de criar o PDF.');
 assert.match(print, /await worker\.get\(['"]canvas['"]\)/, 'Pipeline deve obter o canvas intermediário real do Worker.');
 assert.match(print, /assertCanvasHasContent\(canvas\)/, 'Canvas intermediário precisa ser validado contra página branca.');
-assert.match(print, /assertCanvasAspect\(canvas, captureWidth, captureHeight\)/, 'Canvas das carteirinhas deve preservar a proporção da área A4 útil.');
+assert.match(print, /assertCanvasAspect\(canvas, captureWidthMm, captureHeightMm\)/, 'Canvas das carteirinhas deve ser comparado à proporção física exata da área A4 útil.');
 assert.match(print, /await worker\.toPdf\(\)\.save\(\)/, 'jsPDF só pode executar depois das validações de canvas e geometria.');
 assert.match(print, /host\.remove\(\)/, 'Host e conteúdo temporários devem ser removidos no finally.');
 assert.match(print, /withRequiredAttribution\(html\)/, 'Conteúdo capturado deve preservar atribuição obrigatória do Flaticon.');
@@ -158,6 +163,7 @@ assert.match(canvasUtil, /A captura do PDF ficou vazia/, 'Erro de canvas vazio d
 assert.match(geometryUtil, /PDF_FOUR_UP_GEOMETRY/, 'Validação 4/A4 precisa produzir erro geométrico identificável.');
 assert.match(geometryUtil, /PDF_PAGE_OVERFLOW/, 'Overflow vertical ou horizontal precisa produzir erro identificável.');
 assert.match(geometryUtil, /PDF_CANVAS_GEOMETRY/, 'Proporção inválida do canvas precisa produzir erro identificável.');
+assert.match(geometryUtil, /expectedPageHeightPx/, 'Detector de geometria deve impedir que um canvas das carteirinhas ultrapasse uma página útil.');
 
 assert.match(index, /pdf-capture\.css/, 'Aplicação deve carregar o CSS exclusivo da captura direta de PDF.');
 assert.ok(index.indexOf('pdf-capture.css') > index.indexOf('card-collection.css'), 'CSS de captura precisa carregar depois do visual das carteirinhas.');
