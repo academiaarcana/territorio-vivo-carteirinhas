@@ -2,6 +2,8 @@ import { appLayout, mountAppLayout } from '../core/layout.js';
 import { indicatorDefinitions, indicatorGroups, indicatorScopes } from '../data/indicators.js';
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
+import { printAccessibilityClasses, readPrintAccessibilityOptions, renderPrintAccessibilityOptions } from '../lib/print-accessibility.js';
+import { renderVisualSupports } from '../lib/visual-support.js';
 import { printHtml, downloadPdf } from '../utils/print.js';
 
 export function renderIndicatorsPage({ state }) {
@@ -15,6 +17,7 @@ export function renderIndicatorsPage({ state }) {
           <fieldset><legend>Referência</legend><div class="form-grid"><label>Escopo<select name="scope">${indicatorScopes.map((item) => `<option value="${item.id}">${escapeHtml(item.label)}</option>`).join('')}</select></label><label>Microárea<input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40"></label><label>Período / referência<input name="period" maxlength="80" placeholder="Ex.: agosto/2026"></label></div></fieldset>
           ${grouped}
         </form>
+        ${renderPrintAccessibilityOptions('indicators')}
         <div class="actions"><button class="button primary" id="indicators-print" type="button">Imprimir</button><button class="button" id="indicators-pdf" type="button">Baixar PDF</button><button class="button" id="indicators-clear" type="button">Limpar</button></div><p id="indicators-status" class="form-status" aria-live="polite"></p>
       </article>
       <article class="panel"><p class="eyebrow">Sistema × território</p><h2>O número sozinho não explica.</h2><p class="privacy-note">Use esta reflexão para planejamento. Ela é temporária e não é gravada no Supabase.</p><form id="reflection-form" class="stack-form" autocomplete="off"><label>O sistema mostra<textarea name="system" rows="4" maxlength="1600"></textarea></label><label>No território observamos<textarea name="territory" rows="4" maxlength="1600"></textarea></label><label>O que ainda não sabemos<textarea name="unknown" rows="4" maxlength="1600"></textarea></label><label>Próxima ação<textarea name="action" rows="4" maxlength="1600"></textarea></label></form></article>
@@ -29,7 +32,7 @@ export function mountIndicatorsPage({ root, state }) {
   const status = root.querySelector('#indicators-status');
   const scope = form.elements.scope;
   const microarea = form.elements.microarea;
-  const build = () => buildIndicatorPrint(root, state);
+  const build = () => buildIndicatorPrint(root, state, readPrintAccessibilityOptions(root, 'indicators'));
 
   function syncScope() {
     const team = scope.value === 'team';
@@ -68,7 +71,7 @@ export function mountIndicatorsPage({ root, state }) {
   });
 }
 
-function buildIndicatorPrint(root, state) {
+function buildIndicatorPrint(root, state, options = {}) {
   const values = formToObject(root.querySelector('#indicator-form'));
   const reflection = formToObject(root.querySelector('#reflection-form'));
   const profile = state.profile || {};
@@ -79,7 +82,8 @@ function buildIndicatorPrint(root, state) {
   const groupedRows = Object.entries(indicatorGroups).map(([groupId, groupLabel]) => {
     const groupRows = rows.filter((row) => row.group === groupId);
     if (!groupRows.length) return '';
-    return `<h3>${escapeHtml(groupLabel)}</h3><table><tbody>${groupRows.map((row) => `<tr><th>${escapeHtml(row.label)}</th><td>${escapeHtml(row.value)}</td></tr>`).join('')}</tbody></table>`;
+    return `<h3>${escapeHtml(groupLabel)}</h3><table><tbody>${groupRows.map((row) => `<tr><th>${options.visualSupport ? `<span class="indicator-support-label">${renderVisualSupports({ label: row.label, value: row.label }, { max: 1 })}<span>${escapeHtml(row.label)}</span></span>` : escapeHtml(row.label)}</th><td>${escapeHtml(row.value)}</td></tr>`).join('')}</tbody></table>`;
   }).join('');
-  return `<article class="indicator-print-sheet"><header><strong>Território Vivo • Indicadores</strong><span>${escapeHtml(heading)}</span></header>${values.period ? `<p><strong>Período:</strong> ${escapeHtml(values.period)}</p>` : ''}<section><h2>Indicadores informados</h2>${groupedRows || '<p>Nenhum valor preenchido.</p>'}</section><section><h2>Leitura do território</h2><dl><div><dt>O sistema mostra</dt><dd>${escapeHtml(reflection.system || '—').replace(/\n/g,'<br>')}</dd></div><div><dt>No território observamos</dt><dd>${escapeHtml(reflection.territory || '—').replace(/\n/g,'<br>')}</dd></div><div><dt>O que ainda não sabemos</dt><dd>${escapeHtml(reflection.unknown || '—').replace(/\n/g,'<br>')}</dd></div><div><dt>Próxima ação</dt><dd>${escapeHtml(reflection.action || '—').replace(/\n/g,'<br>')}</dd></div></dl></section><footer>Avaliar a ferramenta e a necessidade do território, não comparar trabalhadores.</footer></article>`;
+  const classes = printAccessibilityClasses(options);
+  return `<article class="indicator-print-sheet ${classes}"><header><strong>Território Vivo • Indicadores</strong><span>${escapeHtml(heading)}</span></header>${values.period ? `<p><strong>Período:</strong> ${escapeHtml(values.period)}</p>` : ''}<section><h2>Indicadores informados</h2>${groupedRows || '<p>Nenhum valor preenchido.</p>'}</section><section><h2>Leitura do território</h2><dl><div><dt>O sistema mostra</dt><dd>${escapeHtml(reflection.system || '—').replace(/\n/g,'<br>')}</dd></div><div><dt>No território observamos</dt><dd>${escapeHtml(reflection.territory || '—').replace(/\n/g,'<br>')}</dd></div><div><dt>O que ainda não sabemos</dt><dd>${escapeHtml(reflection.unknown || '—').replace(/\n/g,'<br>')}</dd></div><div class="${options.visualSupport ? 'has-visual-support' : ''}">${options.visualSupport ? renderVisualSupports({ label: 'Próxima ação', value: reflection.action }, { max: 2 }) : ''}<dt>Próxima ação</dt><dd>${escapeHtml(reflection.action || '—').replace(/\n/g,'<br>')}</dd></div></dl></section><footer>Avaliar a ferramenta e a necessidade do território, não comparar trabalhadores.</footer></article>`;
 }
