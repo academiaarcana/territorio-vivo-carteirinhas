@@ -1,10 +1,11 @@
 import { slugify } from '../lib/dom.js';
 import { hasFlaticonVisualSupport, renderFlaticonAttribution } from '../lib/visual-support.js';
 import { assertCanvasHasContent } from './pdf-canvas.js';
+import { assertCanvasAspect, assertFourUpGeometry, assertNoBoxOverflow, assertRectsInside } from './pdf-geometry.js';
 
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
-const PDF_OVERFLOW_TOLERANCE_PX = 1;
+const PDF_GEOMETRY_TOLERANCE_PX = 2;
 
 export function printHtml(html, { className = '', title = 'Território Vivo' } = {}) {
   const root = ensurePrintRoot();
@@ -42,16 +43,17 @@ export async function downloadPdf(html, { className = '', title = 'Território V
     throw new Error('Margem inválida para uma página A4.');
   }
 
-  const host = createPdfCaptureHost(captureWidthMm);
+  const host = createPdfCaptureHost(captureWidthMm, captureHeightMm);
   const wrapper = document.createElement('section');
   wrapper.className = `pdf-document pdf-capture ${className}`.trim();
   wrapper.innerHTML = withRequiredAttribution(html);
+  const isCardsPdf = wrapper.classList.contains('cards-print');
   wrapper.style.position = 'relative';
   wrapper.style.left = 'auto';
   wrapper.style.top = 'auto';
   wrapper.style.zIndex = 'auto';
   wrapper.style.width = `${captureWidthMm}mm`;
-  if (wrapper.classList.contains('cards-print')) wrapper.style.height = `${captureHeightMm}mm`;
+  if (isCardsPdf) wrapper.style.height = `${captureHeightMm}mm`;
   wrapper.style.maxWidth = 'none';
   wrapper.style.boxSizing = 'border-box';
   wrapper.style.background = '#fff';
@@ -65,14 +67,18 @@ export async function downloadPdf(html, { className = '', title = 'Território V
     await nextPaint();
     await waitForImages(wrapper, { strict: true });
     await nextPaint();
-    assertPdfCaptureReady(wrapper);
+    assertPdfCaptureReady(wrapper, { stage: 'source' });
 
     const captureRect = wrapper.getBoundingClientRect();
     const captureWidth = Math.ceil(captureRect.width);
-    const captureHeight = Math.ceil(Math.max(captureRect.height, wrapper.scrollHeight));
+    const captureHeight = Math.ceil(captureRect.height);
     if (captureWidth < 100 || captureHeight < 100) {
       throw new Error('Área temporária do PDF ficou sem dimensão para captura.');
     }
+
+    const pagebreak = isCardsPdf
+      ? { mode: [], before: [], after: [], avoid: [] }
+      : { mode: ['css', 'legacy'] };
 
     const worker = window.html2pdf().set({
       margin: safeMargin,
@@ -94,11 +100,20 @@ export async function downloadPdf(html, { className = '', title = 'Território V
         windowHeight: captureHeight
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }
-    }).from(wrapper).toCanvas();
+      pagebreak
+    }).from(wrapper).toContainer();
 
+    const html2pdfContainer = await worker.get('container');
+    const clonedWrapper = html2pdfContainer?.firstElementChild;
+    if (!clonedWrapper) {
+      throw new Error('O html2pdf não criou uma área interna válida para captura.');
+    }
+    assertPdfCaptureReady(clonedWrapper, { stage: 'html2pdf-container' });
+
+    await worker.toCanvas();
     const canvas = await worker.get('canvas');
     assertCanvasHasContent(canvas);
+    if (isCardsPdf) assertCanvasAspect(canvas, captureWidth, captureHeight);
     await worker.toPdf().save();
     return { mode: 'pdf' };
   } finally {
@@ -151,7 +166,7 @@ async function waitForImages(root, { timeoutMs = 3500, strict = false } = {}) {
   }
 }
 
-function assertPdfCaptureReady(wrapper) {
+function assertPdfCaptureReady(wrapper, { stage = 'source' } = {}) {
   if (!wrapper.isConnected) throw new Error('Área temporária do PDF não está conectada ao documento.');
 
   const style = window.getComputedStyle(wrapper);
@@ -169,7 +184,7 @@ function assertPdfCaptureReady(wrapper) {
     throw new Error('Área temporária do PDF não possui conteúdo renderizável.');
   }
 
-  assertNoHorizontalOverflow(wrapper, 'Área temporária do PDF');
+  assertNoBoxOverflow(wrapper, `Área temporária do PDF (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
 
   const cardSheet = wrapper.querySelector('.card-sheet');
   if (!cardSheet) return;
@@ -184,10 +199,6 @@ function assertPdfCaptureReady(wrapper) {
   const populated = slots.every((slot) => slot.textContent.trim() || slot.querySelector('img, svg, canvas'));
   const slotsVisible = slotRects.every((slotRect) => slotRect.width >= 20 && slotRect.height >= 20);
   const cardsVisible = cardRects.every((cardRect) => cardRect.width >= 20 && cardRect.height >= 20);
-  const cardsInsideSheet = cardRects.every((cardRect) => (
-    cardRect.left >= sheetRect.left - PDF_OVERFLOW_TOLERANCE_PX
-    && cardRect.right <= sheetRect.right + PDF_OVERFLOW_TOLERANCE_PX
-  ));
 
   if (!slots.length || !cards.length || !populated || sheetRect.width < 100 || sheetRect.height < 100) {
     throw new Error('Folha de carteirinhas não está pronta para captura em PDF.');
@@ -198,36 +209,32 @@ function assertPdfCaptureReady(wrapper) {
   if (!slotsVisible || !cardsVisible) {
     throw new Error('Uma ou mais carteirinhas ficaram sem dimensão antes da captura do PDF.');
   }
-  if (!cardsInsideSheet) {
-    throw createPdfOverflowError();
+
+  assertNoBoxOverflow(cardSheet, `Folha de carteirinhas (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
+  assertRectsInside(sheetRect, slotRects, `Slots da folha (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
+  assertRectsInside(sheetRect, cardRects, `Carteirinhas da folha (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
+
+  slots.forEach((slot, index) => {
+    const card = cards[index];
+    assertNoBoxOverflow(slot, `Espaço da carteirinha ${index + 1} (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
+    if (card) {
+      assertRectsInside(slotRects[index], [cardRects[index]], `Carteirinha ${index + 1} (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
+    }
+  });
+
+  if (expectedCount === 4) {
+    assertFourUpGeometry(slotRects, sheetRect, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
   }
-
-  assertNoHorizontalOverflow(cardSheet, 'Folha de carteirinhas');
-  slots.forEach((slot) => assertNoHorizontalOverflow(slot, 'Espaço de carteirinha'));
-  cards.forEach((card) => assertNoHorizontalOverflow(card, 'Carteirinha'));
 }
 
-function assertNoHorizontalOverflow(element, label) {
-  if ((element.scrollWidth - element.clientWidth) > PDF_OVERFLOW_TOLERANCE_PX) {
-    const error = createPdfOverflowError();
-    error.detail = `${label}: ${element.scrollWidth}px de conteúdo para ${element.clientWidth}px disponíveis.`;
-    throw error;
-  }
-}
-
-function createPdfOverflowError() {
-  const error = new Error('O conteúdo não coube corretamente na página A4. O PDF não foi gerado.');
-  error.code = 'PDF_HORIZONTAL_OVERFLOW';
-  return error;
-}
-
-function createPdfCaptureHost(captureWidthMm) {
+function createPdfCaptureHost(captureWidthMm, captureHeightMm) {
   const host = document.createElement('div');
   host.className = 'pdf-capture-host';
   host.style.position = 'fixed';
   host.style.left = '0';
   host.style.top = '0';
   host.style.width = `${captureWidthMm}mm`;
+  host.style.height = `${captureHeightMm}mm`;
   host.style.maxWidth = 'none';
   host.style.background = '#fff';
   host.style.pointerEvents = 'none';
