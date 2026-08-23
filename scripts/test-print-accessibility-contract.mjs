@@ -38,6 +38,8 @@ assert.match(visual, /calendar: \{ iconId: '10754906'/, 'Data deve usar calendá
 assert.match(visual, /clock: \{ iconId: '818'/, 'Hora deve usar relógio simples e imediatamente reconhecível.');
 assert.match(visual, /early: \{ iconId: '818'/, 'Antecedência deve reutilizar o relógio simples reconhecível.');
 assert.match(visual, /vaccine: \{ iconId: '4745680'/, 'Vacina deve usar pictograma com aplicação explícita no braço.');
+assert.match(visual, /Math\.floor\(Number\(id\) \/ 1000\)/, 'URL do Flaticon precisa suportar IDs curtos como 818 usando pasta 0.');
+assert.doesNotMatch(visual, /id\.slice\(0, -3\)/, 'URL do Flaticon não pode gerar pasta vazia para IDs com três dígitos.');
 assert.doesNotMatch(visual, /1252294|3027535|4746755|13071506/, 'Ícones reprovados na homologação visual não podem voltar à biblioteca.');
 assert.doesNotMatch(visual, /<svg\b/, 'Biblioteca visual não deve manter pictogramas SVG locais quando a fonte oficial é Flaticon.');
 assert.match(visual, /cdn-icons-png\.flaticon\.com/, 'Ícones Flaticon precisam usar origem identificável.');
