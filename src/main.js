@@ -1,5 +1,5 @@
 import { registerRoute, setNotFoundRenderer, startRouter, navigate, currentPath, renderCurrentRoute } from './core/router.js';
-import { setState } from './core/store.js';
+import { getState, setState } from './core/store.js';
 import { hydrateSession, clearSession } from './core/session.js';
 import { installGlobalA11y } from './core/a11y.js';
 import { CAPABILITIES } from './core/access-control.js';
@@ -62,14 +62,21 @@ async function bootstrap() {
       }
 
       if (nextSession) {
+        const previousState = getState();
+        const previousAccess = accessContextFingerprint(previousState);
         await hydrateSession(nextSession);
+        const nextAccess = accessContextFingerprint(getState());
         if (hasRecoveryMarker()) {
           clearRecoveryMarker();
           await navigate('/recuperar-senha', { replace: true });
           return;
         }
-        if (['/entrar','/criar-conta','/'].includes(currentPath())) await navigate('/app/inicio', { replace: true });
-        else await renderCurrentRoute();
+        if (['/entrar','/criar-conta','/'].includes(currentPath())) {
+          await navigate('/app/inicio', { replace: true });
+          return;
+        }
+        if (['SIGNED_IN', 'TOKEN_REFRESHED', 'INITIAL_SESSION'].includes(event) && previousAccess === nextAccess) return;
+        await renderCurrentRoute();
       } else {
         clearSession();
         if (currentPath().startsWith('/app/')) await navigate('/entrar', { replace: true });
@@ -81,6 +88,24 @@ async function bootstrap() {
   });
 
   await startRouter();
+}
+
+function accessContextFingerprint(state) {
+  const profile = state?.profile || {};
+  const context = state?.context || {};
+  return JSON.stringify({
+    userId: state?.user?.id || state?.session?.user?.id || null,
+    role: profile.role || null,
+    accessStatus: profile.access_status || null,
+    isMaster: Boolean(profile.is_master_account),
+    municipalityCode: profile.municipality_code || null,
+    unitCnes: profile.unit_cnes || null,
+    teamId: profile.team_id || null,
+    microarea: profile.microarea || null,
+    contextKind: context.scope?.kind || context.kind || null,
+    contextUnit: context.unit?.cnes || null,
+    contextTeam: context.team?.id || null
+  });
 }
 
 function hasRecoveryMarker() {
