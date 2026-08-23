@@ -90,11 +90,12 @@ expect(repository, "'Longitude', -180, 180", 'Serviço territorial precisa valid
 expect(repository, 'Informe latitude e longitude juntas.', 'Serviço territorial precisa exigir coordenadas em par.');
 
 const printUtil = read('src/utils/print.js');
-expect(printUtil, "return { mode: 'print-fallback' }", 'Utilitário de PDF precisa distinguir fallback de impressão.');
+expect(printUtil, "throw new Error('Gerador de PDF indisponível no navegador.')", 'Utilitário de PDF precisa falhar explicitamente se o gerador direto não estiver disponível.');
+if (printUtil.includes("return { mode: 'print-fallback' }")) errors.push('Baixar PDF não pode mascarar falha usando fallback de impressão.');
 expect(printUtil, "return { mode: 'pdf' }", 'Utilitário de PDF precisa confirmar geração real de PDF.');
 for (const file of ['src/pages/cards.js', 'src/pages/five.js', 'src/pages/indicators.js', 'src/pages/education.js']) {
   const content = read(file);
-  expect(content, "result.mode === 'pdf'", `${file} precisa diferenciar PDF real de fallback de impressão.`);
+  expect(content, "result.mode === 'pdf'", `${file} precisa diferenciar PDF real de qualquer resultado não-PDF.`);
   expect(content, 'setButtonBusy', `${file} precisa anunciar e bloquear geração repetida de PDF.`);
 }
 
@@ -127,4 +128,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contratos de produção OK: Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos sem respostas obsoletas, busy states, dados temporários sem persistência, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
+console.log('Contratos de produção OK: Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos sem respostas obsoletas, busy states, dados temporários sem persistência, PDF direto sem fallback silencioso, dialogs acessíveis e roving tabs protegidos.');
