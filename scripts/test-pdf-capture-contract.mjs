@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { assertCanvasHasContent, inspectCanvasContent } from '../src/utils/pdf-canvas.js';
-import { assertCanvasAspect, assertFourUpGeometry, assertNoBoxOverflow } from '../src/utils/pdf-geometry.js';
+import { assertCanvasAspect, assertCardContentFits, assertFourUpGeometry, assertNoBoxOverflow } from '../src/utils/pdf-geometry.js';
 
 const print = fs.readFileSync('src/utils/print.js', 'utf8');
 const canvasUtil = fs.readFileSync('src/utils/pdf-canvas.js', 'utf8');
@@ -100,6 +100,41 @@ assert.throws(
   (error) => error?.code === 'PDF_PAGE_OVERFLOW',
   'Overflow vertical precisa abortar o PDF.'
 );
+
+const cardRect = rect(0, 0, 100, 100);
+assert.doesNotThrow(() => assertCardContentFits({
+  cardRect,
+  contentRects: [rect(5, 5, 90, 90)],
+  scrollWidth: 100,
+  clientWidth: 100,
+  scrollHeight: 100,
+  clientHeight: 100
+}, 'Carteirinha'));
+assert.throws(
+  () => assertCardContentFits({
+    cardRect,
+    contentRects: [rect(5, 5, 90, 90)],
+    scrollWidth: 100,
+    clientWidth: 100,
+    scrollHeight: 130,
+    clientHeight: 100
+  }, 'Carteirinha'),
+  (error) => error?.code === 'PDF_CARD_CONTENT_OVERFLOW',
+  'Conteúdo interno mais alto que o card precisa abortar o PDF.'
+);
+assert.throws(
+  () => assertCardContentFits({
+    cardRect,
+    contentRects: [rect(5, 95, 90, 10)],
+    scrollWidth: 100,
+    clientWidth: 100,
+    scrollHeight: 100,
+    clientHeight: 100
+  }, 'Rodapé da carteirinha'),
+  (error) => error?.code === 'PDF_CARD_CONTENT_OVERFLOW',
+  'Rodapé ultrapassando o card precisa abortar o PDF.'
+);
+
 assert.doesNotThrow(() => assertCanvasAspect({ width: 388, height: 562 }, 194, 281));
 assert.throws(
   () => assertCanvasAspect({ width: 388, height: 563 }, 194, 281),
@@ -134,6 +169,7 @@ assert.match(print, /y: 0/, 'Captura deve começar na origem vertical.');
 assert.match(print, /scrollX: 0/, 'Captura não pode herdar deslocamento horizontal da tela.');
 assert.match(print, /scrollY: 0/, 'Captura não pode herdar deslocamento vertical da tela.');
 assert.match(print, /waitForImages\(wrapper, \{ strict: true \}\)/, 'PDF deve aguardar pictogramas e tratar falha de carregamento.');
+assert.match(print, /waitForImages\(clonedWrapper, \{ strict: true \}\)/, 'Clone do html2pdf também deve aguardar pictogramas antes da validação.');
 assert.match(print, /naturalWidth <= 0|naturalHeight <= 0/, 'Falha real de imagem deve ser detectada antes da captura.');
 assert.match(print, /assertPdfCaptureReady\(wrapper, \{ stage: ['"]source['"] \}\)/, 'DOM original precisa ser validado antes do clone.');
 assert.match(print, /\.from\(wrapper\)\.toContainer\(\)/, 'Pipeline deve materializar explicitamente o container interno do html2pdf.');
@@ -144,6 +180,12 @@ assert.match(print, /assertNoBoxOverflow\(wrapper/, 'Wrapper deve rejeitar overf
 assert.match(print, /assertNoBoxOverflow\(cardSheet/, 'Folha deve rejeitar overflow horizontal e vertical antes da captura.');
 assert.match(print, /assertRectsInside\(sheetRect, slotRects/, 'Slots devem permanecer integralmente dentro da folha.');
 assert.match(print, /assertRectsInside\(sheetRect, cardRects/, 'Carteirinhas devem permanecer integralmente dentro da folha.');
+assert.match(print, /assertCardInternals\(card, index, stage\)/, 'Cada card precisa validar seu conteúdo interno antes do canvas.');
+assert.match(print, /assertCardContentFits\(/, 'PDF precisa rejeitar cards cujo conteúdo interno exceda o slot.');
+assert.match(print, /appointment-card-field-service/, 'Validação do appointment precisa incluir o campo de serviço.');
+assert.match(print, /appointment-card-field-note/, 'Validação do appointment precisa incluir o recado/preparo.');
+assert.match(print, /appointment-card-note/, 'Validação do appointment precisa garantir que o rodapé permaneça visível.');
+assert.match(print, /img\.flaticon-icon/, 'Pictogramas precisam ser medidos dentro de cada card.');
 assert.match(print, /assertFourUpGeometry\(slotRects, sheetRect/, '4/A4 deve validar geometricamente as posições 1-2/3-4.');
 assert.match(print, /expectedCount/, 'Validação precisa conferir a quantidade real 2/4/8/12 antes da captura.');
 assert.match(print, /await worker\.toCanvas\(\)/, 'Pipeline deve parar no canvas antes de criar o PDF.');
@@ -162,6 +204,7 @@ assert.match(canvasUtil, /PDF_EMPTY_CANVAS/, 'Canvas vazio precisa produzir erro
 assert.match(canvasUtil, /A captura do PDF ficou vazia/, 'Erro de canvas vazio deve ser compreensível para a interface.');
 assert.match(geometryUtil, /PDF_FOUR_UP_GEOMETRY/, 'Validação 4/A4 precisa produzir erro geométrico identificável.');
 assert.match(geometryUtil, /PDF_PAGE_OVERFLOW/, 'Overflow vertical ou horizontal precisa produzir erro identificável.');
+assert.match(geometryUtil, /PDF_CARD_CONTENT_OVERFLOW/, 'Corte interno da carteirinha precisa produzir erro identificável.');
 assert.match(geometryUtil, /PDF_CANVAS_GEOMETRY/, 'Proporção inválida do canvas precisa produzir erro identificável.');
 assert.match(geometryUtil, /expectedPageHeightPx/, 'Detector de geometria deve impedir que um canvas das carteirinhas ultrapasse uma página útil.');
 
@@ -184,6 +227,12 @@ assert.match(css, /page-break-inside:\s*auto!important/, 'Regra legada de page-b
 assert.doesNotMatch(css, /break-inside:\s*avoid|page-break-inside:\s*avoid/, 'CSS específico do PDF não pode reativar a paginação interna responsável por deslocamentos.');
 assert.match(css, /overflow-wrap:\s*anywhere/, 'Textos longos não podem expandir horizontalmente a grade do PDF.');
 assert.match(css, /print-flaticon-attribution/, 'Créditos do Flaticon devem permanecer visíveis no PDF.');
+assert.match(css, /count-4 \.appointment-card\.visual-support/, 'Compactação do Apoio visual deve ficar isolada ao appointment 4/A4.');
+assert.match(css, /appointment-card\.visual-support \.appointment-card-fields[\s\S]*?gap:\s*\.8mm 1\.4mm!important/, 'Campos do appointment com Apoio visual devem usar gap A4 compacto.');
+assert.match(css, /appointment-card\.visual-support \.appointment-card-field[\s\S]*?min-height:\s*0!important/, 'Campos do Apoio visual não podem herdar altura mínima de tela.');
+assert.match(css, /field-pictogram\.visual-support-set[\s\S]*?flex-wrap:\s*nowrap!important/, 'Conjunto de pictogramas 4/A4 não deve criar linhas extras desnecessárias.');
+assert.match(css, /support-pictogram \.flaticon-icon[\s\S]*?object-fit:\s*contain!important/, 'Pictogramas do PDF precisam preservar proporção.');
+assert.match(css, /appointment-card\.visual-support \.appointment-card-note[\s\S]*?font-size:\s*\.72em!important/, 'Rodapé deve permanecer visível em tamanho compacto no PDF com Apoio visual.');
 
 const captureBlock = css.match(/\.pdf-document\.pdf-capture\s*\{([^}]*)\}/)?.[1] || '';
 const cardsPrintBlock = css.match(/\.pdf-document\.cards-print\s*\{([^}]*)\}/)?.[1] || '';
@@ -194,4 +243,4 @@ assert.doesNotMatch(captureBlock, /display\s*:\s*none|visibility\s*:\s*hidden|op
 assert.doesNotMatch(cardsPrintBlock, /display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\D|$)/,
   'Área A4 das carteirinhas não pode ser ocultada por CSS.');
 
-console.log('Contrato de PDF OK: canvas não branco, clone do html2pdf validado, pagebreak interno neutralizado, overflow vertical rejeitado e grade 4/A4 protegida como 2 × 2.');
+console.log('Contrato de PDF OK: canvas não branco, clone validado, conteúdo interno protegido, Apoio visual 4/A4 compactado e grade 2 × 2 preservada.');
