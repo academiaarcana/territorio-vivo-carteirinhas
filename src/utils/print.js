@@ -1,5 +1,6 @@
 import { slugify } from '../lib/dom.js';
 import { hasFlaticonVisualSupport, renderFlaticonAttribution } from '../lib/visual-support.js';
+import { assertCanvasHasContent } from './pdf-canvas.js';
 
 export function printHtml(html, { className = '', title = 'Território Vivo' } = {}) {
   const root = ensurePrintRoot();
@@ -32,31 +33,33 @@ export async function downloadPdf(html, { className = '', title = 'Território V
 
   const safeMargin = Number.isFinite(Number(margin)) ? Math.max(0, Number(margin)) : 8;
   const captureWidthMm = Math.max(120, 210 - (safeMargin * 2));
+  const host = createPdfCaptureHost(captureWidthMm);
   const wrapper = document.createElement('section');
   wrapper.className = `pdf-document pdf-capture ${className}`.trim();
   wrapper.innerHTML = withRequiredAttribution(html);
-  wrapper.style.position = 'fixed';
-  wrapper.style.left = '0';
-  wrapper.style.top = '0';
+  wrapper.style.position = 'relative';
+  wrapper.style.left = 'auto';
+  wrapper.style.top = 'auto';
+  wrapper.style.zIndex = 'auto';
   wrapper.style.width = `${captureWidthMm}mm`;
   wrapper.style.maxWidth = 'none';
   wrapper.style.boxSizing = 'border-box';
   wrapper.style.background = '#fff';
+  wrapper.style.color = '#000';
   wrapper.style.pointerEvents = 'none';
-  wrapper.style.zIndex = '-1';
   wrapper.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(wrapper);
+  host.appendChild(wrapper);
+  document.body.appendChild(host);
 
   try {
     await nextPaint();
     await waitForImages(wrapper, { strict: true });
     await nextPaint();
-    assertPdfCaptureReady(wrapper);
+    const domDiagnostics = assertPdfCaptureReady(wrapper);
 
     const captureWidth = Math.max(window.innerWidth, wrapper.scrollWidth, 1024);
     const captureHeight = Math.max(window.innerHeight, wrapper.scrollHeight, 768);
-
-    await window.html2pdf().set({
+    const worker = window.html2pdf().set({
       margin: safeMargin,
       filename: filename || `${slugify(title)}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
@@ -73,11 +76,21 @@ export async function downloadPdf(html, { className = '', title = 'Território V
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'] }
-    }).from(wrapper).save();
+    }).from(wrapper).toCanvas();
 
-    return { mode: 'pdf' };
+    const canvas = await worker.get('canvas');
+    const canvasDiagnostics = assertCanvasHasContent(canvas);
+    await worker.toPdf().save();
+
+    return {
+      mode: 'pdf',
+      diagnostics: {
+        dom: domDiagnostics,
+        canvas: canvasDiagnostics
+      }
+    };
   } finally {
-    wrapper.remove();
+    host.remove();
   }
 }
 
@@ -132,23 +145,69 @@ function assertPdfCaptureReady(wrapper) {
   const style = window.getComputedStyle(wrapper);
   const rect = wrapper.getBoundingClientRect();
   const hasContent = Boolean(wrapper.textContent.trim() || wrapper.querySelector('img, svg, canvas'));
+  const numericZIndex = Number.parseInt(style.zIndex, 10);
 
   if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) {
     throw new Error('Área temporária do PDF está oculta e não pode ser capturada.');
+  }
+  if (Number.isFinite(numericZIndex) && numericZIndex < 0) {
+    throw new Error('Área temporária do PDF está atrás do plano de captura.');
   }
   if (!hasContent || rect.width < 100 || rect.height < 40) {
     throw new Error('Área temporária do PDF não possui conteúdo renderizável.');
   }
 
+  const diagnostics = {
+    wrapper: { width: Math.round(rect.width), height: Math.round(rect.height) },
+    sheet: null,
+    slots: 0,
+    cards: 0
+  };
+
   const cardSheet = wrapper.querySelector('.card-sheet');
-  if (cardSheet) {
-    const sheetRect = cardSheet.getBoundingClientRect();
-    const slots = [...cardSheet.querySelectorAll('.sheet-slot')];
-    const populated = slots.some((slot) => slot.textContent.trim() || slot.querySelector('img, svg, canvas'));
-    if (!slots.length || !populated || sheetRect.width < 100 || sheetRect.height < 100) {
-      throw new Error('Folha de carteirinhas não está pronta para captura em PDF.');
-    }
+  if (!cardSheet) return diagnostics;
+
+  const sheetRect = cardSheet.getBoundingClientRect();
+  const slots = [...cardSheet.querySelectorAll('.sheet-slot')];
+  const cards = [...cardSheet.querySelectorAll('.generated-card')];
+  const countClass = [...cardSheet.classList].find((name) => /^count-(2|4|8|12)$/.test(name));
+  const expectedCount = countClass ? Number(countClass.replace('count-', '')) : null;
+  const slotRects = slots.map((slot) => slot.getBoundingClientRect());
+  const cardRects = cards.map((card) => card.getBoundingClientRect());
+  const populated = slots.every((slot) => slot.textContent.trim() || slot.querySelector('img, svg, canvas'));
+  const slotsVisible = slotRects.every((slotRect) => slotRect.width >= 20 && slotRect.height >= 20);
+  const cardsVisible = cardRects.every((cardRect) => cardRect.width >= 20 && cardRect.height >= 20);
+
+  if (!slots.length || !cards.length || !populated || sheetRect.width < 100 || sheetRect.height < 100) {
+    throw new Error('Folha de carteirinhas não está pronta para captura em PDF.');
   }
+  if (expectedCount && (slots.length !== expectedCount || cards.length !== expectedCount)) {
+    throw new Error(`Folha de carteirinhas esperava ${expectedCount} itens antes da captura do PDF.`);
+  }
+  if (!slotsVisible || !cardsVisible) {
+    throw new Error('Uma ou mais carteirinhas ficaram sem dimensão antes da captura do PDF.');
+  }
+
+  diagnostics.sheet = { width: Math.round(sheetRect.width), height: Math.round(sheetRect.height) };
+  diagnostics.slots = slots.length;
+  diagnostics.cards = cards.length;
+  return diagnostics;
+}
+
+function createPdfCaptureHost(captureWidthMm) {
+  const host = document.createElement('div');
+  host.className = 'pdf-capture-host';
+  host.style.position = 'fixed';
+  host.style.left = '0';
+  host.style.top = '0';
+  host.style.width = `${captureWidthMm}mm`;
+  host.style.maxWidth = 'none';
+  host.style.background = '#fff';
+  host.style.pointerEvents = 'none';
+  host.style.overflow = 'visible';
+  host.style.zIndex = '2147483646';
+  host.setAttribute('aria-hidden', 'true');
+  return host;
 }
 
 function nextPaint() {
