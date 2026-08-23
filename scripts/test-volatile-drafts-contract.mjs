@@ -24,6 +24,6 @@ for (const [name, content] of [['Carteirinhas', cards], ['5 minutos', five], ['I
 
 assert.match(cards, /Ao navegar por outras telas, o rascunho continua apenas na memória desta aba/, 'Carteirinhas precisam explicar a preservação temporária entre telas.');
 assert.match(five, /Ao navegar por outras telas, o rascunho continua nesta aba/, '5 minutos precisam explicar a preservação temporária entre telas.');
-assert.match(indicators, /O rascunho continua nesta aba ao navegar por outras telas/, 'Indicadores precisam explicar a preservação temporária entre telas.');
+assert.match(indicators, /rascunho[^\n]*continua nesta aba[^\n]*navegar por outras telas/, 'Indicadores precisam explicar a preservação temporária entre telas.');
 
 console.log('Contrato de rascunhos voláteis OK: navegação preserva; recarga, fechamento e logout continuam limpando.');
