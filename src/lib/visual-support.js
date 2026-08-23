@@ -16,7 +16,7 @@ const flaticonAssets = {
   medicine: { iconId: '4355923', author: 'Andy Horvath', source: 'https://www.flaticon.com/br/icone-gratis/medicamento_4355923' },
   consultation: { iconId: '7381105', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/consulta-medica_7381105' },
   visit: { iconId: '12024693', author: 'kliwir art', source: 'https://www.flaticon.com/free-icon/home-care_12024693' },
-  fasting: { iconId: '10008842', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/jejum-intermitente_10008842' },
+  fasting: { iconId: '4197430', author: 'Magnific', source: 'https://www.flaticon.com/free-icon/no-eating_4197430' },
   water: { iconId: '14777315', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/beber-agua_14777315' },
   susCard: { iconId: '16324772', author: 'Vectorslab', source: 'https://www.flaticon.com/br/icone-gratis/cartao-de-saude_16324772' },
   results: { iconId: '6655425', author: 'wanicon', source: 'https://www.flaticon.com/free-icon/medical-report_6655425' },
