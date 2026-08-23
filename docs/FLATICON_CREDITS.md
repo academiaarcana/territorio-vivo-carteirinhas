@@ -24,7 +24,7 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Medicamento | Andy Horvath | https://www.flaticon.com/br/icone-gratis/medicamento_4355923 |
 | Consulta/atendimento | Freepik | https://www.flaticon.com/br/icone-gratis/consulta-medica_7381105 |
 | Visita domiciliar / cuidado em casa | kliwir art | https://www.flaticon.com/free-icon/home-care_12024693 |
-| Jejum | Freepik | https://www.flaticon.com/br/icone-gratis/jejum-intermitente_10008842 |
+| Jejum / não comer | Magnific | https://www.flaticon.com/free-icon/no-eating_4197430 |
 | Água/hidratação | Freepik | https://www.flaticon.com/br/icone-gratis/beber-agua_14777315 |
 | Cartão de saúde (apoio para Cartão SUS/CNS) | Vectorslab | https://www.flaticon.com/br/icone-gratis/cartao-de-saude_16324772 |
 | Exames/resultados / relatório médico | wanicon | https://www.flaticon.com/free-icon/medical-report_6655425 |
