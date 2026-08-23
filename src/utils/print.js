@@ -55,7 +55,7 @@ export async function downloadPdf(html, { className = '', title = 'Território V
     await nextPaint();
     await waitForImages(wrapper, { strict: true });
     await nextPaint();
-    const domDiagnostics = assertPdfCaptureReady(wrapper);
+    assertPdfCaptureReady(wrapper);
 
     const captureWidth = Math.max(window.innerWidth, wrapper.scrollWidth, 1024);
     const captureHeight = Math.max(window.innerHeight, wrapper.scrollHeight, 768);
@@ -79,16 +79,9 @@ export async function downloadPdf(html, { className = '', title = 'Território V
     }).from(wrapper).toCanvas();
 
     const canvas = await worker.get('canvas');
-    const canvasDiagnostics = assertCanvasHasContent(canvas);
+    assertCanvasHasContent(canvas);
     await worker.toPdf().save();
-
-    return {
-      mode: 'pdf',
-      diagnostics: {
-        dom: domDiagnostics,
-        canvas: canvasDiagnostics
-      }
-    };
+    return { mode: 'pdf' };
   } finally {
     host.remove();
   }
@@ -157,15 +150,8 @@ function assertPdfCaptureReady(wrapper) {
     throw new Error('Área temporária do PDF não possui conteúdo renderizável.');
   }
 
-  const diagnostics = {
-    wrapper: { width: Math.round(rect.width), height: Math.round(rect.height) },
-    sheet: null,
-    slots: 0,
-    cards: 0
-  };
-
   const cardSheet = wrapper.querySelector('.card-sheet');
-  if (!cardSheet) return diagnostics;
+  if (!cardSheet) return;
 
   const sheetRect = cardSheet.getBoundingClientRect();
   const slots = [...cardSheet.querySelectorAll('.sheet-slot')];
@@ -187,11 +173,6 @@ function assertPdfCaptureReady(wrapper) {
   if (!slotsVisible || !cardsVisible) {
     throw new Error('Uma ou mais carteirinhas ficaram sem dimensão antes da captura do PDF.');
   }
-
-  diagnostics.sheet = { width: Math.round(sheetRect.width), height: Math.round(sheetRect.height) };
-  diagnostics.slots = slots.length;
-  diagnostics.cards = cards.length;
-  return diagnostics;
 }
 
 function createPdfCaptureHost(captureWidthMm) {
