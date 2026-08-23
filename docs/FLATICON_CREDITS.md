@@ -17,7 +17,7 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Gestante / pré-natal | shin_icons | https://www.flaticon.com/br/icone-gratis/gravida_10523012 |
 | Data / calendário genérico | Flat Icons | https://www.flaticon.com/br/icone-gratis/calendario_10754906 |
 | Hora / relógio / antecedência | IconBaandar | https://www.flaticon.com/br/icone-gratis/relogio_13071506 |
-| Vacinação | Good Ware | https://www.flaticon.com/free-icon/vaccination_4746755 |
+| Vacinação (aplicação no braço) | Freepik | https://www.flaticon.com/free-icon/vaccination_4745680 |
 | Dentista | kmg design | https://www.flaticon.com/br/icone-gratis/dentista_5712027 |
 | Exame/coleta | Freepik | https://www.flaticon.com/br/icone-gratis/teste-de-sangue_4853471 |
 | Curativo | nawicon | https://www.flaticon.com/br/icone-gratis/curativo_2869769 |
