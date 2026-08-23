@@ -75,7 +75,7 @@ async function bootstrap() {
           await navigate('/app/inicio', { replace: true });
           return;
         }
-        if (['SIGNED_IN', 'TOKEN_REFRESHED', 'INITIAL_SESSION'].includes(event) && previousAccess === nextAccess) return;
+        if (previousAccess === nextAccess) return;
         await renderCurrentRoute();
       } else {
         clearSession();
