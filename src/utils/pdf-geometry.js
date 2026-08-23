@@ -59,6 +59,32 @@ export function assertRectsInside(parentRect, childRects, label = 'Conteúdo do 
   }
 }
 
+export function assertCardContentFits({
+  cardRect,
+  contentRects = [],
+  scrollWidth = 0,
+  clientWidth = 0,
+  scrollHeight = 0,
+  clientHeight = 0
+} = {}, label = 'Carteirinha', { tolerance = DEFAULT_TOLERANCE_PX } = {}) {
+  const card = normalizeRect(cardRect);
+  if (card.width <= 0 || card.height <= 0) {
+    throw geometryError('A carteirinha ficou sem dimensão válida para o PDF.', 'PDF_CARD_CONTENT_OVERFLOW');
+  }
+
+  try {
+    assertNoBoxOverflow({ scrollWidth, clientWidth, scrollHeight, clientHeight }, label, { tolerance });
+    assertRectsInside(card, contentRects, label, { tolerance });
+  } catch (cause) {
+    const error = geometryError('A carteirinha ficou maior que o espaço disponível na página A4. O PDF não foi gerado.', 'PDF_CARD_CONTENT_OVERFLOW');
+    error.detail = cause?.detail || `${label}: conteúdo interno ultrapassou a área disponível.`;
+    error.cause = cause;
+    throw error;
+  }
+
+  return { card, contentRects: Array.from(contentRects || [], normalizeRect) };
+}
+
 export function assertFourUpGeometry(slotRects, sheetRect, { tolerance = DEFAULT_TOLERANCE_PX } = {}) {
   const slots = Array.from(slotRects || [], normalizeRect);
   const sheet = normalizeRect(sheetRect);
