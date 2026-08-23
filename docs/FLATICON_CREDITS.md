@@ -16,7 +16,7 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Pessoa idosa / geriatria | Witdhawaty | https://www.flaticon.com/br/icone-gratis/geriatria_5814218 |
 | Gestante / pré-natal | shin_icons | https://www.flaticon.com/br/icone-gratis/gravida_10523012 |
 | Data / calendário genérico | Flat Icons | https://www.flaticon.com/br/icone-gratis/calendario_10754906 |
-| Hora / relógio / antecedência | IconBaandar | https://www.flaticon.com/br/icone-gratis/relogio_13071506 |
+| Hora / relógio / antecedência | Magnific | https://www.flaticon.com/free-icon/simple-clock_818 |
 | Vacinação (aplicação no braço) | Freepik | https://www.flaticon.com/free-icon/vaccination_4745680 |
 | Dentista | kmg design | https://www.flaticon.com/br/icone-gratis/dentista_5712027 |
 | Exame/coleta | Freepik | https://www.flaticon.com/br/icone-gratis/teste-de-sangue_4853471 |
