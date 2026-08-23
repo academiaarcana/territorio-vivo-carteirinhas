@@ -3,12 +3,12 @@ import { escapeHtml } from '../lib/dom.js';
 import { listTeams, listUnits } from '../services/repository.js';
 import {
   professionalFunctions,
+  publicTeamResearch,
   publicTeamTypes,
   quickTutorial,
   researchNote,
   systemFunctions,
-  territoryVivoObjectives,
-  verifiedPublicTeams
+  territoryVivoObjectives
 } from '../data/tutorial-content.js';
 
 export function renderTutorialPage() {
@@ -35,14 +35,14 @@ export function renderTutorialPage() {
     </section>
 
     <section class="section-block">
-      <header><p class="eyebrow">Equipes e trabalho multiprofissional</p><h2>Composições identificadas em fontes públicas</h2><p>Esta parte serve como referência para a apresentação. Equipes do CNES podem ser apresentadas como referência pública sem transformar automaticamente a pesquisa em lotação operacional do sistema.</p></header>
+      <header><p class="eyebrow">Equipes e trabalho multiprofissional</p><h2>Composições identificadas em fontes públicas</h2><p>Esta parte serve como referência para a apresentação. A pesquisa pública é apresentada sem criar dependência territorial fixa no software nem transformar automaticamente a fonte em lotação operacional.</p></header>
+      <div class="kpi-grid">${publicTeamResearch.map((item) => `<article class="kpi"><small>${escapeHtml(item.label)}</small><strong>${escapeHtml(item.value)}</strong></article>`).join('')}</div>
       <div class="feature-grid">${publicTeamTypes.map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.text)}</p></article>`).join('')}</div>
-      <article class="panel"><h3>Equipes verificadas na consulta pública do CNES</h3><div class="summary-list">${verifiedPublicTeams.map((team) => `<div><dt>${escapeHtml(team.type)} • INE ${escapeHtml(team.ine)}</dt><dd><strong>${escapeHtml(team.name)}</strong><small>${escapeHtml(team.source)}</small></dd></div>`).join('')}</div><p class="field-hint">A lista é referência para a apresentação. O cadastro operacional continua separado e sujeito às regras de gestão e confirmação do sistema.</p></article>
       <article class="panel"><h3>Funções profissionais identificadas</h3><div class="filter-row">${professionalFunctions.map((role) => `<span class="status-badge">${escapeHtml(role)}</span>`).join('')}</div><p class="field-hint">${escapeHtml(researchNote)}</p></article>
     </section>
 
     <section class="section-block">
-      <header><p class="eyebrow">Rede pública cadastrada</p><h2>Unidades e equipes disponíveis no catálogo operacional</h2><p>Esta seção é diferente da pesquisa pública acima: ela mostra somente o que está efetivamente cadastrado no banco do Território Vivo.</p></header>
+      <header><p class="eyebrow">Rede pública cadastrada</p><h2>Unidades e equipes disponíveis no catálogo operacional</h2><p>Esta seção mostra somente o que está efetivamente cadastrado no banco do Território Vivo. O catálogo cresce por dados e fontes, não por valores fixos no código.</p></header>
       <div id="tutorial-network-summary" class="kpi-grid" aria-live="polite"></div>
       <div id="tutorial-network" class="unit-grid" aria-live="polite"><p>Carregando rede…</p></div>
     </section>
