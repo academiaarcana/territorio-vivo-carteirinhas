@@ -19,8 +19,17 @@ assert.ok(capabilityGuardIndex > revalidateIndex, 'O perfil precisa ser revalida
 
 const refreshStateIndex = router.indexOf('state = getState();', revalidateIndex);
 assert.ok(refreshStateIndex > revalidateIndex && refreshStateIndex < accessGateIndex, 'Guards precisam usar o perfil recém-revalidado.');
-assert.match(router, /route\.accessGate && hasCapability\(state\.profile, CAPABILITIES\.ACCESS_INTERNAL\)[\s\S]*navigate\('\/app\/inicio'/, 'Perfil já ativo não pode permanecer na tela de aguardando aprovação.');
+assert.match(router, /route\.accessGate && hasCapability\(state\.profile, CAPABILITIES.ACCESS_INTERNAL\)[\s\S]*navigate\('\/app\/inicio'/, 'Perfil já ativo não pode permanecer na tela de aguardando aprovação.');
 assert.match(router, /route\.capability && !hasCapability\(state\.profile, route\.capability\)/, 'Rota protegida deve falhar fechada quando a capacidade estiver ausente.');
 assert.match(router, /Não foi possível validar seu acesso/, 'Falha de revalidação precisa falhar fechada sem renderizar conteúdo protegido com perfil antigo.');
 
-console.log('Contrato de sessão OK: rotas protegidas revalidam perfil e o gate de espera rejeita perfil já ativo.');
+assert.match(main, /import \{ getState, setState \} from '\.\/core\/store\.js';/, 'Sincronização de autenticação precisa comparar o contexto atual antes de decidir por rerender.');
+assert.match(main, /function accessContextFingerprint\(state\)/, 'Sessão precisa ter uma comparação explícita dos campos que alteram acesso e escopo.');
+for (const field of ['role', 'access_status', 'is_master_account', 'municipality_code', 'unit_cnes', 'team_id', 'microarea']) {
+  assert.ok(main.includes(field), `Fingerprint de acesso precisa observar ${field}.`);
+}
+assert.match(main, /\['SIGNED_IN', 'TOKEN_REFRESHED', 'INITIAL_SESSION'\]\.includes\(event\) && previousAccess === nextAccess\) return;/, 'Eventos repetidos da sessão sem mudança de acesso não devem reconstruir a tela atual.');
+assert.match(main, /previousAccess === nextAccess/, 'A tela só pode ser preservada quando o contexto de acesso realmente permaneceu igual.');
+assert.match(main, /await hydrateSession\(nextSession\);[\s\S]*previousAccess === nextAccess/, 'Mesmo sem rerender visual, a sessão precisa continuar sendo hidratada antes da comparação final.');
+
+console.log('Contrato de sessão OK: rotas revalidam acesso e eventos repetidos de autenticação preservam a tela quando o escopo não mudou.');
