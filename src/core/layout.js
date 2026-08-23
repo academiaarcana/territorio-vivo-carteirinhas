@@ -45,7 +45,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
     ? 'Território Vivo • Master / Desenvolvimento'
     : networkAdmin
       ? 'Território Vivo • Gestão municipal'
-      : ['Território Vivo', municipalityName || 'Rede de Atenção Primária'].join(' • ');
+      : municipalityName || 'Rede de Atenção Primária';
   const accountRoleLabel = masterAccount
     ? 'Master / Desenvolvimento • Administração técnica'
     : networkAdmin
@@ -56,18 +56,25 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
     <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Navegação principal">
-        <a class="brand brand-app" href="#/app/inicio">
-          <span class="brand-mark" aria-hidden="true">TV</span>
+        <a class="brand brand-app" href="#/app/inicio" aria-label="Território Vivo — Início">
+          <span class="brand-mark brand-symbol" aria-hidden="true">
+            <svg class="territory-vivo-symbol" viewBox="0 0 52 52" focusable="false" aria-hidden="true">
+              <rect x="1" y="1" width="50" height="50" rx="12" fill="currentColor"/>
+              <path d="M26 7.5c-7.7 0-14 6.1-14 13.7 0 10.3 14 23.3 14 23.3s14-13 14-23.3c0-7.6-6.3-13.7-14-13.7Z" fill="#fff"/>
+              <path d="m18.8 23.1 7.2-6 7.2 6v8.4H18.8v-8.4Z" fill="currentColor"/>
+              <circle cx="23" cy="24.8" r="1.8" fill="#fff"/>
+              <circle cx="29" cy="24.8" r="1.8" fill="#fff"/>
+              <path d="M21.4 29.3c.5-1.7 1.6-2.6 3.1-2.6s2.6.9 3.1 2.6M27 29.3c.4-1.4 1.3-2.1 2.6-2.1 1.2 0 2.1.7 2.6 2.1" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/>
+              <circle cx="39.5" cy="39.5" r="5.2" fill="#2e7d32" stroke="#fff" stroke-width="2"/>
+            </svg>
+          </span>
           <span class="brand-copy">
             <strong>Território Vivo</strong>
             <small class="brand-signature">Atenção Primária à Saúde</small>
+            <small class="brand-program">Estratégia Saúde da Família</small>
             <small class="brand-context">${escapeHtml(contextLabel)}</small>
           </span>
         </a>
-        <div class="aps-context" aria-label="Contexto assistencial">
-          <span>Atenção Primária</span>
-          <strong>Saúde da Família</strong>
-        </div>
         <nav class="app-nav">
           ${items.map(([path, label, icon]) => `<button type="button" class="nav-link ${activePath === path ? 'active' : ''}" data-nav="${path}" ${activePath === path ? 'aria-current="page"' : ''}>${renderFlaticonIcon(icon, { className: 'nav-flaticon-icon' })}<span>${escapeHtml(label)}</span></button>`).join('')}
         </nav>
@@ -80,7 +87,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
         <header class="workspace-header">
           <div class="workspace-heading">
             <div class="workspace-brandline">
-              <span class="workspace-product">${escapeHtml(headerBrandLabel)}</span>
+              <span class="workspace-context-label">${escapeHtml(headerBrandLabel)}</span>
             </div>
             <h1>${escapeHtml(title)}</h1>
             ${subtitle ? `<p class="workspace-subtitle">${escapeHtml(subtitle)}</p>` : ''}
