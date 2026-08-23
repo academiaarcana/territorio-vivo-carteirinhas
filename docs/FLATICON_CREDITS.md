@@ -12,7 +12,7 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 |---|---|---|
 | Pessoa / perfil | nahumam | https://www.flaticon.com/br/icone-gratis/pessoa_13695871 |
 | Família | bsd | https://www.flaticon.com/br/icone-gratis/familia_18408870 |
-| Criança/bebê | Good Ware | https://www.flaticon.com/br/icone-gratis/recem-nascido_4532153 |
+| Criança | Freepik | https://www.flaticon.com/free-icon/little-girl_3037662 |
 | Pessoa idosa / geriatria | Witdhawaty | https://www.flaticon.com/br/icone-gratis/geriatria_5814218 |
 | Gestante / pré-natal | shin_icons | https://www.flaticon.com/br/icone-gratis/gravida_10523012 |
 | Data / calendário genérico | Flat Icons | https://www.flaticon.com/br/icone-gratis/calendario_10754906 |
@@ -22,6 +22,7 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Exame/coleta | Freepik | https://www.flaticon.com/br/icone-gratis/teste-de-sangue_4853471 |
 | Curativo | nawicon | https://www.flaticon.com/br/icone-gratis/curativo_2869769 |
 | Medicamento | Andy Horvath | https://www.flaticon.com/br/icone-gratis/medicamento_4355923 |
+| Receita / prescrição | Freepik | https://www.flaticon.com/free-icon/prescription_843180 |
 | Consulta/atendimento | Freepik | https://www.flaticon.com/br/icone-gratis/consulta-medica_7381105 |
 | Visita domiciliar / cuidado em casa | kliwir art | https://www.flaticon.com/free-icon/home-care_12024693 |
 | Jejum / não comer | Magnific | https://www.flaticon.com/free-icon/no-eating_4197430 |
@@ -29,11 +30,11 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Cartão de saúde (apoio para Cartão SUS/CNS) | Vectorslab | https://www.flaticon.com/br/icone-gratis/cartao-de-saude_16324772 |
 | Exames/resultados / relatório médico | wanicon | https://www.flaticon.com/free-icon/medical-report_6655425 |
 | Documento/identidade | JM Graphic | https://www.flaticon.com/br/icone-gratis/identidade_8898131 |
-| Acompanhante/cuidador | Freepik | https://www.flaticon.com/free-icon/caregiver_7070894 |
+| Acompanhante/cuidador | Freepik | https://www.flaticon.com/free-icon/caregiver_17583651 |
 | Unidade de saúde/hospital | Fathema Khanom | https://www.flaticon.com/br/icone-gratis/hospital_9931784 |
 | Escola | Karyative | https://www.flaticon.com/br/icone-gratis/edificio-escolar_13334847 |
 | Casa/domicílio | VectorPortal | https://www.flaticon.com/br/icone-gratis/casas_11453302 |
-| Grupo/reunião | Vector Stall | https://www.flaticon.com/br/icone-gratis/reuniao_4766735 |
+| Grupo/reunião | Md Tanvirul Haque | https://www.flaticon.com/free-icon/group_9634305 |
 | Telefone/contato | lakonicon | https://www.flaticon.com/br/icone-gratis/telefone-de-chamada_11680095 |
 | Localização | turkkub | https://www.flaticon.com/br/icone-gratis/marcador_1397897 |
 | Atenção/alerta | Yuju | https://www.flaticon.com/br/icone-gratis/alertas_7783023 |
@@ -42,16 +43,22 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Pressão arterial/hipertensão | BizzBox | https://www.flaticon.com/br/icone-gratis/pressao-arterial_10376201 |
 | Diabetes/glicemia | Elzicon | https://www.flaticon.com/br/icone-gratis/teste-de-diabetes_12310381 |
 | População/pessoas | GOWI | https://www.flaticon.com/br/icone-gratis/populacao_3526131 |
-| Ação/próximo passo/checklist | Us and Up | https://www.flaticon.com/free-icon/checklist_7468981 |
+| Ação/próximo passo | Uniconlabs | https://www.flaticon.es/icono-gratis/plan-de-accion_12244858 |
 
 ## Onde aparecem
 
 - **Menu lateral:** Início, Território e rede, Carteirinhas, 5 minutos, Indicadores, Educação em saúde, Meu perfil, Aprovações e Gestão.
 - **Carteirinhas:** apoio visual por conteúdo real preenchido.
-- **5 minutos do território:** apoio visual nas impressões da equipe.
+- **5 minutos do território:** apoio visual nas impressões da equipe quando a opção for usada; a homologação humana prioritária é nas saídas voltadas à comunidade.
 - **Indicadores:** pictogramas de população, hipertensão, diabetes e demais itens reconhecíveis.
 - **Educação em saúde:** pictogramas para orientações e passos concretos.
 - **Impressão/PDF:** a atribuição é acrescentada automaticamente quando houver ícones do Flaticon.
+
+## Regras de correspondência
+
+- Quando o conteúdo digitado reconhece um conceito específico, ele tem prioridade sobre o nome do campo. Assim, `Criança` em `Pessoa / família / referência` mostra somente o pictograma de criança.
+- As palavras precisam corresponder como palavras/expressões completas. `Beber` não pode acionar `bebê`, e `População` ou `Localização` não podem acionar `ação`.
+- O nome do campo só funciona como apoio de fallback quando o valor digitado não identifica um conceito específico.
 
 ## Licença
 
