@@ -10,7 +10,7 @@ const svg = {
   clock: `<svg ${common}><circle cx="32" cy="32" r="23"/><path d="M32 18v16l11 7"/></svg>`,
   clinic: `<svg ${common}><path d="M10 56V22l22-12 22 12v34"/><path d="M26 28h12M32 22v12M20 56V42h24v14"/></svg>`,
   consultation: `<svg ${common}><circle cx="19" cy="19" r="7"/><circle cx="45" cy="18" r="7"/><path d="M8 47c1-11 5-17 11-17s10 6 11 17M34 47c1-11 5-17 11-17s10 6 11 17"/><path d="M26 50h20M36 35c0 5 2 8 6 8s6-3 6-8M42 43v6"/></svg>`,
-  vaccine: `<svg ${common}><path d="M12 43c8-8 15-9 23-4l8 5M15 48c8 6 17 6 25 1"/><path d="M38 29l14-14M44 15l5 5M34 33l8 8M48 11l5 5M30 37l6-6"/><path d="M52 14l4-4"/></svg>`,
+  vaccine: `<svg ${common}><path d="M8 50c8-8 17-11 27-8l7 3v11H25c-7 0-12-2-17-6z"/><path d="M31 37l16-16 7 7-16 16z"/><path d="M36 32l7 7M40 28l7 7M44 24l7 7"/><path d="M31 37l-8 8M47 21l6-6M50 12l9 9M54 9l7 7"/></svg>`,
   dentist: `<svg ${common}><path d="M20 10c7-3 10 2 12 2s5-5 12-2c8 4 7 15 4 24-3 10-5 20-10 20-4 0-3-12-6-12s-2 12-6 12c-5 0-7-10-10-20-3-9-4-20 4-24z"/></svg>`,
   exam: `<svg ${common}><path d="M22 8h20M26 8v13L16 46c-2 5 1 10 7 10h18c6 0 9-5 7-10L38 21V8"/><path d="M20 42h24M25 49h14"/></svg>`,
   dressing: `<svg ${common}><rect x="10" y="24" width="44" height="16" rx="8" transform="rotate(-25 32 32)"/><path d="M28 28l8 8M36 28l-8 8"/></svg>`,
