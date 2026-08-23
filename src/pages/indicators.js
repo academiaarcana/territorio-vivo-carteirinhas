@@ -1,10 +1,13 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
+import { applyNamedFormValues, clearVolatileDraft, readNamedFormValues, readVolatileDraft, writeVolatileDraft } from '../core/volatile-drafts.js';
 import { indicatorDefinitions, indicatorGroups, indicatorScopes } from '../data/indicators.js';
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
-import { printAccessibilityClasses, readPrintAccessibilityOptions, renderPrintAccessibilityOptions } from '../lib/print-accessibility.js';
+import { applyPrintAccessibilityOptions, printAccessibilityClasses, readPrintAccessibilityOptions, renderPrintAccessibilityOptions } from '../lib/print-accessibility.js';
 import { renderVisualSupports } from '../lib/visual-support.js';
 import { printHtml, downloadPdf } from '../utils/print.js';
+
+const INDICATORS_DRAFT_KEY = 'indicators';
 
 export function renderIndicatorsPage({ state }) {
   const profile = state.profile || {};
@@ -12,7 +15,7 @@ export function renderIndicatorsPage({ state }) {
     <fieldset class="indicator-group"><legend>${escapeHtml(groupLabel)}</legend><div class="indicator-grid">${indicatorDefinitions.filter((item) => item.group === groupId).map((item) => `<label>${escapeHtml(item.label)}<input name="${escapeHtml(item.id)}" type="number" min="0" step="1" inputmode="numeric"></label>`).join('')}</div></fieldset>`).join('');
   const content = `
     <section class="two-column wide-left">
-      <article class="panel"><p class="eyebrow">Planejamento</p><h2>Indicadores do território</h2><p>Preencha somente os números disponíveis. O formulário é temporário e não é salvo automaticamente.</p>
+      <article class="panel"><p class="eyebrow">Planejamento</p><h2>Indicadores do território</h2><p>Preencha somente os números disponíveis. O rascunho continua nesta aba ao navegar por outras telas e desaparece ao recarregar, fechar a aba ou sair da conta.</p>
         <form id="indicator-form" class="profile-sections" autocomplete="off">
           <fieldset><legend>Referência</legend><div class="form-grid"><label>Escopo<select name="scope">${indicatorScopes.map((item) => `<option value="${item.id}">${escapeHtml(item.label)}</option>`).join('')}</select></label><label>Microárea<input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40"></label><label>Período / referência<input name="period" maxlength="80" placeholder="Ex.: agosto/2026"></label></div></fieldset>
           ${grouped}
@@ -32,6 +35,16 @@ export function mountIndicatorsPage({ root, state }) {
   const status = root.querySelector('#indicators-status');
   const scope = form.elements.scope;
   const microarea = form.elements.microarea;
+  const draft = readVolatileDraft(INDICATORS_DRAFT_KEY, {});
+  applyNamedFormValues(form, draft.values || {});
+  applyNamedFormValues(reflection, draft.reflection || {});
+  applyPrintAccessibilityOptions(root, 'indicators', draft.options || {});
+
+  const persist = () => writeVolatileDraft(INDICATORS_DRAFT_KEY, {
+    values: readNamedFormValues(form),
+    reflection: readNamedFormValues(reflection),
+    options: readPrintAccessibilityOptions(root, 'indicators')
+  });
   const build = () => buildIndicatorPrint(root, state, readPrintAccessibilityOptions(root, 'indicators'));
 
   function syncScope() {
@@ -43,13 +56,21 @@ export function mountIndicatorsPage({ root, state }) {
   scope.addEventListener('change', syncScope);
   syncScope();
 
+  form.addEventListener('input', persist);
+  form.addEventListener('change', persist);
+  reflection.addEventListener('input', persist);
+  reflection.addEventListener('change', persist);
+  root.querySelector('[data-print-options="indicators"]')?.addEventListener('change', persist);
+
   root.querySelector('#indicators-print').addEventListener('click', () => {
+    persist();
     printHtml(build(), { title: 'Indicadores do território', className: 'indicators-print' });
     setStatus(status, 'Janela de impressão aberta.', 'success');
   });
   root.querySelector('#indicators-pdf').addEventListener('click', async (event) => {
     const button = event.currentTarget;
     if (button.disabled) return;
+    persist();
     setButtonBusy(button, true, 'Gerando PDF…');
     setStatus(status, 'Gerando PDF…', 'info');
     try {
@@ -67,6 +88,7 @@ export function mountIndicatorsPage({ root, state }) {
     reflection.reset();
     form.elements.microarea.value = state.profile?.microarea || '';
     syncScope();
+    clearVolatileDraft(INDICATORS_DRAFT_KEY);
     setStatus(status, '', '');
   });
 }
