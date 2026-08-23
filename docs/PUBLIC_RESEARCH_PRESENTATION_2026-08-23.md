@@ -8,7 +8,8 @@ Este arquivo documenta referências públicas usadas apenas para contextualizaç
 
 1. **CNES / Ministério da Saúde — Cadastro Nacional de Estabelecimentos de Saúde**
    - Cadastro da UBS Madre Tereza de Calcutá: CNES 2496542.
-   - O CNES confirma que a unidade é uma unidade básica/centro de saúde municipal e registra serviços de Atenção Primária, Estratégia Saúde da Família e Saúde Bucal.
+   - O módulo público de equipes do CNES confirma equipes ESF, ESB e eMulti vinculadas à unidade.
+   - Consulta de equipes: https://cnes2.datasus.gov.br/Mod_Equipes.asp?VCo_Unidade=1100182496542
    - Referência geral: https://cnes.datasus.gov.br/
 
 2. **Portal da Transparência do Município — escalas públicas de profissionais da saúde**
@@ -22,8 +23,30 @@ Este arquivo documenta referências públicas usadas apenas para contextualizaç
    - A escala pública lista categorias de Saúde Bucal, Agentes Comunitários de Saúde, fisioterapia, nutrição, psicologia, serviço social, educação física, apoio administrativo e residentes multiprofissionais.
 
 5. **Relatórios e-SUS fornecidos ao projeto**
-   - Os relatórios do projeto confirmam nominalmente a `Equipe 02` com INE `0002332566`.
-   - Este é o único INE de equipe atualmente confirmado nos arquivos usados pelo projeto; por isso as demais equipes não devem receber números/INEs inferidos.
+   - Os relatórios do projeto confirmam nominalmente a `Equipe 02` com INE `0002332566` e registros de ACS vinculados a essa equipe.
+
+## Equipes verificadas na consulta pública do CNES
+
+Na UBS Madre Tereza de Calcutá (CNES 2496542), a consulta pública do módulo Equipes do CNES apresenta:
+
+### Saúde da Família — ESF
+
+- INE `0000001511` — UBS Madre Tereza de Calcutá 01;
+- INE `0002332566` — UBS Madre Tereza de Calcutá 02;
+- INE `0002459353` — UBS Madre Tereza de Calcutá 03;
+- INE `0002431327` — UBS Madre Tereza de Calcutá 04.
+
+### Saúde Bucal — ESB
+
+- INE `0001809490` — ESB Madre Tereza de Calcutá 01;
+- INE `0002461722` — ESB Madre Tereza de Calcutá 02;
+- INE `0002481898` — ESB Madre Tereza 03.
+
+### eMulti
+
+- INE `0002460459` — UBS Madre Tereza eMulti.
+
+A consulta pública permite apresentar essas equipes como referência documental. Isso **não significa que todas estejam automaticamente cadastradas como equipe operacional dentro do Território Vivo**: a pesquisa pública e o cadastro administrativo do sistema permanecem separados.
 
 ## Unidades públicas identificadas no município de referência
 
@@ -38,7 +61,7 @@ O catálogo público do projeto já contém as unidades/pontos abaixo com CNES e
 - Ponto de Atendimento Itaporanga;
 - Posto de Saúde Urucumacuã.
 
-A presença no catálogo institucional não significa que uma equipe nominal específica já esteja confirmada.
+A presença no catálogo institucional não significa que uma equipe nominal específica já esteja confirmada para cada unidade.
 
 ## Tipos de equipe/composição identificados nas fontes
 
@@ -91,6 +114,6 @@ A presença no catálogo institucional não significa que uma equipe nominal esp
 
 ## Regra de segurança dos dados no Território Vivo
 
-Os nomes de funções e tipos de equipe podem aparecer no tutorial e em materiais de apresentação porque são categorias profissionais públicas e genéricas. Já **número de equipe, INE, microárea e lotação nominal** só devem entrar no catálogo estruturado quando houver fonte suficiente para confirmação.
+Os nomes de funções, tipos de equipe e equipes documentadas em fonte pública podem aparecer no tutorial e em materiais de apresentação. Já **vínculo de usuário, microárea e lotação nominal** continuam dependentes das regras administrativas e da confirmação apropriada dentro do sistema.
 
-Isso preserva a arquitetura multi-município e evita transformar pesquisa pública incompleta em dado institucional falso.
+Isso preserva a arquitetura multi-município e evita transformar pesquisa pública em vínculo operacional indevido.
