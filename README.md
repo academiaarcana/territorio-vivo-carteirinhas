@@ -1,91 +1,141 @@
-# Território Vivo — Atenção Primária de Pimenta Bueno/RO
+# Território Vivo — Atenção Primária
 
-Plataforma web para apoiar territorialização, geração de carteirinhas, rotina dos **5 minutos do território**, indicadores e educação em saúde na Atenção Primária.
+Aplicação web para apoiar **territorialização, carteirinhas, 5 minutos do território, indicadores, educação em saúde e gestão da rede** na Atenção Primária.
 
-O projeto nasceu a partir de uma experiência na UBS Madre Tereza de Calcutá / Equipe 02 e foi ampliado para permitir uso por **outras UBS, equipes e microáreas de Pimenta Bueno**.
+A aplicação nasceu a partir da UBS Madre Tereza de Calcutá / Equipe 02, em Pimenta Bueno/RO, e foi estruturada para uso por outras unidades, equipes e microáreas.
 
-## Publicação
+## Arquitetura V2
 
-O Território Vivo é mantido separado do projeto Academia Arcana.
+A versão 2 abandona o protótipo monolítico e usa módulos ES nativos, sem framework e sem processo de build obrigatório.
+
+```text
+index.html
+config.js
+src/
+  main.js
+  core/       # router, store, sessão e shell
+  services/   # Supabase, autenticação e repositório de domínio
+  data/       # modelos de carteirinhas e conteúdos
+  pages/      # páginas/módulos da aplicação
+  utils/      # impressão e PDF
+  styles/     # CSS estrutural e impressão
+scripts/      # validação automatizada
+supabase/     # migrações do banco
+```
+
+A descrição detalhada está em `docs/ARQUITETURA_V2.md`. A matriz que determina o nível e as capacidades de cada conta está em `docs/CONTROLE_DE_ACESSO.md`.
+
+## Hospedagem
 
 - **Frontend:** GitHub Pages
-- **Backend:** Supabase Free, projeto `territorio-vivo-carteirinhas`
-- **Vercel:** não é necessária para este repositório
-- **Endereço previsto:** `https://academiaarcana.github.io/territorio-vivo-carteirinhas/`
+- **Backend/Auth:** Supabase Free
+- **Vercel:** deployments automáticos desabilitados neste repositório por `vercel.json`
+- **Produção:** `https://academiaarcana.github.io/territorio-vivo-carteirinhas/`
 
-O workflow `.github/workflows/pages.yml` publica automaticamente a branch `main` no GitHub Pages.
+A branch `main` é publicada pelo workflow `.github/workflows/pages.yml` somente depois de validações estruturais e do smoke test público do Supabase.
 
-## Contas e acesso
+## Módulos
 
-Cada profissional pode criar a própria conta com nome, e-mail, unidade de saúde, equipe (quando conhecida), microárea e senha.
+- Página pública da plataforma e catálogo de unidades;
+- login, autocadastro e recuperação de senha;
+- início/dashboard;
+- território e rede;
+- biblioteca de carteirinhas;
+- 5 minutos do território;
+- indicadores;
+- educação em saúde;
+- perfil profissional/territorial;
+- aprovações e gestão por escopo para `unit_admin`/master.
 
-A conta `macedotaynara@outlook.com` é reconhecida pelo banco como **master/admin**. Todas as demais contas recebem o papel **ACS**. Essa regra é aplicada no banco por trigger e não depende apenas da interface.
+## Modelo territorial
 
-A conta master possui um painel para visualizar e atualizar os dados profissionais dos perfis cadastrados, inclusive UBS, equipe e microárea.
+O vínculo principal é:
 
-## Rede de Pimenta Bueno
+**Município → Unidade de saúde → Equipe → Microárea → Profissional**
 
-O Supabase contém um catálogo institucional baseado em dados públicos do CNES, com as principais unidades da Atenção Primária e pontos de atendimento do município. O catálogo inicial inclui:
+Tabelas atuais do Supabase:
 
-- UBS Madre Tereza de Calcutá;
-- UBS Maura Ferreira;
-- UBS Pastor Ismaelino Salviano de Matos;
-- UBS Frei Silvestre;
-- UBS Pastor Jonas;
-- Posto de Saúde Canaã;
-- Ponto de Atendimento Itaporanga;
-- Posto de Saúde Urucumacuã.
+- `municipalities`;
+- `health_units`;
+- `teams`;
+- `profiles`.
 
-As fontes e a data de consulta estão documentadas em `docs/FONTES_PUBLICAS_PIMENTA_BUENO.md`.
+Unidades podem vir de referência pública. Equipes e lotações profissionais devem ser confirmadas localmente, porque mudam com o tempo.
 
-Nomes de profissionais e composição das equipes não são importados automaticamente da internet, porque podem mudar. Esses dados são confirmados pelo próprio profissional ou pela gestão.
+## Autenticação e permissões
+
+Cada profissional cria a própria conta. O backend é a fonte de verdade para permissões.
+
+- contas comuns recebem papel `acs`;
+- a conta master definida no banco recebe papel `admin`;
+- o frontend **não permite escolher função**;
+- `role` + `access_status` + vínculo territorial determinam o nível efetivo;
+- combinações inválidas são negadas por padrão;
+- RLS limita perfis comuns ao próprio perfil;
+- ações administrativas dependem de políticas RLS;
+- o campo `role` é protegido por trigger no banco.
 
 ## Privacidade
 
-O sistema não foi desenhado como prontuário e não mantém uma base paralela de pacientes.
+O Território Vivo **não é prontuário** e não deve criar um segundo cadastro de pacientes.
 
-- O Supabase guarda apenas dados profissionais/de equipe necessários ao funcionamento da plataforma.
-- Dados preenchidos nos geradores de carteirinhas são temporários por padrão.
-- Informações clínicas ou sociais sensíveis não devem ser colocadas em carteirinhas familiares sem necessidade assistencial clara.
-- Row Level Security (RLS) limita o acesso dos ACS ao próprio perfil; a conta master possui a permissão administrativa necessária para gestão dos perfis.
+O Supabase guarda dados profissionais e institucionais necessários ao funcionamento. Campos usados nas carteirinhas, indicadores e notas rápidas são temporários por padrão e não são persistidos no banco.
 
-## Funcionalidades atuais
+O módulo Território/Mapa Inteligente foi desenhado para referências **não pessoais**: unidades, equipes, recursos institucionais e pontos territoriais sem identificação clínica individual.
 
-- Login com e-mail e senha.
-- Autocadastro por UBS, equipe e microárea.
-- Recuperação de senha.
-- Catálogo de unidades de saúde com CNES e referências públicas.
-- Perfil profissional reutilizado nas carteirinhas.
-- Painel master de gestão dos perfis de diferentes unidades.
-- Biblioteca de carteirinhas para família, território e gestão.
-- Impressão A4 com 2, 4 ou 8 unidades.
-- Modos leitura fácil e econômico.
-- Rotina dos 5 minutos do território.
-- Indicadores da microárea.
-- Educação em saúde: mapa da pressão e orientação geral sobre uso de insulina.
-- Impressão e PDF dos materiais educativos.
+## Carteirinhas
 
-## Segurança do Supabase
+A biblioteca é declarativa em `src/data/cards.js`. Cada modelo define:
 
-As migrações estão em `supabase/migrations/`.
+- categoria;
+- título e objetivo;
+- campos necessários;
+- quantidade A4 sugerida;
+- recado padrão.
 
-O projeto utiliza RLS e funções administrativas protegidas. O campo `role` também é validado pelo banco para impedir que um usuário comum transforme a própria conta em administradora.
+O módulo suporta 2, 4, 8 ou 12 unidades por A4, leitura fácil, modo econômico, impressão e PDF.
 
-## Configuração de autenticação
+## Educação em saúde
 
-Para confirmação de e-mail e recuperação de senha em produção, o Supabase deve aceitar o endereço do GitHub Pages como URL de redirecionamento:
+Conteúdos ficam em `src/data/education.js`, isolados do código da aplicação e acompanhados de fonte e data de revisão. A interface não deve misturar faixas/condutas de fontes diferentes sem identificação clara.
 
-`https://academiaarcana.github.io/territorio-vivo-carteirinhas/`
+## Desenvolvimento
 
-No painel do Supabase, isso fica em **Authentication → URL Configuration**. O frontend já envia esse endereço como `emailRedirectTo`/`redirectTo` quando está publicado nessa URL.
+Não há dependências npm obrigatórias. O `package.json` existe para validação estrutural.
 
-## Diretrizes do projeto
+```bash
+npm run check
+```
 
-- funcionar bem em papel A4 e impressão preto e branco;
-- economizar papel e toner;
-- não depender de cor para transmitir informação;
+O comando verifica:
+
+- arquivos essenciais;
+- imports relativos quebrados;
+- referências ao legado no `index.html`;
+- presença indevida de `service_role`;
+- IDs duplicados de carteirinhas e conteúdos educativos.
+
+O CI também executa `node --check` em todos os módulos, consulta o catálogo público real do Supabase e confirma que `profiles` e `territory_points` rejeitam acesso anônimo.
+
+## Configuração
+
+`config.js` contém somente configurações públicas de navegador. Nunca coloque `service_role`, senha do banco ou qualquer segredo no repositório.
+
+Exemplo: `config.example.js`.
+
+No Supabase, a URL de produção precisa estar autorizada em **Authentication → URL Configuration** para confirmação de e-mail e recuperação de senha.
+
+## Diretrizes de produto
+
+- registrar só o necessário;
+- evitar burocracia paralela;
+- transformar achado em decisão, ação e reavaliação;
+- avaliar a ferramenta, não o trabalhador;
+- imprimir bem em A4 e preto e branco;
+- não depender de cor para transmitir significado;
 - oferecer leitura fácil;
-- registrar apenas o necessário;
-- evitar uma segunda burocracia para o ACS;
-- transformar achados do território em decisão, ação e reavaliação;
-- avaliar a ferramenta, não o trabalhador.
+- manter dados clínicos/pessoais fora do mapa institucional.
+
+## Estado da V2
+
+A arquitetura V2 é desenvolvida primeiro em branch/PR de refactor. **Design visual e identidade serão tratados depois da homologação funcional**, sem misturar regras de negócio com acabamento de interface.

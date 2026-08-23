@@ -2,7 +2,7 @@ name: Validar Território Vivo
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "refactor/arquitetura-v2"]
   pull_request:
     branches: ["main"]
   workflow_dispatch:
@@ -17,39 +17,30 @@ jobs:
       - name: Baixar repositório
         uses: actions/checkout@v4
 
-      - name: Validar JavaScript
-        run: |
-          node --check app.js
-          node --check config.js
-          node --check enhancements.js
-          node --check multiunit.js
-          node --check network-context.js
-          node --check public-site.js
+      - name: Validar arquitetura e módulos
+        run: npm run check
 
-      - name: Validar arquivos essenciais
+      - name: Validar sintaxe JavaScript
         run: |
-          test -f index.html
-          test -f styles.css
-          test -f public-site.css
-          test -f .nojekyll
-          test -f vercel.json
-          grep -q "@supabase/supabase-js" index.html
-          grep -q "public-site.js" config.js
-          grep -q "network-context.js" config.js
-          grep -q "deploymentEnabled" vercel.json
+          node --check config.js
+          find src -name '*.js' -print0 | sort -z | xargs -0 -n1 node --check
 
       - name: Verificar configuração pública
         run: |
+          test -f .nojekyll
+          test -f vercel.json
           grep -q "supabaseUrl" config.js
           grep -q "supabasePublishableKey" config.js
-          ! grep -R "service_role" . --exclude-dir=.git --exclude-dir=.github
+          grep -q "deploymentEnabled" vercel.json
+          ! grep -R "service_role" src config.js index.html --exclude-dir=.git
 
-      - name: Testar catálogo público do Supabase
+      - name: Testar fronteiras públicas do Supabase
         shell: bash
         run: |
           set -euo pipefail
           SUPABASE_URL=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabaseUrl:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
           SUPABASE_KEY=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabasePublishableKey:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+
           for TABLE in municipalities health_units teams; do
             CODE=$(curl --silent --show-error --output "/tmp/${TABLE}.json" --write-out "%{http_code}" \
               "${SUPABASE_URL}/rest/v1/${TABLE}?select=*&limit=20" \
@@ -57,4 +48,20 @@ jobs:
               -H "Authorization: Bearer ${SUPABASE_KEY}")
             test "${CODE}" = "200"
           done
-          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK:',m.length,'município(s),',u.length,'unidade(s),',t.length,'equipe(s)')"
+
+          for PRIVATE_TABLE in profiles territory_points; do
+            PRIVATE_CODE=$(curl --silent --show-error --output "/tmp/${PRIVATE_TABLE}.json" --write-out "%{http_code}" \
+              "${SUPABASE_URL}/rest/v1/${PRIVATE_TABLE}?select=id&limit=1" \
+              -H "apikey: ${SUPABASE_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_KEY}")
+            case "${PRIVATE_CODE}" in
+              401|403) ;;
+              *)
+                echo "${PRIVATE_TABLE} deveria rejeitar acesso anônimo com 401/403, mas respondeu HTTP ${PRIVATE_CODE}."
+                cat "/tmp/${PRIVATE_TABLE}.json" || true
+                exit 1
+                ;;
+            esac
+          done
+
+          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('/tmp/municipalities.json')); const u=JSON.parse(fs.readFileSync('/tmp/health_units.json')); const t=JSON.parse(fs.readFileSync('/tmp/teams.json')); if(!m.length||!u.length||!t.length) process.exit(1); console.log('Catálogo público OK; profiles e territory_points rejeitam acesso anônimo com status de autorização esperado.')"
