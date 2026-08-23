@@ -15,9 +15,9 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Criança/bebê | Good Ware | https://www.flaticon.com/br/icone-gratis/recem-nascido_4532153 |
 | Pessoa idosa / geriatria | Witdhawaty | https://www.flaticon.com/br/icone-gratis/geriatria_5814218 |
 | Gestante / pré-natal | shin_icons | https://www.flaticon.com/br/icone-gratis/gravida_10523012 |
-| Data / calendário | Pixel perfect | https://www.flaticon.com/br/icone-gratis/calendario_1252294 |
+| Data / calendário genérico | Flat Icons | https://www.flaticon.com/br/icone-gratis/calendario_10754906 |
 | Hora / relógio / antecedência | IconBaandar | https://www.flaticon.com/br/icone-gratis/relogio_13071506 |
-| Vacina | mavadee | https://www.flaticon.com/br/icone-gratis/vacina_3027535 |
+| Vacinação | Good Ware | https://www.flaticon.com/free-icon/vaccination_4746755 |
 | Dentista | kmg design | https://www.flaticon.com/br/icone-gratis/dentista_5712027 |
 | Exame/coleta | Freepik | https://www.flaticon.com/br/icone-gratis/teste-de-sangue_4853471 |
 | Curativo | nawicon | https://www.flaticon.com/br/icone-gratis/curativo_2869769 |
