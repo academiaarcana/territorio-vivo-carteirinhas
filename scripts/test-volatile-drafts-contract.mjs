@@ -22,8 +22,11 @@ for (const [name, content] of [['Carteirinhas', cards], ['5 minutos', five], ['I
   assert.match(content, /writeVolatileDraft/, `${name} precisa atualizar o rascunho enquanto a aba estiver aberta.`);
 }
 
+assert.match(cards, /const CARDS_PAGE_DRAFT_KEY = 'cards-page'/, 'Carteirinhas precisam guardar qual modelo estava aberto.');
+assert.match(cards, /getCardTemplate\(pageDraft\.openTemplateId\)/, 'Carteirinhas precisam reabrir automaticamente o modelo ao voltar para a tela.');
+assert.match(cards, /dialog\.addEventListener\('close', \(\) => rememberOpenTemplate\(null\)\)/, 'Fechamento intencional do modelo precisa impedir reabertura automática.');
 assert.match(cards, /Ao navegar por outras telas, o rascunho continua apenas na memória desta aba/, 'Carteirinhas precisam explicar a preservação temporária entre telas.');
 assert.match(five, /Ao navegar por outras telas, o rascunho continua nesta aba/, '5 minutos precisam explicar a preservação temporária entre telas.');
 assert.match(indicators, /rascunho[^\n]*continua nesta aba[^\n]*navegar por outras telas/, 'Indicadores precisam explicar a preservação temporária entre telas.');
 
-console.log('Contrato de rascunhos voláteis OK: navegação preserva; recarga, fechamento e logout continuam limpando.');
+console.log('Contrato de rascunhos voláteis OK: navegação preserva conteúdo e modelo aberto; recarga, fechamento e logout continuam limpando.');
