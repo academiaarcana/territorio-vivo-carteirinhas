@@ -27,7 +27,14 @@ assert.match(css, /\.card-sheet\.count-4/, 'PDF deve preservar layout 4 por A4.'
 assert.match(css, /\.card-sheet\.count-8/, 'PDF deve preservar layout 8 por A4.');
 assert.match(css, /\.card-sheet\.count-12/, 'PDF deve preservar layout 12 por A4.');
 assert.match(css, /print-flaticon-attribution/, 'Créditos do Flaticon devem permanecer visíveis no PDF.');
-assert.doesNotMatch(css, /display\s*:\s*none[^}]*pdf-document|\.pdf-document[^}]*display\s*:\s*none/s,
+
+const captureBlock = css.match(/\.pdf-document\.pdf-capture\s*\{([^}]*)\}/)?.[1] || '';
+const cardsPrintBlock = css.match(/\.pdf-document\.cards-print\s*\{([^}]*)\}/)?.[1] || '';
+assert.ok(captureBlock, 'CSS precisa declarar o container principal de captura.');
+assert.ok(cardsPrintBlock, 'CSS precisa declarar o container das carteirinhas no PDF.');
+assert.doesNotMatch(captureBlock, /display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\D|$)/,
   'Container principal do PDF não pode ser ocultado por CSS.');
+assert.doesNotMatch(cardsPrintBlock, /display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\D|$)/,
+  'Área A4 das carteirinhas não pode ser ocultada por CSS.');
 
 console.log('Contrato de captura direta de PDF OK: container renderizável, imagens validadas, atribuição e grades 2/4/8/12 protegidas.');
