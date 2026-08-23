@@ -40,7 +40,8 @@ const flaticonAssets = {
 
 function flaticonPngUrl(iconId) {
   const id = String(iconId);
-  return `https://cdn-icons-png.flaticon.com/512/${id.slice(0, -3)}/${id}.png`;
+  const folder = Math.floor(Number(id) / 1000);
+  return `https://cdn-icons-png.flaticon.com/512/${folder}/${id}.png`;
 }
 
 export const visualSupportCatalog = [
