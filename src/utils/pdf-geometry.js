@@ -102,11 +102,12 @@ export function assertCanvasAspect(canvas, expectedWidth, expectedHeight, { maxR
   const actualAspect = width / height;
   const expectedAspect = targetWidth / targetHeight;
   const relativeDrift = Math.abs(actualAspect - expectedAspect) / expectedAspect;
-  if (relativeDrift > maxRelativeDrift) {
-    const error = geometryError('A captura do PDF ficou com proporção incompatível com a área A4.', 'PDF_CANVAS_GEOMETRY');
-    error.detail = { width, height, actualAspect, expectedAspect, relativeDrift };
+  const expectedPageHeightPx = Math.floor(width * (targetHeight / targetWidth));
+  if (relativeDrift > maxRelativeDrift || height > expectedPageHeightPx) {
+    const error = geometryError('A captura do PDF ficou com proporção incompatível com uma única página A4.', 'PDF_CANVAS_GEOMETRY');
+    error.detail = { width, height, actualAspect, expectedAspect, relativeDrift, expectedPageHeightPx };
     throw error;
   }
 
-  return { width, height, actualAspect, expectedAspect, relativeDrift };
+  return { width, height, actualAspect, expectedAspect, relativeDrift, expectedPageHeightPx };
 }
