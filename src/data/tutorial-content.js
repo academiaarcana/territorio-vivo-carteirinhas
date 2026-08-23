@@ -66,33 +66,29 @@ export const quickTutorial = [
   ['7', 'Revise e não acumule', 'Rascunhos temporários desaparecem ao recarregar, fechar a aba ou sair. O que precisar ser registro clínico deve permanecer nos sistemas oficiais.']
 ];
 
-export const verifiedPublicTeams = [
-  { type: 'ESF', ine: '0000001511', name: 'UBS Madre Tereza de Calcutá 01', source: 'CNES / Ministério da Saúde' },
-  { type: 'ESF', ine: '0002332566', name: 'UBS Madre Tereza de Calcutá 02', source: 'CNES + relatórios e-SUS do projeto' },
-  { type: 'ESF', ine: '0002459353', name: 'UBS Madre Tereza de Calcutá 03', source: 'CNES / Ministério da Saúde' },
-  { type: 'ESF', ine: '0002431327', name: 'UBS Madre Tereza de Calcutá 04', source: 'CNES / Ministério da Saúde' },
-  { type: 'ESB', ine: '0001809490', name: 'ESB Madre Tereza de Calcutá 01', source: 'CNES / Ministério da Saúde' },
-  { type: 'ESB', ine: '0002461722', name: 'ESB Madre Tereza de Calcutá 02', source: 'CNES / Ministério da Saúde' },
-  { type: 'ESB', ine: '0002481898', name: 'ESB Madre Tereza 03', source: 'CNES / Ministério da Saúde' },
-  { type: 'eMulti', ine: '0002460459', name: 'UBS Madre Tereza eMulti', source: 'CNES / Ministério da Saúde' }
+export const publicTeamResearch = [
+  { label: 'Equipes de Saúde da Família verificadas', value: 4 },
+  { label: 'Equipes de Saúde Bucal verificadas', value: 3 },
+  { label: 'eMulti verificada', value: 1 },
+  { label: 'Equipe/atendimento rural identificado', value: 1 }
 ];
 
 export const publicTeamTypes = [
   {
     title: 'Saúde da Família',
-    text: 'O CNES público identifica quatro equipes ESF na UBS Madre Tereza de Calcutá: 01, 02, 03 e 04. A composição pública pesquisada inclui medicina, enfermagem, técnico/auxiliar de enfermagem e agentes comunitários de saúde.'
+    text: 'A consulta pública do CNES confirmou quatro equipes ESF na unidade estudada. A composição pesquisada inclui medicina, enfermagem, técnico/auxiliar de enfermagem e agentes comunitários de saúde.'
   },
   {
     title: 'Saúde Bucal',
-    text: 'O CNES identifica três equipes de Saúde Bucal vinculadas à unidade: ESB 01, ESB 02 e ESB 03, além das funções de cirurgião-dentista/odontólogo e auxiliar em saúde bucal.'
+    text: 'A consulta pública confirmou três equipes de Saúde Bucal, além das funções de cirurgião-dentista/odontólogo e auxiliar em saúde bucal.'
   },
   {
     title: 'eMulti / apoio multiprofissional',
-    text: 'O CNES identifica uma eMulti vinculada à UBS. Escalas públicas municipais também mostram fisioterapia, nutrição, psicologia, serviço social e educação física no apoio multiprofissional.'
+    text: 'A pesquisa confirmou uma eMulti. Escalas públicas também mostram fisioterapia, nutrição, psicologia, serviço social e educação física no apoio multiprofissional.'
   },
   {
     title: 'Equipe rural',
-    text: 'Escalas públicas municipais distinguem atendimento/equipe rural vinculada à Atenção Primária. O tutorial não atribui número ou INE à equipe rural quando a fonte consultada não o informa.'
+    text: 'Escalas públicas distinguem atendimento/equipe rural vinculada à Atenção Primária. O tutorial não atribui número ou INE quando a fonte consultada não o informa.'
   }
 ];
 
@@ -123,4 +119,4 @@ export const professionalFunctions = [
   'Residente de Educação Física'
 ];
 
-export const researchNote = 'As funções e equipes acima foram consolidadas a partir de fontes públicas do CNES/Ministério da Saúde, escalas públicas municipais e relatórios e-SUS já fornecidos ao projeto. O Território Vivo não inventa número, INE ou lotação: a lista de referência pode apresentar equipes confirmadas na fonte pública, enquanto o cadastro operacional do sistema continua sujeito à verificação administrativa adequada.';
+export const researchNote = 'As funções e tipos de equipe acima foram consolidados a partir de fontes públicas do CNES/Ministério da Saúde, escalas públicas municipais e relatórios e-SUS já fornecidos ao projeto. Os números e INEs verificados permanecem documentados fora do runtime; vínculos operacionais continuam sujeitos à confirmação administrativa adequada.';
