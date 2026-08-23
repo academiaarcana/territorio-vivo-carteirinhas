@@ -113,7 +113,7 @@ export async function downloadPdf(html, { className = '', title = 'Território V
     await worker.toCanvas();
     const canvas = await worker.get('canvas');
     assertCanvasHasContent(canvas);
-    if (isCardsPdf) assertCanvasAspect(canvas, captureWidth, captureHeight);
+    if (isCardsPdf) assertCanvasAspect(canvas, captureWidthMm, captureHeightMm);
     await worker.toPdf().save();
     return { mode: 'pdf' };
   } finally {
