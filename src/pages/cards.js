@@ -8,6 +8,7 @@ import { renderVisualSupports } from '../lib/visual-support.js';
 import { printHtml, downloadPdf, repeatForSheet, cardsForSheet } from '../utils/print.js';
 
 const CARD_DRAFT_PREFIX = 'card-template:';
+const CARDS_PAGE_DRAFT_KEY = 'cards-page';
 
 export function renderCardsPage() {
   const content = `
@@ -24,10 +25,21 @@ export function mountCardsPage({ root, state }) {
   const dialog = root.querySelector('#card-editor');
   const editorBody = root.querySelector('#card-editor-body');
   const search = root.querySelector('#card-search');
+  const pageDraft = readVolatileDraft(CARDS_PAGE_DRAFT_KEY, {});
   let filter = 'all';
 
   function refreshLibrary() {
     library.innerHTML = renderLibrary(filter, search.value);
+  }
+
+  function rememberOpenTemplate(templateId) {
+    writeVolatileDraft(CARDS_PAGE_DRAFT_KEY, { openTemplateId: templateId || null });
+  }
+
+  function openTemplate(template, opener = null) {
+    if (!template) return;
+    rememberOpenTemplate(template.id);
+    mountEditor(dialog, editorBody, template, state, opener);
   }
 
   root.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
@@ -46,8 +58,13 @@ export function mountCardsPage({ root, state }) {
     if (!trigger) return;
     const template = getCardTemplate(trigger.dataset.template);
     if (!template) return;
-    mountEditor(dialog, editorBody, template, state, trigger);
+    openTemplate(template, trigger);
   });
+
+  dialog.addEventListener('close', () => rememberOpenTemplate(null));
+
+  const restoredTemplate = getCardTemplate(pageDraft.openTemplateId);
+  if (restoredTemplate) openTemplate(restoredTemplate);
 }
 
 function renderLibrary(filter, query) {
