@@ -2,7 +2,7 @@ name: Publicar Território Vivo no GitHub Pages
 
 on:
   push:
-    branches: ["main", "refactor/arquitetura-v2"]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/refactor/arquitetura-v2'
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
