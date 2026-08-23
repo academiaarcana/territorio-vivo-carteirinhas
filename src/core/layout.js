@@ -31,10 +31,19 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
       ? 'Gestão municipal • Rede cadastrada'
       : [context?.unit?.short_name || profile?.unit_name, context?.team?.name || profile?.team_name]
         .filter(Boolean).join(' • ') || 'Atenção Primária';
-  const municipalityLabel = masterAccount
-    ? 'Território Vivo • Master / Desenvolvimento'
+  const territoryScopeLabel = masterAccount
+    ? 'Administração técnica do Território Vivo'
     : networkAdmin
-      ? 'Território Vivo • Gestão municipal'
+      ? 'Rede municipal cadastrada'
+      : [
+          context?.unit?.short_name || profile?.unit_name,
+          context?.team?.name || profile?.team_name,
+          profile?.microarea ? `Microárea ${profile.microarea}` : null
+        ].filter(Boolean).join(' • ') || 'Atenção Primária';
+  const municipalityLabel = masterAccount
+    ? 'Master / Desenvolvimento'
+    : networkAdmin
+      ? 'Gestão municipal'
       : [context?.municipality?.name, context?.municipality?.state_code].filter(Boolean).join(' • ') || 'Rede de Atenção Primária';
   const accountRoleLabel = masterAccount
     ? 'Master / Desenvolvimento • Administração técnica'
@@ -46,7 +55,18 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
     <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Navegação principal">
-        <a class="brand" href="#/app/inicio"><span class="brand-mark" aria-hidden="true">TV</span><span><strong>Território Vivo</strong><small>${escapeHtml(contextLabel)}</small></span></a>
+        <a class="brand brand-app" href="#/app/inicio">
+          <span class="brand-mark" aria-hidden="true">TV</span>
+          <span class="brand-copy">
+            <strong>Território Vivo</strong>
+            <small class="brand-signature">Atenção Primária à Saúde</small>
+            <small class="brand-context">${escapeHtml(contextLabel)}</small>
+          </span>
+        </a>
+        <div class="aps-context" aria-label="Contexto assistencial">
+          <span>Atenção Primária</span>
+          <strong>Saúde da Família</strong>
+        </div>
         <nav class="app-nav">
           ${items.map(([path, label, icon]) => `<button type="button" class="nav-link ${activePath === path ? 'active' : ''}" data-nav="${path}" ${activePath === path ? 'aria-current="page"' : ''}>${renderFlaticonIcon(icon, { className: 'nav-flaticon-icon' })}<span>${escapeHtml(label)}</span></button>`).join('')}
         </nav>
@@ -57,11 +77,23 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
       </aside>
       <div class="workspace">
         <header class="workspace-header">
-          <div><p class="eyebrow">${escapeHtml(municipalityLabel)}</p><h1>${escapeHtml(title)}</h1>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div>
+          <div class="workspace-heading">
+            <div class="workspace-brandline">
+              <span class="workspace-product">Território Vivo</span>
+              <span class="workspace-brandline-separator" aria-hidden="true">•</span>
+              <span>${escapeHtml(municipalityLabel)}</span>
+            </div>
+            <h1>${escapeHtml(title)}</h1>
+            ${subtitle ? `<p class="workspace-subtitle">${escapeHtml(subtitle)}</p>` : ''}
+            <p class="workspace-territory">${escapeHtml(territoryScopeLabel)}</p>
+          </div>
           <button type="button" class="button workspace-signout" data-signout>Sair da conta</button>
         </header>
         <main id="main-content" class="page-content" tabindex="-1">${content}</main>
-        <footer class="workspace-credits">${renderFlaticonAttribution()}</footer>
+        <footer class="workspace-credits">
+          <p class="institutional-disclaimer">Território Vivo — ferramenta de apoio à Atenção Primária à Saúde. Não constitui sistema oficial do Ministério da Saúde.</p>
+          <div class="workspace-attribution">${renderFlaticonAttribution()}</div>
+        </footer>
       </div>
     </div>`;
 }
