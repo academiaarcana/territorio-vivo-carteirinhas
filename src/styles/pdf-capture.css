@@ -226,6 +226,147 @@
   display: none!important;
 }
 
+/* 4/A4 com Apoio visual: replica a compactação essencial do @media print
+   sem alterar a tela nem a versão 4/A4 já homologada sem pictogramas. */
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support {
+  padding: 2.2mm!important;
+  gap: 1.2mm!important;
+  font-size: 10pt;
+  line-height: 1.2;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-header {
+  display: block!important;
+  padding: 0 0 1mm!important;
+  border: 0!important;
+  border-bottom: 1px solid #666!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-brand {
+  display: block!important;
+  min-width: 0!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-mark {
+  display: none!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-brand-copy {
+  display: grid!important;
+  gap: .15mm!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-brand-copy small {
+  font-size: .68em!important;
+  line-height: 1.1!important;
+  letter-spacing: .03em!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-brand-copy strong {
+  font-size: 1.08em!important;
+  line-height: 1.12!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-context {
+  display: grid!important;
+  gap: .35mm!important;
+  padding: 1.1mm 1.4mm!important;
+  border-left-width: 2px!important;
+  border-radius: 0 1.5mm 1.5mm 0!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-unit {
+  font-size: .92em!important;
+  line-height: 1.15!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-territory {
+  font-size: .72em!important;
+  line-height: 1.15!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-reference {
+  margin-top: 0!important;
+  font-size: .68em!important;
+  line-height: 1.15!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-fields {
+  display: grid!important;
+  grid-template-columns: repeat(2, minmax(0, 1fr))!important;
+  gap: .8mm 1.4mm!important;
+  min-height: 0!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-field {
+  min-width: 0!important;
+  min-height: 0!important;
+  gap: .8mm!important;
+  padding: .65mm .8mm!important;
+  border-radius: 1.2mm!important;
+  align-items: center!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-field-name,
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-field-service,
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-field-note {
+  grid-column: 1 / -1!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .generated-card-field-copy {
+  min-width: 0!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .generated-card-field-copy small {
+  font-size: .68em!important;
+  line-height: 1.08!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .generated-card-field-copy p {
+  margin: .15mm 0 0!important;
+  font-size: .94em!important;
+  line-height: 1.16!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .field-pictogram.visual-support-set {
+  display: flex!important;
+  flex: 0 0 auto!important;
+  flex-wrap: nowrap!important;
+  width: auto!important;
+  height: auto!important;
+  max-width: 25mm!important;
+  gap: .6mm!important;
+  border: 0!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .field-pictogram.visual-support-set .visual-support-item {
+  min-width: 6.8mm!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .field-pictogram.visual-support-set .support-pictogram {
+  width: 6.8mm!important;
+  height: 6.8mm!important;
+  border-radius: 1.2mm!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .support-pictogram .flaticon-icon {
+  display: block!important;
+  width: 5.8mm!important;
+  height: 5.8mm!important;
+  max-width: 100%!important;
+  max-height: 100%!important;
+  object-fit: contain!important;
+}
+
+.pdf-document.cards-print .card-sheet.count-4 .appointment-card.visual-support .appointment-card-note {
+  margin-top: auto!important;
+  padding: .8mm 0 0!important;
+  border-radius: 0!important;
+  background: #fff!important;
+  font-size: .72em!important;
+  line-height: 1.18!important;
+}
+
 .pdf-document.pdf-capture.print-economy,
 .pdf-document.pdf-capture.print-economy *,
 .pdf-document.pdf-capture .economy,
