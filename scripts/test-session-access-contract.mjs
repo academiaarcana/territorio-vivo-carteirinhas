@@ -23,4 +23,14 @@ assert.match(router, /route\.accessGate && hasCapability\(state\.profile, CAPABI
 assert.match(router, /route\.capability && !hasCapability\(state\.profile, route\.capability\)/, 'Rota protegida deve falhar fechada quando a capacidade estiver ausente.');
 assert.match(router, /Não foi possível validar seu acesso/, 'Falha de revalidação precisa falhar fechada sem renderizar conteúdo protegido com perfil antigo.');
 
-console.log('Contrato de sessão OK: rotas protegidas revalidam perfil e o gate de espera rejeita perfil já ativo.');
+assert.match(main, /import \{ getState, setState \} from '\.\/core\/store\.js';/, 'Sincronização de autenticação precisa comparar o contexto atual antes de decidir por rerender.');
+assert.match(main, /function accessContextFingerprint\(state\)/, 'Sessão precisa ter uma comparação explícita dos campos que alteram acesso e escopo.');
+for (const field of ['role', 'access_status', 'is_master_account', 'municipality_code', 'unit_cnes', 'team_id', 'microarea']) {
+  assert.ok(main.includes(field), `Fingerprint de acesso precisa observar ${field}.`);
+}
+assert.match(main, /if \(previousAccess === nextAccess\) return;/, 'Qualquer evento autenticado sem mudança real de acesso deve preservar a tela atual e seus diálogos.');
+assert.doesNotMatch(main, /\['SIGNED_IN', 'TOKEN_REFRESHED', 'INITIAL_SESSION'\]\.includes\(event\)/, 'Preservação da tela não deve depender de uma lista incompleta de eventos de autenticação.');
+assert.match(main, /await hydrateSession\(nextSession\);[\s\S]*if \(previousAccess === nextAccess\) return;/, 'Mesmo sem rerender visual, a sessão precisa continuar sendo hidratada antes da comparação final.');
+assert.match(main, /if \(event === 'PASSWORD_RECOVERY'\)[\s\S]*navigate\('\/recuperar-senha'/, 'Recuperação de senha continua sendo uma exceção explícita à preservação visual.');
+
+console.log('Contrato de sessão OK: rotas revalidam acesso e toda sincronização sem mudança de escopo preserva a tela atual.');

@@ -72,7 +72,7 @@ export function renderTerritoryPage({ state }) {
     <section class="page-toolbar"><div><p class="eyebrow">Rede institucional</p><h2>Unidades e equipes</h2><p>Filtre a rede para revisar fontes, pontos de atenção e equipes cadastradas.</p></div><label>Filtrar<input id="network-search" type="search" placeholder="Unidade, bairro, CNES ou equipe"></label></section>
     <div id="territory-kpis" class="kpi-grid"></div>
     <section id="territory-network" class="unit-grid"><p>Carregando rede…</p></section>
-    <section class="panel"><h2>Base pronta para visualização cartográfica</h2><p>Os registros já aceitam endereço e coordenadas. Na etapa de design, esta mesma base será apresentada num mapa visual com filtros, sem adicionar dados pessoais.</p></section>
+    <section class="panel"><h2>Localização sem custo de API</h2><p>Quando houver endereço ou coordenadas, o Território Vivo oferece um atalho para abrir a referência no Google Maps. O link não usa chave de API, não exige faturamento e não envia dados pessoais.</p></section>
 
     <dialog id="point-dialog" class="editor-dialog" aria-labelledby="point-dialog-title"><form method="dialog"><button class="dialog-close" value="cancel" aria-label="Fechar">×</button></form><div id="point-dialog-body"></div></dialog>`;
   return appLayout({ title: 'Território e rede', subtitle: 'Base institucional e achados não pessoais para o mapa inteligente.', activePath: '/app/territorio', content });
@@ -181,7 +181,7 @@ export async function mountTerritoryPage({ root, state }) {
       await refreshPoints();
     } catch (error) {
       console.error(error);
-      setStatus(pointStatus, 'Não foi possível registrar. Confira o vínculo territorial e não inclua dados pessoais.', 'error');
+      setStatus(pointStatus, territoryMutationErrorMessage(error, 'Não foi possível registrar. Confira o vínculo territorial e não inclua dados pessoais.'), 'error');
     } finally {
       mutationInFlight = false;
       pointsTarget.removeAttribute('aria-busy');
@@ -268,7 +268,7 @@ export async function mountTerritoryPage({ root, state }) {
         await refreshPoints();
       } catch (error) {
         console.error(error);
-        setStatus(editStatus, 'Não foi possível salvar. Verifique seu escopo e os campos.', 'error');
+        setStatus(editStatus, territoryMutationErrorMessage(error, 'Não foi possível salvar. Verifique seu escopo e os campos.'), 'error');
       } finally {
         mutationInFlight = false;
         pointsTarget.removeAttribute('aria-busy');
@@ -279,24 +279,30 @@ export async function mountTerritoryPage({ root, state }) {
   }
 
   function renderNetwork(items) {
-    target.innerHTML = items.length ? items.map((unit) => `
+    target.innerHTML = items.length ? items.map((unit) => {
+      const mapAddress = [unit.address, unit.neighborhood, unit.municipality, unit.state].filter(Boolean).join(', ');
+      const mapLink = googleMapsLink({ address: mapAddress });
+      return `
       <article class="unit-card ${unit.cnes === state.profile?.unit_cnes ? 'own-unit' : ''}">
         <div><span class="status-badge">${unit.data_status === 'team_confirmed' ? 'Confirmado' : unit.data_status === 'needs_review' ? 'Revisar' : 'Fonte pública'}</span><h3>${escapeHtml(unit.short_name)}</h3><small>CNES ${escapeHtml(unit.cnes)}</small></div>
         <p>${escapeHtml([unit.address,unit.neighborhood].filter(Boolean).join(' — ') || 'Localização a confirmar')}</p>
         <p>${escapeHtml(unit.phone || 'Telefone a confirmar')}</p>
         <div><strong>Equipes</strong><p>${unit.teams.length ? unit.teams.map((team) => `${escapeHtml(team.name)}${team.ine ? ` • INE ${escapeHtml(team.ine)}` : ''}`).join('<br>') : 'Nenhuma equipe cadastrada'}</p></div>
+        ${mapLink ? `<div class="actions">${mapLink}</div>` : ''}
         <small>${escapeHtml(unit.source_label || 'Fonte pública')}${unit.source_checked_on ? ` • ${formatDateBr(unit.source_checked_on)}` : ''}</small>
-      </article>`).join('') : '<div class="empty-state"><h3>Nenhuma unidade encontrada</h3><p>Altere o filtro de busca.</p></div>';
+      </article>`;
+    }).join('') : '<div class="empty-state"><h3>Nenhuma unidade encontrada</h3><p>Altere o filtro de busca.</p></div>';
   }
 
   function renderPoints(items) {
     pointsTarget.innerHTML = items.length ? items.map((point) => {
       const canManage = canManageTerritoryPoint(state.profile, state.user?.id, point);
       const coordinates = point.latitude !== null && point.longitude !== null ? `<p><strong>Coordenadas:</strong> ${escapeHtml(point.latitude)}, ${escapeHtml(point.longitude)}</p>` : '';
+      const mapLink = googleMapsLink(point);
       const unit = units.find((item) => item.cnes === point.unit_cnes);
       const team = teams.find((item) => item.id === point.team_id);
       const scope = master ? `<p><strong>Escopo:</strong> ${escapeHtml(unit?.short_name || point.unit_cnes || 'Sem UBS')}${team ? ` • ${escapeHtml(team.name)}` : ''}</p>` : '';
-      return `<article class="territory-point-card"><div><span class="status-badge">${escapeHtml(kindLabel(point.kind))}</span><h3>${escapeHtml(point.name)}</h3><small>${formatDateBr(point.observed_on)} • ${statusLabel(point.status)}</small></div>${scope}${point.description ? `<p>${escapeHtml(point.description)}</p>` : ''}${point.address ? `<p><strong>Referência:</strong> ${escapeHtml(point.address)}</p>` : ''}${coordinates}<div class="actions">${canManage ? `<button class="link-button" type="button" data-edit-point="${escapeHtml(point.id)}">Editar</button>` : ''}${canManage && point.status !== 'resolved' ? `<button class="link-button" type="button" data-resolve-point="${escapeHtml(point.id)}">Marcar resolvido</button>` : ''}${canManage ? `<button class="link-button danger-link" type="button" data-delete-point="${escapeHtml(point.id)}">Excluir</button>` : ''}</div></article>`;
+      return `<article class="territory-point-card"><div><span class="status-badge">${escapeHtml(kindLabel(point.kind))}</span><h3>${escapeHtml(point.name)}</h3><small>${formatDateBr(point.observed_on)} • ${statusLabel(point.status)}</small></div>${scope}${point.description ? `<p>${escapeHtml(point.description)}</p>` : ''}${point.address ? `<p><strong>Referência:</strong> ${escapeHtml(point.address)}</p>` : ''}${coordinates}<div class="actions">${mapLink}${canManage ? `<button class="link-button" type="button" data-edit-point="${escapeHtml(point.id)}">Editar</button>` : ''}${canManage && point.status !== 'resolved' ? `<button class="link-button" type="button" data-resolve-point="${escapeHtml(point.id)}">Marcar resolvido</button>` : ''}${canManage ? `<button class="link-button danger-link" type="button" data-delete-point="${escapeHtml(point.id)}">Excluir</button>` : ''}</div></article>`;
     }).join('') : '<div class="empty-state"><h3>Nenhum achado territorial</h3><p>Não há registros para os filtros selecionados.</p></div>';
   }
 
@@ -366,6 +372,27 @@ function renderPointKpis(root, points) {
     ['Recursos/parceiros', points.filter((p) => ['resource','potentiality','partner'].includes(p.kind)).length],
     ['Riscos/barreiras', points.filter((p) => ['risk','critical_point','access_barrier'].includes(p.kind) && p.status !== 'resolved').length]
   ].map(([label,value]) => `<article class="kpi"><small>${label}</small><strong>${value}</strong></article>`).join('');
+}
+
+function territoryMutationErrorMessage(error, fallback) {
+  const message = String(error?.message || '').trim();
+  if (message === 'Informe latitude e longitude juntas.') return message;
+  if (/^(Latitude|Longitude) inválida\. Use um valor entre -?\d+ e -?\d+\.$/.test(message)) return message;
+  return fallback;
+}
+
+function googleMapsLink(location) {
+  const url = googleMapsUrl(location);
+  if (!url) return '';
+  return `<a class="link-button" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Ver no Google Maps</a>`;
+}
+
+function googleMapsUrl({ latitude = null, longitude = null, address = '' } = {}) {
+  const hasLatitude = latitude !== null && latitude !== undefined && latitude !== '';
+  const hasLongitude = longitude !== null && longitude !== undefined && longitude !== '';
+  const query = hasLatitude && hasLongitude ? `${latitude},${longitude}` : String(address || '').trim();
+  if (!query) return '';
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
 function kindLabel(kind) {

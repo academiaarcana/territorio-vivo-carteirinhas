@@ -1,4 +1,5 @@
 import { setState, resetState } from './store.js';
+import { clearAllVolatileDrafts } from './volatile-drafts.js';
 import { getProfile, buildContext } from '../services/repository.js';
 
 const PROFILE_RETRY_DELAYS = [0, 150, 350, 700];
@@ -33,6 +34,7 @@ export async function hydrateSession(session) {
 }
 
 export function clearSession() {
+  clearAllVolatileDrafts();
   resetState();
 }
 
