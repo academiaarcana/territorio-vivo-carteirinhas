@@ -1,10 +1,13 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { openAccessibleDialog } from '../core/a11y.js';
+import { readVolatileDraft, writeVolatileDraft } from '../core/volatile-drafts.js';
 import { cardCategories, cardTemplates, getCardTemplate } from '../data/cards.js';
 import { escapeHtml, formatDateBr } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
 import { renderVisualSupports } from '../lib/visual-support.js';
 import { printHtml, downloadPdf, repeatForSheet, cardsForSheet } from '../utils/print.js';
+
+const CARD_DRAFT_PREFIX = 'card-template:';
 
 export function renderCardsPage() {
   const content = `
@@ -65,7 +68,7 @@ function mountEditor(dialog, body, template, state, opener) {
     <div class="editor-grid">
       <form id="card-form" class="panel stack-form" autocomplete="off">
         <div id="batch-editor" class="batch-editor" hidden>
-          <div><strong id="batch-position">Carteirinha 1</strong><small>Preencha uma pessoa por vez. Os dados ficam somente nesta janela.</small></div>
+          <div><strong id="batch-position">Carteirinha 1</strong><small>Preencha uma pessoa por vez. Os dados ficam somente nesta aba.</small></div>
           <div id="batch-slots" class="batch-slots" aria-label="Carteirinhas do lote"></div>
         </div>
         ${template.fields.map(renderField).join('')}
@@ -85,7 +88,7 @@ function mountEditor(dialog, body, template, state, opener) {
         <div id="card-preview"></div>
         <div class="actions"><button type="button" class="button" id="card-pdf">Baixar PDF</button><button type="button" class="button primary" id="card-print">Imprimir A4</button></div>
         <p id="card-action-status" class="form-status" aria-live="polite"></p>
-        <p class="privacy-note">Nenhum campo digitado neste gerador é salvo no Supabase nem em armazenamento persistente do navegador. O lote existe somente na memória desta janela; ao fechar ou recarregar a página, ele desaparece.</p>
+        <p class="privacy-note">Nenhum campo digitado neste gerador é salvo no Supabase nem em armazenamento persistente do navegador. Ao navegar por outras telas, o rascunho continua apenas na memória desta aba; ele desaparece ao recarregar, fechar a aba ou sair da conta.</p>
       </section>
     </div>`;
 
@@ -97,17 +100,37 @@ function mountEditor(dialog, body, template, state, opener) {
   const batchSlots = body.querySelector('#batch-slots');
   const batchPosition = body.querySelector('#batch-position');
   const previewBatchLabel = body.querySelector('#preview-batch-label');
+  const easyRead = body.querySelector('#easy-read');
   const visualSupport = body.querySelector('#visual-support');
   const largePrint = body.querySelector('#large-print');
+  const economy = body.querySelector('#economy');
   const status = body.querySelector('#card-action-status');
-  const entries = Array.from({ length: 12 }, () => ({}));
-  let activeIndex = 0;
-  count.value = String(template.defaultCount || 4);
+  const draftKey = `${CARD_DRAFT_PREFIX}${template.id}`;
+  const draft = readVolatileDraft(draftKey, {});
+  const restoredEntries = Array.isArray(draft.entries) ? draft.entries.slice(0, 12) : [];
+  const entries = Array.from({ length: 12 }, (_, index) => ({ ...(restoredEntries[index] || {}) }));
+  let activeIndex = Number.isInteger(draft.activeIndex) ? Math.max(0, Math.min(11, draft.activeIndex)) : 0;
+  const restoredCount = [2, 4, 8, 12].includes(Number(draft.count)) ? Number(draft.count) : Number(template.defaultCount || 4);
+  count.value = String(restoredCount);
+  batchMode.checked = Boolean(draft.batchMode);
+  easyRead.checked = Boolean(draft.options?.easyRead);
+  visualSupport.checked = Boolean(draft.options?.visualSupport);
+  largePrint.checked = Boolean(draft.options?.largePrint);
+  economy.checked = Boolean(draft.options?.economy);
+  if ((largePrint.checked || visualSupport.checked) && Number(count.value) > 4) count.value = '4';
+  activeIndex = Math.min(activeIndex, Number(count.value) - 1);
 
   const currentValues = () => Object.fromEntries(new FormData(form).entries());
   const saveActive = () => {
     entries[activeIndex] = currentValues();
   };
+  const persistDraft = () => writeVolatileDraft(draftKey, {
+    entries,
+    activeIndex,
+    count: Number(count.value),
+    batchMode: batchMode.checked,
+    options: options(body)
+  });
   const hasValues = (entry) => Object.values(entry || {}).some((value) => String(value || '').trim());
 
   function loadActive() {
@@ -116,7 +139,6 @@ function mountEditor(dialog, body, template, state, opener) {
       const control = form.elements.namedItem(field.id);
       if (control) control.value = values[field.id] || '';
     });
-    syncBatchUi();
     update();
   }
 
@@ -144,6 +166,7 @@ function mountEditor(dialog, body, template, state, opener) {
     const sheetCount = Number(count.value);
     const opts = options(body);
     saveActive();
+    persistDraft();
     if (!batchMode.checked) {
       return repeatForSheet(buildCardHtml(template, entries[0], state, opts), sheetCount);
     }
@@ -153,10 +176,12 @@ function mountEditor(dialog, body, template, state, opener) {
 
   form.addEventListener('input', () => {
     saveActive();
+    persistDraft();
     update();
   });
   form.addEventListener('reset', () => setTimeout(() => {
     entries[activeIndex] = {};
+    persistDraft();
     update();
   }, 0));
 
@@ -166,12 +191,14 @@ function mountEditor(dialog, body, template, state, opener) {
     saveActive();
     activeIndex = Number(trigger.dataset.batchIndex);
     loadActive();
+    persistDraft();
   });
 
   batchMode.addEventListener('change', () => {
     saveActive();
     activeIndex = 0;
     loadActive();
+    persistDraft();
   });
 
   count.addEventListener('change', () => {
@@ -179,10 +206,17 @@ function mountEditor(dialog, body, template, state, opener) {
     if ((largePrint.checked || visualSupport.checked) && Number(count.value) > 4) count.value = '4';
     activeIndex = Math.min(activeIndex, Number(count.value) - 1);
     loadActive();
+    persistDraft();
   });
 
-  body.querySelector('#easy-read').addEventListener('change', update);
-  body.querySelector('#economy').addEventListener('change', update);
+  easyRead.addEventListener('change', () => {
+    persistDraft();
+    update();
+  });
+  economy.addEventListener('change', () => {
+    persistDraft();
+    update();
+  });
   visualSupport.addEventListener('change', () => {
     if (visualSupport.checked && Number(count.value) > 4) {
       count.value = '4';
@@ -191,6 +225,7 @@ function mountEditor(dialog, body, template, state, opener) {
       status.dataset.status = 'info';
     }
     loadActive();
+    persistDraft();
   });
   largePrint.addEventListener('change', () => {
     if (largePrint.checked && Number(count.value) > 4) {
@@ -200,6 +235,7 @@ function mountEditor(dialog, body, template, state, opener) {
       status.dataset.status = 'info';
     }
     loadActive();
+    persistDraft();
   });
 
   body.querySelector('#card-print').addEventListener('click', () => {
@@ -228,7 +264,7 @@ function mountEditor(dialog, body, template, state, opener) {
     }
   });
 
-  update();
+  loadActive();
   openAccessibleDialog(dialog, opener);
 }
 
