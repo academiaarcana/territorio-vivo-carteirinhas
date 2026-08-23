@@ -15,7 +15,7 @@ export function renderIndicatorsPage({ state }) {
     <fieldset class="indicator-group"><legend>${escapeHtml(groupLabel)}</legend><div class="indicator-grid">${indicatorDefinitions.filter((item) => item.group === groupId).map((item) => `<label>${escapeHtml(item.label)}<input name="${escapeHtml(item.id)}" type="number" min="0" step="1" inputmode="numeric"></label>`).join('')}</div></fieldset>`).join('');
   const content = `
     <section class="two-column wide-left">
-      <article class="panel"><p class="eyebrow">Planejamento</p><h2>Indicadores do território</h2><p>Preencha somente os números disponíveis. O rascunho continua nesta aba ao navegar por outras telas e desaparece ao recarregar, fechar a aba ou sair da conta.</p>
+      <article class="panel"><p class="eyebrow">Planejamento</p><h2>Indicadores do território</h2><p>Preencha somente os números disponíveis. O rascunho não é salvo automaticamente em banco ou armazenamento persistente: ele continua nesta aba ao navegar por outras telas e desaparece ao recarregar, fechar a aba ou sair da conta.</p>
         <form id="indicator-form" class="profile-sections" autocomplete="off">
           <fieldset><legend>Referência</legend><div class="form-grid"><label>Escopo<select name="scope">${indicatorScopes.map((item) => `<option value="${item.id}">${escapeHtml(item.label)}</option>`).join('')}</select></label><label>Microárea<input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40"></label><label>Período / referência<input name="period" maxlength="80" placeholder="Ex.: agosto/2026"></label></div></fieldset>
           ${grouped}
