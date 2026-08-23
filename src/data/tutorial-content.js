@@ -15,12 +15,24 @@ export const territoryVivoObjectives = [
 
 export const systemFunctions = [
   {
-    title: 'Território e rede',
-    text: 'Consulta a rede cadastrada e organiza achados territoriais não pessoais: recursos, potencialidades, parceiros, riscos, pontos críticos e barreiras de acesso.'
+    title: 'Início e contexto territorial',
+    text: 'Apresenta o escopo atual do usuário e mantém município, UBS, equipe e microárea visíveis para orientar o uso das ferramentas.'
   },
   {
-    title: 'Carteirinhas',
-    text: 'Gera materiais temporários para famílias, território, reuniões, indicadores e gestão, com leitura fácil, apoio visual, modo econômico, letra ampliada, lote e impressão/PDF.'
+    title: 'Objetivo e tutorial',
+    text: 'Explica por que o Território Vivo existe, oferece um roteiro curto de demonstração e diferencia funções do sistema, equipes pesquisadas e responsabilidades profissionais.'
+  },
+  {
+    title: 'Território, rede e mapa inteligente',
+    text: 'Consulta unidades e equipes, organiza achados territoriais não pessoais — recursos, potencialidades, parceiros, riscos, pontos críticos e barreiras — e oferece atalho gratuito de localização quando há endereço ou coordenadas.'
+  },
+  {
+    title: 'Carteirinhas e acessibilidade',
+    text: 'Gera materiais temporários para família, território, reunião, indicadores e gestão, com leitura fácil, apoio visual, letra ampliada, modo econômico e preenchimento contextual automático.'
+  },
+  {
+    title: 'Lote, impressão e PDF A4',
+    text: 'Permite conteúdos diferentes em lote e organiza as carteirinhas para impressão ou PDF em 2, 4, 8 ou 12 posições por A4, respeitando limites de acessibilidade.'
   },
   {
     title: '5 minutos do território',
@@ -28,67 +40,63 @@ export const systemFunctions = [
   },
   {
     title: 'Indicadores',
-    text: 'Ajuda a interpretar números como perguntas de território e planejar ações, sem usar indicadores para ranquear trabalhadores.'
+    text: 'Ajuda a interpretar números como perguntas de território, registrar uma leitura contextual e planejar ações, sem usar indicadores para ranquear trabalhadores.'
   },
   {
     title: 'Educação em saúde',
-    text: 'Reúne materiais educativos curtos com fonte técnica e opções de impressão/PDF para apoio às atividades da APS.'
+    text: 'Reúne materiais educativos curtos com fonte técnica e opções de impressão/PDF para apoio às atividades da Atenção Primária.'
   },
   {
-    title: 'Perfil territorial',
-    text: 'Mantém o vínculo profissional com município, UBS, equipe e microárea para preencher automaticamente o contexto dos materiais.'
+    title: 'Meu perfil',
+    text: 'Mantém os dados profissionais e o vínculo territorial necessários para preencher automaticamente o contexto permitido em cada ferramenta.'
   },
   {
     title: 'Aprovações',
-    text: 'Permite à gestão responsável revisar vínculos e liberar ou suspender acessos dentro do escopo autorizado.'
+    text: 'Permite à gestão responsável revisar vínculos profissionais e liberar ou suspender acessos somente dentro do escopo autorizado.'
   },
   {
     title: 'Gestão da UBS e da rede',
-    text: 'Administra unidades, equipes, perfis e escopos conforme o papel do usuário, com o banco como autoridade final de segurança.'
+    text: 'Administra unidades, equipes, perfis e escopos conforme o papel do usuário, sem transformar a tela de gestão em autorização para ultrapassar as regras do banco.'
   },
   {
-    title: 'PDF e impressão A4',
-    text: 'Organiza carteirinhas e materiais em folhas A4 com layouts de 2, 4, 8 ou 12 posições conforme a ferramenta e as regras de acessibilidade.'
-  },
-  {
-    title: 'Privacidade por desenho',
-    text: 'Mantém carteirinhas, notas dos 5 minutos e reflexões de indicadores como rascunhos voláteis da aba, sem transformá-los em banco paralelo.'
+    title: 'Controle de acesso e privacidade por desenho',
+    text: 'Protege rotas e ações por capability, papel e escopo. Carteirinhas, notas dos 5 minutos e reflexões de indicadores permanecem como rascunhos voláteis da aba, sem criar banco clínico paralelo.'
   }
 ];
 
 export const quickTutorial = [
-  ['1', 'Confira seu contexto', 'Veja no cabeçalho se UBS, equipe e microárea correspondem ao seu vínculo.'],
-  ['2', 'Reconheça o território', 'Abra Território e rede para consultar unidades, equipes e achados não pessoais.'],
-  ['3', 'Transforme uma necessidade em material', 'Use Carteirinhas para gerar lembretes, orientações, busca ativa, notas territoriais ou indicadores.'],
-  ['4', 'Leve uma mudança para a equipe', 'Use 5 minutos do território para registrar a situação, decidir o próximo passo e combinar revisão.'],
+  ['1', 'Confira seu contexto', 'Veja no cabeçalho se município, UBS, equipe e microárea correspondem ao seu vínculo.'],
+  ['2', 'Reconheça o território', 'Abra Território e rede para consultar unidades, equipes, recursos, potencialidades, parceiros, riscos, barreiras e pontos críticos não pessoais.'],
+  ['3', 'Transforme uma necessidade em material', 'Use Carteirinhas para gerar lembretes, orientações, busca ativa, notas territoriais ou indicadores, com recursos de acessibilidade quando necessário.'],
+  ['4', 'Leve uma mudança para a equipe', 'Use 5 minutos do território para registrar a situação, decidir o próximo passo, indicar responsável e combinar revisão.'],
   ['5', 'Use números para perguntar', 'Abra Indicadores, registre o dado e escreva o que ele pode significar no território e qual ação merece teste.'],
   ['6', 'Apoie educação e comunicação', 'Use Educação em saúde e as opções de impressão/PDF quando precisar levar a informação para fora da tela.'],
-  ['7', 'Revise e não acumule', 'Rascunhos temporários desaparecem ao recarregar, fechar a aba ou sair. O que precisar ser registro clínico deve permanecer nos sistemas oficiais.']
+  ['7', 'Revise o que permanece no sistema', 'Rascunhos temporários desaparecem ao recarregar, fechar a aba ou sair. Registros clínicos identificáveis devem permanecer nos sistemas oficiais adequados.']
 ];
 
 export const publicTeamResearch = [
   { label: 'Equipes de Saúde da Família verificadas', value: 4 },
   { label: 'Equipes de Saúde Bucal verificadas', value: 3 },
   { label: 'eMulti verificada', value: 1 },
-  { label: 'Equipe/atendimento rural identificado', value: 1 }
+  { label: 'Atendimento/equipe rural', value: 'Identificado' }
 ];
 
 export const publicTeamTypes = [
   {
     title: 'Saúde da Família',
-    text: 'A consulta pública do CNES confirmou quatro equipes ESF na unidade estudada. A composição pesquisada inclui medicina, enfermagem, técnico/auxiliar de enfermagem e agentes comunitários de saúde.'
+    text: 'A consulta pública do CNES confirmou quatro equipes ESF na unidade estudada. As páginas de profissionais dessas equipes confirmam categorias como medicina da ESF, enfermagem da ESF, técnico/auxiliar de enfermagem da ESF e agentes comunitários de saúde.'
   },
   {
     title: 'Saúde Bucal',
-    text: 'A consulta pública confirmou três equipes de Saúde Bucal, além das funções de cirurgião-dentista/odontólogo e auxiliar em saúde bucal.'
+    text: 'A consulta pública confirmou três equipes de Saúde Bucal. As páginas de profissionais do CNES confirmam cirurgião-dentista da Estratégia Saúde da Família e auxiliar em saúde bucal.'
   },
   {
     title: 'eMulti / apoio multiprofissional',
-    text: 'A pesquisa confirmou uma eMulti. Escalas públicas também mostram fisioterapia, nutrição, psicologia, serviço social e educação física no apoio multiprofissional.'
+    text: 'A consulta pública confirmou uma eMulti. O CNES mostra, nessa composição pesquisada, fisioterapia, nutrição, psicologia, serviço social e educação física.'
   },
   {
     title: 'Equipe rural',
-    text: 'Escalas públicas distinguem atendimento/equipe rural vinculada à Atenção Primária. O tutorial não atribui número ou INE quando a fonte consultada não o informa.'
+    text: 'Escalas públicas municipais distinguem atendimento/equipe rural vinculada à Atenção Primária. O tutorial registra apenas a identificação dessa modalidade e não atribui quantidade, número ou INE quando a fonte consultada não os informa.'
   }
 ];
 
@@ -119,4 +127,4 @@ export const professionalFunctions = [
   'Residente de Educação Física'
 ];
 
-export const researchNote = 'As funções e tipos de equipe acima foram consolidados a partir de fontes públicas do CNES/Ministério da Saúde, escalas públicas municipais e relatórios e-SUS já fornecidos ao projeto. Os números e INEs verificados permanecem documentados fora do runtime; vínculos operacionais continuam sujeitos à confirmação administrativa adequada.';
+export const researchNote = 'As equipes ESF, ESB e eMulti e parte das categorias assistenciais foram revalidadas diretamente no CNES. Outras funções da lista vêm das escalas públicas municipais e dos relatórios e-SUS já utilizados no projeto. Números e INEs verificados permanecem documentados fora do runtime; vínculos operacionais continuam sujeitos à confirmação administrativa adequada.';
