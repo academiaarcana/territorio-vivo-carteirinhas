@@ -68,6 +68,7 @@ export const visualSupportCatalog = [
   { id: 'location', label: 'Localização', category: 'local', keywords: ['localizacao', 'endereco', 'local'] },
   { id: 'group', label: 'Grupo / reunião', category: 'acao', keywords: ['grupo', 'reuniao', 'roda de conversa', 'palestra', 'encontro'] },
   { id: 'child', label: 'Criança', category: 'publico', keywords: ['crianca', 'bebe', 'infantil', 'pediatria'] },
+  { id: 'person', label: 'Pessoa', category: 'publico', keywords: ['pessoa'] },
   { id: 'elderly', label: 'Pessoa idosa', category: 'publico', keywords: ['idoso', 'idosa', 'terceira idade'] },
   { id: 'family', label: 'Família', category: 'publico', keywords: ['familia', 'responsavel familiar'] },
   { id: 'phone', label: 'Telefone / contato', category: 'contato', keywords: ['telefone', 'contato', 'ligar', 'celular'] },
