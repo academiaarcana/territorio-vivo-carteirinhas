@@ -40,11 +40,12 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
           context?.team?.name || profile?.team_name,
           profile?.microarea ? `Microárea ${profile.microarea}` : null
         ].filter(Boolean).join(' • ') || 'Atenção Primária';
-  const municipalityLabel = masterAccount
-    ? 'Master / Desenvolvimento'
+  const municipalityName = [context?.municipality?.name, context?.municipality?.state_code].filter(Boolean).join(' • ');
+  const headerBrandLabel = masterAccount
+    ? 'Território Vivo • Master / Desenvolvimento'
     : networkAdmin
-      ? 'Gestão municipal'
-      : [context?.municipality?.name, context?.municipality?.state_code].filter(Boolean).join(' • ') || 'Rede de Atenção Primária';
+      ? 'Território Vivo • Gestão municipal'
+      : ['Território Vivo', municipalityName || 'Rede de Atenção Primária'].join(' • ');
   const accountRoleLabel = masterAccount
     ? 'Master / Desenvolvimento • Administração técnica'
     : networkAdmin
@@ -79,9 +80,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
         <header class="workspace-header">
           <div class="workspace-heading">
             <div class="workspace-brandline">
-              <span class="workspace-product">Território Vivo</span>
-              <span class="workspace-brandline-separator" aria-hidden="true">•</span>
-              <span>${escapeHtml(municipalityLabel)}</span>
+              <span class="workspace-product">${escapeHtml(headerBrandLabel)}</span>
             </div>
             <h1>${escapeHtml(title)}</h1>
             ${subtitle ? `<p class="workspace-subtitle">${escapeHtml(subtitle)}</p>` : ''}
