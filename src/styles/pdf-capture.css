@@ -2,6 +2,7 @@
    Regras isoladas da tela e do @media print para o DOM temporário usado pelo html2pdf/html2canvas. */
 .pdf-document.pdf-capture {
   box-sizing: border-box;
+  max-width: 100%;
   background: #fff;
   color: #000;
   font-family: Arial, sans-serif;
@@ -15,8 +16,9 @@
 }
 
 .pdf-document.cards-print {
-  width: 194mm;
-  height: 281mm;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 2mm;
@@ -27,10 +29,13 @@
 
 .pdf-document.cards-print .card-sheet {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   width: 100%;
+  max-width: 100%;
   display: grid;
   gap: 5mm;
+  overflow: hidden;
 }
 
 .pdf-document.cards-print .card-sheet.count-2 {
@@ -56,6 +61,8 @@
 }
 
 .pdf-document.cards-print .sheet-slot {
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
@@ -65,12 +72,19 @@
 
 .pdf-document.cards-print .generated-card {
   width: 100%;
+  max-width: 100%;
   height: 100%;
+  min-width: 0!important;
   min-height: 0!important;
   overflow: hidden;
   box-shadow: none!important;
   break-inside: avoid;
   page-break-inside: avoid;
+}
+
+.pdf-document.cards-print .generated-card :where(h1, h2, h3, p, strong, small, span, dt, dd) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .pdf-document.cards-print .card-sheet.count-8 .generated-card {
@@ -120,10 +134,12 @@
 .pdf-document.cards-print .print-flaticon-attribution,
 .pdf-document.cards-print .flaticon-attribution {
   flex: 0 0 auto;
+  max-width: 100%;
   margin: 0;
   color: #333;
   font-size: 6.5pt;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .pdf-document.cards-print .print-flaticon-attribution a,
@@ -134,6 +150,7 @@
 
 .pdf-document.cards-print .field-pictogram,
 .pdf-document.cards-print .support-pictogram {
+  max-width: 100%;
   background: #fff;
 }
 
@@ -143,6 +160,7 @@
 
 .pdf-document.cards-print .appointment-card,
 .pdf-document.cards-print .collection-card {
+  max-width: 100%!important;
   border-color: #222!important;
   background: #fff!important;
   color: #000!important;
@@ -154,6 +172,8 @@
 .pdf-document.cards-print .collection-card-field,
 .pdf-document.cards-print .appointment-card-note,
 .pdf-document.cards-print .collection-card-note {
+  min-width: 0!important;
+  max-width: 100%!important;
   box-shadow: none!important;
 }
 
