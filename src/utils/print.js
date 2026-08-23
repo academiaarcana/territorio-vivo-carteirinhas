@@ -27,28 +27,54 @@ export function printHtml(html, { className = '', title = 'Território Vivo' } =
 
 export async function downloadPdf(html, { className = '', title = 'Território Vivo', filename = null, margin = 8 } = {}) {
   if (!window.html2pdf) {
-    printHtml(html, { className, title });
-    return { mode: 'print-fallback' };
+    throw new Error('Gerador de PDF indisponível no navegador.');
   }
+
+  const safeMargin = Number.isFinite(Number(margin)) ? Math.max(0, Number(margin)) : 8;
+  const captureWidthMm = Math.max(120, 210 - (safeMargin * 2));
   const wrapper = document.createElement('section');
-  wrapper.className = `pdf-document ${className}`;
+  wrapper.className = `pdf-document pdf-capture ${className}`.trim();
   wrapper.innerHTML = withRequiredAttribution(html);
   wrapper.style.position = 'fixed';
-  wrapper.style.left = '-200vw';
+  wrapper.style.left = '0';
   wrapper.style.top = '0';
-  wrapper.style.width = '210mm';
+  wrapper.style.width = `${captureWidthMm}mm`;
+  wrapper.style.maxWidth = 'none';
+  wrapper.style.boxSizing = 'border-box';
+  wrapper.style.background = '#fff';
+  wrapper.style.pointerEvents = 'none';
+  wrapper.style.zIndex = '-1';
   wrapper.setAttribute('aria-hidden', 'true');
   document.body.appendChild(wrapper);
+
   try {
-    await waitForImages(wrapper);
+    await nextPaint();
+    await waitForImages(wrapper, { strict: true });
+    await nextPaint();
+    assertPdfCaptureReady(wrapper);
+
+    const captureWidth = Math.max(window.innerWidth, wrapper.scrollWidth, 1024);
+    const captureHeight = Math.max(window.innerHeight, wrapper.scrollHeight, 768);
+
     await window.html2pdf().set({
-      margin,
+      margin: safeMargin,
       filename: filename || `${slugify(title)}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: captureWidth,
+        windowHeight: captureHeight
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'] }
     }).from(wrapper).save();
+
     return { mode: 'pdf' };
   } finally {
     wrapper.remove();
@@ -74,9 +100,10 @@ function withRequiredAttribution(html) {
   return `${source}${renderFlaticonAttribution({ className: 'print-flaticon-attribution' })}`;
 }
 
-async function waitForImages(root, timeoutMs = 3500) {
+async function waitForImages(root, { timeoutMs = 3500, strict = false } = {}) {
   const images = [...root.querySelectorAll('img')];
   if (!images.length) return;
+
   const pending = images.map((image) => {
     if (image.complete) return Promise.resolve();
     return new Promise((resolve) => {
@@ -85,10 +112,47 @@ async function waitForImages(root, timeoutMs = 3500) {
       image.addEventListener('error', finish, { once: true });
     });
   });
+
   await Promise.race([
     Promise.all(pending),
     new Promise((resolve) => setTimeout(resolve, timeoutMs))
   ]);
+
+  if (strict) {
+    const failed = images.filter((image) => !image.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0);
+    if (failed.length) {
+      throw new Error('Não foi possível carregar todos os pictogramas antes de gerar o PDF.');
+    }
+  }
+}
+
+function assertPdfCaptureReady(wrapper) {
+  if (!wrapper.isConnected) throw new Error('Área temporária do PDF não está conectada ao documento.');
+
+  const style = window.getComputedStyle(wrapper);
+  const rect = wrapper.getBoundingClientRect();
+  const hasContent = Boolean(wrapper.textContent.trim() || wrapper.querySelector('img, svg, canvas'));
+
+  if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) {
+    throw new Error('Área temporária do PDF está oculta e não pode ser capturada.');
+  }
+  if (!hasContent || rect.width < 100 || rect.height < 40) {
+    throw new Error('Área temporária do PDF não possui conteúdo renderizável.');
+  }
+
+  const cardSheet = wrapper.querySelector('.card-sheet');
+  if (cardSheet) {
+    const sheetRect = cardSheet.getBoundingClientRect();
+    const slots = [...cardSheet.querySelectorAll('.sheet-slot')];
+    const populated = slots.some((slot) => slot.textContent.trim() || slot.querySelector('img, svg, canvas'));
+    if (!slots.length || !populated || sheetRect.width < 100 || sheetRect.height < 100) {
+      throw new Error('Folha de carteirinhas não está pronta para captura em PDF.');
+    }
+  }
+}
+
+function nextPaint() {
+  return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 }
 
 function ensurePrintRoot() {
