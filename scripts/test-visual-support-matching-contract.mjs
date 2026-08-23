@@ -14,6 +14,12 @@ assert.deepEqual(ids({ label: 'Motivo', value: 'Localização' }), ['location'])
 assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Receita' }), ['prescription']);
 assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Acompanhante' }), ['companion']);
 
+// Um conteúdo reconhecido sempre prevalece sobre o rótulo do campo.
+for (const label of ['Pessoa / família / referência', 'Motivo', 'Tentativa / contato realizado', 'Próximo passo']) {
+  assert.deepEqual(ids({ label, value: 'Pessoa' }), ['person'], `Pessoa precisa prevalecer sobre o rótulo ${label}.`);
+}
+
+assert.equal(iconId({ value: 'Pessoa' }), '13695871');
 assert.equal(iconId({ value: 'Criança' }), '3037662');
 assert.equal(iconId({ value: 'Acompanhante' }), '17583651');
 assert.equal(iconId({ value: 'Receita' }), '843180');
