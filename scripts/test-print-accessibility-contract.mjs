@@ -35,8 +35,10 @@ for (const id of allFlaticonIds) {
   assert.match(visual, new RegExp(`${id}: \\{ iconId:`), `${id} precisa usar recurso gratuito rastreável do Flaticon.`);
 }
 assert.match(visual, /calendar: \{ iconId: '10754906'/, 'Data deve usar calendário genérico, sem referência visual a aniversário.');
+assert.match(visual, /clock: \{ iconId: '818'/, 'Hora deve usar relógio simples e imediatamente reconhecível.');
+assert.match(visual, /early: \{ iconId: '818'/, 'Antecedência deve reutilizar o relógio simples reconhecível.');
 assert.match(visual, /vaccine: \{ iconId: '4745680'/, 'Vacina deve usar pictograma com aplicação explícita no braço.');
-assert.doesNotMatch(visual, /1252294|3027535|4746755/, 'Ícones reprovados na homologação visual não podem voltar à biblioteca.');
+assert.doesNotMatch(visual, /1252294|3027535|4746755|13071506/, 'Ícones reprovados na homologação visual não podem voltar à biblioteca.');
 assert.doesNotMatch(visual, /<svg\b/, 'Biblioteca visual não deve manter pictogramas SVG locais quando a fonte oficial é Flaticon.');
 assert.match(visual, /cdn-icons-png\.flaticon\.com/, 'Ícones Flaticon precisam usar origem identificável.');
 assert.match(visual, /renderFlaticonIcon/, 'Biblioteca precisa expor ícone Flaticon reutilizável no site inteiro.');
