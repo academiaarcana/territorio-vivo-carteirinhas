@@ -1,5 +1,6 @@
 import { escapeHtml, initials } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
+import { renderFlaticonAttribution } from '../lib/visual-support.js';
 import { navigate } from './router.js';
 import { getState } from './store.js';
 import { signOut } from '../services/auth.js';
@@ -60,6 +61,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
           <button type="button" class="button workspace-signout" data-signout>Sair da conta</button>
         </header>
         <main id="main-content" class="page-content" tabindex="-1">${content}</main>
+        <footer class="workspace-credits">${renderFlaticonAttribution()}</footer>
       </div>
     </div>`;
 }
