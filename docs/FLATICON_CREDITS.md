@@ -16,7 +16,7 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Pessoa idosa / geriatria | Witdhawaty | https://www.flaticon.com/br/icone-gratis/geriatria_5814218 |
 | Gestante / pré-natal | shin_icons | https://www.flaticon.com/br/icone-gratis/gravida_10523012 |
 | Data / calendário genérico | Flat Icons | https://www.flaticon.com/br/icone-gratis/calendario_10754906 |
-| Hora / relógio / antecedência | Magnific | https://www.flaticon.com/free-icon/simple-clock_818 |
+| Hora / relógio | Magnific | https://www.flaticon.com/free-icon/simple-clock_818 |
 | Vacinação (aplicação no braço) | Freepik | https://www.flaticon.com/free-icon/vaccination_4745680 |
 | Dentista | kmg design | https://www.flaticon.com/br/icone-gratis/dentista_5712027 |
 | Exame/coleta | Freepik | https://www.flaticon.com/br/icone-gratis/teste-de-sangue_4853471 |
@@ -28,9 +28,10 @@ Nenhum recurso Premium, assinatura, cartão, faturamento, API paga ou licença s
 | Jejum / não comer | Magnific | https://www.flaticon.com/free-icon/no-eating_4197430 |
 | Água/hidratação | Freepik | https://www.flaticon.com/br/icone-gratis/beber-agua_14777315 |
 | Cartão de saúde (apoio para Cartão SUS/CNS) | Vectorslab | https://www.flaticon.com/br/icone-gratis/cartao-de-saude_16324772 |
-| Exames/resultados / relatório médico | wanicon | https://www.flaticon.com/free-icon/medical-report_6655425 |
+| Exames/resultados / relatório de laboratório | Freepik | https://www.flaticon.com/free-icon/medical-report_3215528 |
 | Documento/identidade | JM Graphic | https://www.flaticon.com/br/icone-gratis/identidade_8898131 |
 | Acompanhante/cuidador | Freepik | https://www.flaticon.com/free-icon/caregiver_17583651 |
+| Chegar cedo / horário de chegada | Freepik | https://www.flaticon.com/free-icon/arrival-time_814255 |
 | Unidade de saúde/hospital | Fathema Khanom | https://www.flaticon.com/br/icone-gratis/hospital_9931784 |
 | Escola | Karyative | https://www.flaticon.com/br/icone-gratis/edificio-escolar_13334847 |
 | Casa/domicílio | VectorPortal | https://www.flaticon.com/br/icone-gratis/casas_11453302 |

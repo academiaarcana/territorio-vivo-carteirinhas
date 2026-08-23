@@ -13,6 +13,8 @@ assert.deepEqual(ids({ label: 'Próximo passo', value: 'População' }), ['popul
 assert.deepEqual(ids({ label: 'Motivo', value: 'Localização' }), ['location']);
 assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Receita' }), ['prescription']);
 assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Acompanhante' }), ['companion']);
+assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Resultados' }), ['results']);
+assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Chegar cedo' }), ['early']);
 
 // Um conteúdo reconhecido sempre prevalece sobre o rótulo do campo.
 for (const label of ['Pessoa / família / referência', 'Motivo', 'Tentativa / contato realizado', 'Próximo passo']) {
@@ -25,5 +27,7 @@ assert.equal(iconId({ value: 'Acompanhante' }), '17583651');
 assert.equal(iconId({ value: 'Receita' }), '843180');
 assert.equal(iconId({ value: 'Grupo' }), '9634305');
 assert.equal(iconId({ value: 'Ação' }), '12244858');
+assert.equal(iconId({ value: 'Resultados' }), '3215528');
+assert.equal(iconId({ value: 'Chegar cedo' }), '814255');
 
-console.log('Contrato visual OK: conteúdo prevalece sobre rótulo e substrings não geram pictogramas extras.');
+console.log('Contrato visual OK: conteúdo prevalece sobre rótulo, pictogramas homologáveis estão fixados e substrings não geram extras.');

@@ -36,12 +36,14 @@ for (const id of allFlaticonIds) {
 }
 assert.match(visual, /calendar: \{ iconId: '10754906'/, 'Data deve usar calendário genérico, sem referência visual a aniversário.');
 assert.match(visual, /clock: \{ iconId: '818'/, 'Hora deve usar relógio simples e imediatamente reconhecível.');
-assert.match(visual, /early: \{ iconId: '818'/, 'Antecedência deve reutilizar o relógio simples reconhecível.');
+assert.match(visual, /results: \{ iconId: '3215528'/, 'Resultados deve usar laudo de laboratório explícito, não documento genérico.');
+assert.match(visual, /early: \{ iconId: '814255'/, 'Chegar cedo deve usar horário de chegada com pessoa, não somente relógio.');
+assert.doesNotMatch(visual, /early: \{ iconId: '818'/, 'Chegar cedo não pode reutilizar somente o relógio de Hora.');
 assert.match(visual, /vaccine: \{ iconId: '4745680'/, 'Vacina deve usar pictograma com aplicação explícita no braço.');
 assert.match(visual, /fasting: \{ iconId: '4197430'/, 'Jejum deve usar pictograma explícito de não comer.');
 assert.match(visual, /Math\.floor\(Number\(id\) \/ 1000\)/, 'URL do Flaticon precisa suportar IDs curtos como 818 usando pasta 0.');
 assert.doesNotMatch(visual, /id\.slice\(0, -3\)/, 'URL do Flaticon não pode gerar pasta vazia para IDs com três dígitos.');
-assert.doesNotMatch(visual, /1252294|3027535|4746755|13071506|10008842/, 'Ícones reprovados na homologação visual não podem voltar à biblioteca.');
+assert.doesNotMatch(visual, /1252294|3027535|4746755|13071506|10008842|6655425/, 'Ícones reprovados na homologação visual não podem voltar à biblioteca.');
 assert.doesNotMatch(visual, /<svg\b/, 'Biblioteca visual não deve manter pictogramas SVG locais quando a fonte oficial é Flaticon.');
 assert.match(visual, /cdn-icons-png\.flaticon\.com/, 'Ícones Flaticon precisam usar origem identificável.');
 assert.match(visual, /renderFlaticonIcon/, 'Biblioteca precisa expor ícone Flaticon reutilizável no site inteiro.');
