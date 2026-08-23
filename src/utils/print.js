@@ -1,7 +1,7 @@
 import { slugify } from '../lib/dom.js';
 import { hasFlaticonVisualSupport, renderFlaticonAttribution } from '../lib/visual-support.js';
 import { assertCanvasHasContent } from './pdf-canvas.js';
-import { assertCanvasAspect, assertFourUpGeometry, assertNoBoxOverflow, assertRectsInside } from './pdf-geometry.js';
+import { assertCanvasAspect, assertCardContentFits, assertFourUpGeometry, assertNoBoxOverflow, assertRectsInside } from './pdf-geometry.js';
 
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
@@ -108,6 +108,8 @@ export async function downloadPdf(html, { className = '', title = 'Território V
     if (!clonedWrapper) {
       throw new Error('O html2pdf não criou uma área interna válida para captura.');
     }
+    await waitForImages(clonedWrapper, { strict: true });
+    await nextPaint();
     assertPdfCaptureReady(clonedWrapper, { stage: 'html2pdf-container' });
 
     await worker.toCanvas();
@@ -219,12 +221,64 @@ function assertPdfCaptureReady(wrapper, { stage = 'source' } = {}) {
     assertNoBoxOverflow(slot, `Espaço da carteirinha ${index + 1} (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
     if (card) {
       assertRectsInside(slotRects[index], [cardRects[index]], `Carteirinha ${index + 1} (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
+      assertCardInternals(card, index, stage);
     }
   });
 
   if (expectedCount === 4) {
     assertFourUpGeometry(slotRects, sheetRect, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
   }
+}
+
+function assertCardInternals(card, index, stage) {
+  const label = `Carteirinha ${index + 1} (${stage})`;
+  const cardRect = card.getBoundingClientRect();
+  const contentRects = [];
+
+  if (card.classList.contains('appointment-card')) {
+    const requiredSelectors = [
+      '.appointment-card-header',
+      '.appointment-card-context',
+      '.appointment-card-field-name',
+      '.appointment-card-field-date',
+      '.appointment-card-field-time',
+      '.appointment-card-field-service',
+      '.appointment-card-field-note',
+      '.appointment-card-note'
+    ];
+    const requiredElements = requiredSelectors.map((selector) => card.querySelector(selector));
+    if (requiredElements.some((element) => !element)) {
+      const error = new Error('A carteirinha de atendimento perdeu um bloco obrigatório antes da geração do PDF.');
+      error.code = 'PDF_CARD_REQUIRED_CONTENT';
+      throw error;
+    }
+    const requiredRects = requiredElements.map((element) => element.getBoundingClientRect());
+    if (requiredRects.some((requiredRect) => requiredRect.width < 2 || requiredRect.height < 2)) {
+      const error = new Error('Um conteúdo obrigatório da carteirinha ficou sem área visível no PDF.');
+      error.code = 'PDF_CARD_REQUIRED_CONTENT';
+      throw error;
+    }
+    contentRects.push(...requiredRects);
+  }
+
+  const icons = [...card.querySelectorAll('img.flaticon-icon')];
+  const iconRects = icons.map((icon) => icon.getBoundingClientRect());
+  if (icons.some((icon) => !icon.complete || icon.naturalWidth <= 0 || icon.naturalHeight <= 0)
+      || iconRects.some((iconRect) => iconRect.width < 2 || iconRect.height < 2)) {
+    const error = new Error('Um pictograma da carteirinha não possui dimensão válida para o PDF.');
+    error.code = 'PDF_CARD_PICTOGRAM';
+    throw error;
+  }
+  contentRects.push(...iconRects);
+
+  assertCardContentFits({
+    cardRect,
+    contentRects,
+    scrollWidth: card.scrollWidth,
+    clientWidth: card.clientWidth,
+    scrollHeight: card.scrollHeight,
+    clientHeight: card.clientHeight
+  }, label, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
 }
 
 function createPdfCaptureHost(captureWidthMm, captureHeightMm) {
