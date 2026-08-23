@@ -22,3 +22,24 @@ export function clearVolatileDraft(key) {
 export function clearAllVolatileDrafts() {
   drafts.clear();
 }
+
+export function readNamedFormValues(form) {
+  const values = {};
+  Array.from(form?.elements || []).forEach((control) => {
+    if (!control?.name) return;
+    if (control.type === 'checkbox') values[control.name] = Boolean(control.checked);
+    else if (control.type === 'radio') {
+      if (control.checked) values[control.name] = control.value;
+    } else values[control.name] = control.value;
+  });
+  return values;
+}
+
+export function applyNamedFormValues(form, values = {}) {
+  Array.from(form?.elements || []).forEach((control) => {
+    if (!control?.name || !(control.name in values)) return;
+    if (control.type === 'checkbox') control.checked = Boolean(values[control.name]);
+    else if (control.type === 'radio') control.checked = control.value === values[control.name];
+    else control.value = values[control.name] ?? '';
+  });
+}
