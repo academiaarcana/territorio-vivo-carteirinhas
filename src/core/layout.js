@@ -13,6 +13,7 @@ const navItems = [
   ['/app/5-minutos', '5 minutos', 'clock'],
   ['/app/indicadores', 'Indicadores', 'population'],
   ['/app/educacao', 'Educação em saúde', 'group'],
+  ['/app/tutorial', 'Objetivo e tutorial', 'action'],
   ['/app/perfil', 'Meu perfil', 'person']
 ];
 
