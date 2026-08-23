@@ -13,6 +13,15 @@ export function readPrintAccessibilityOptions(root, prefix) {
   };
 }
 
+export function applyPrintAccessibilityOptions(root, prefix, options = {}) {
+  const container = root.querySelector(`[data-print-options="${prefix}"]`);
+  if (!container) return;
+  for (const name of ['easyRead', 'visualSupport', 'largePrint', 'economy']) {
+    const control = container.querySelector(`[data-print-option="${name}"]`);
+    if (control) control.checked = Boolean(options[name]);
+  }
+}
+
 export function printAccessibilityClasses({ easyRead = false, visualSupport = false, largePrint = false, economy = false } = {}) {
   return [
     easyRead ? 'print-easy-read' : '',
