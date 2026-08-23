@@ -9,7 +9,7 @@ const flaticonAssets = {
   pregnant: { iconId: '10523012', author: 'shin_icons', source: 'https://www.flaticon.com/br/icone-gratis/gravida_10523012' },
   calendar: { iconId: '10754906', author: 'Flat Icons', source: 'https://www.flaticon.com/br/icone-gratis/calendario_10754906' },
   clock: { iconId: '13071506', author: 'IconBaandar', source: 'https://www.flaticon.com/br/icone-gratis/relogio_13071506' },
-  vaccine: { iconId: '4746755', author: 'Good Ware', source: 'https://www.flaticon.com/free-icon/vaccination_4746755' },
+  vaccine: { iconId: '4745680', author: 'Freepik', source: 'https://www.flaticon.com/free-icon/vaccination_4745680' },
   dentist: { iconId: '5712027', author: 'kmg design', source: 'https://www.flaticon.com/br/icone-gratis/dentista_5712027' },
   exam: { iconId: '4853471', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/teste-de-sangue_4853471' },
   dressing: { iconId: '2869769', author: 'nawicon', source: 'https://www.flaticon.com/br/icone-gratis/curativo_2869769' },
