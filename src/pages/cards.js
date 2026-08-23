@@ -3,6 +3,7 @@ import { openAccessibleDialog } from '../core/a11y.js';
 import { cardCategories, cardTemplates, getCardTemplate } from '../data/cards.js';
 import { escapeHtml, formatDateBr } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
+import { renderVisualSupports } from '../lib/visual-support.js';
 import { printHtml, downloadPdf, repeatForSheet, cardsForSheet } from '../utils/print.js';
 
 export function renderCardsPage() {
@@ -79,7 +80,7 @@ function mountEditor(dialog, body, template, state, opener) {
           <label class="check"><input id="large-print" type="checkbox"> Letra ampliada</label>
           <label class="check"><input id="economy" type="checkbox"> Econômica</label>
         </div>
-        <p class="field-hint accessibility-hint">Apoio visual acrescenta pictogramas junto ao texto. Letra ampliada limita a folha a no máximo 4 carteirinhas para preservar legibilidade.</p>
+        <p class="field-hint accessibility-hint">Apoio visual usa imagens específicas conforme o conteúdo — por exemplo vacina, dentista, exame, jejum, Cartão SUS, água ou acompanhante. Apoio visual e letra ampliada usam no máximo 4 carteirinhas por A4 para preservar compreensão e legibilidade.</p>
         <p id="preview-batch-label" class="field-hint" hidden></p>
         <div id="card-preview"></div>
         <div class="actions"><button type="button" class="button" id="card-pdf">Baixar PDF</button><button type="button" class="button primary" id="card-print">Imprimir A4</button></div>
@@ -96,6 +97,7 @@ function mountEditor(dialog, body, template, state, opener) {
   const batchSlots = body.querySelector('#batch-slots');
   const batchPosition = body.querySelector('#batch-position');
   const previewBatchLabel = body.querySelector('#preview-batch-label');
+  const visualSupport = body.querySelector('#visual-support');
   const largePrint = body.querySelector('#large-print');
   const status = body.querySelector('#card-action-status');
   const entries = Array.from({ length: 12 }, () => ({}));
@@ -174,14 +176,22 @@ function mountEditor(dialog, body, template, state, opener) {
 
   count.addEventListener('change', () => {
     saveActive();
-    if (largePrint.checked && Number(count.value) > 4) count.value = '4';
+    if ((largePrint.checked || visualSupport.checked) && Number(count.value) > 4) count.value = '4';
     activeIndex = Math.min(activeIndex, Number(count.value) - 1);
     loadActive();
   });
 
   body.querySelector('#easy-read').addEventListener('change', update);
-  body.querySelector('#visual-support').addEventListener('change', update);
   body.querySelector('#economy').addEventListener('change', update);
+  visualSupport.addEventListener('change', () => {
+    if (visualSupport.checked && Number(count.value) > 4) {
+      count.value = '4';
+      activeIndex = Math.min(activeIndex, 3);
+      status.textContent = 'Apoio visual usa no máximo 4 carteirinhas por A4 para manter as imagens compreensíveis.';
+      status.dataset.status = 'info';
+    }
+    loadActive();
+  });
   largePrint.addEventListener('change', () => {
     if (largePrint.checked && Number(count.value) > 4) {
       count.value = '4';
@@ -252,32 +262,9 @@ function buildCardHtml(template, values, state, { easyRead = false, visualSuppor
     <article class="generated-card ${easyRead ? 'easy-read' : ''} ${visualSupport ? 'visual-support' : ''} ${largePrint ? 'large-print' : ''} ${economy ? 'economy' : ''}">
       <header><span>Território Vivo</span><strong>${escapeHtml(template.title)}</strong></header>
       <div class="generated-card-context"><b>${escapeHtml(territory)}</b>${profile.full_name ? `<span>Referência: ${escapeHtml(profile.full_name)}${profile.acs_phone ? ` • ${escapeHtml(profile.acs_phone)}` : ''}</span>` : ''}</div>
-      <div class="generated-card-fields">${fields.length ? fields.map((item) => `<div class="generated-card-field">${visualSupport ? pictogram(item.field) : ''}<span class="generated-card-field-copy"><small>${escapeHtml(item.label)}</small><p>${escapeHtml(item.value).replace(/\n/g, '<br>')}</p></span></div>`).join('') : '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha.</p>'}</div>
+      <div class="generated-card-fields">${fields.length ? fields.map((item) => `<div class="generated-card-field">${visualSupport ? renderVisualSupports({ label: item.label, value: item.value, type: item.field.type }, { max: 3, className: 'field-pictogram' }) : ''}<span class="generated-card-field-copy"><small>${escapeHtml(item.label)}</small><p>${escapeHtml(item.value).replace(/\n/g, '<br>')}</p></span></div>`).join('') : '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha.</p>'}</div>
       <footer>${escapeHtml(template.note || '')}</footer>
     </article>`;
-}
-
-function pictogram(field) {
-  const source = `${field.id} ${field.label}`.toLowerCase();
-  let icon = 'info';
-  if (field.type === 'date' || /dia|data|revis/.test(source)) icon = 'calendar';
-  else if (field.type === 'time' || /hora/.test(source)) icon = 'clock';
-  else if (/endereço|local|onde|location/.test(source)) icon = 'pin';
-  else if (/nome|pessoa|família|responsável|referência|quem/.test(source)) icon = 'person';
-  else if (/telefone|contato/.test(source)) icon = 'phone';
-  else if (/serviço|atendimento|consulta|equipe|saúde/.test(source)) icon = 'health';
-  return `<span class="field-pictogram" aria-hidden="true">${iconSvg(icon)}</span>`;
-}
-
-function iconSvg(icon) {
-  const common = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
-  if (icon === 'calendar') return `<svg ${common}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="M8 14h2M14 14h2M8 18h2"/></svg>`;
-  if (icon === 'clock') return `<svg ${common}><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>`;
-  if (icon === 'pin') return `<svg ${common}><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"/><circle cx="12" cy="10" r="2"/></svg>`;
-  if (icon === 'person') return `<svg ${common}><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.7-4.2 3.3-6.5 7.5-6.5s6.8 2.3 7.5 6.5"/></svg>`;
-  if (icon === 'phone') return `<svg ${common}><path d="M6.5 3.5l3 3-2 2c1.7 3.4 4.1 5.8 7.5 7.5l2-2 3 3-1.7 3c-.4.7-1.2 1.1-2 1C9.5 20.1 3.9 14.5 3 7.7c-.1-.8.3-1.6 1-2l2.5-2.2z"/></svg>`;
-  if (icon === 'health') return `<svg ${common}><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>`;
-  return `<svg ${common}><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>`;
 }
 
 function displayValue(field, raw) {
