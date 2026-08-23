@@ -1,5 +1,8 @@
 const common = 'viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"';
 
+// Formas locais ficam apenas para sinais estruturais simples (nome, data, hora, local etc.).
+// Conteúdos clínicos/assistenciais prioritários usam recursos GRATUITOS do Flaticon,
+// sempre com atribuição visível no aplicativo e nas saídas de impressão/PDF.
 const svg = {
   person: `<svg ${common}><circle cx="32" cy="18" r="9"/><path d="M15 54c2-15 9-23 17-23s15 8 17 23"/></svg>`,
   family: `<svg ${common}><circle cx="22" cy="20" r="7"/><circle cx="42" cy="20" r="7"/><circle cx="32" cy="34" r="6"/><path d="M8 53c1-12 6-19 14-19 5 0 9 3 12 8M56 53c-1-12-6-19-14-19-5 0-9 3-12 8M22 56c1-10 4-16 10-16s9 6 10 16"/></svg>`,
@@ -8,19 +11,9 @@ const svg = {
   pregnant: `<svg ${common}><circle cx="27" cy="14" r="7"/><path d="M25 22c-5 7-6 17-3 33M25 28c17 1 22 12 17 23-3 6-10 7-18 4M27 55v-14"/></svg>`,
   calendar: `<svg ${common}><rect x="10" y="14" width="44" height="40" rx="5"/><path d="M20 8v12M44 8v12M10 26h44"/><path d="M20 36h7M37 36h7M20 46h7"/></svg>`,
   clock: `<svg ${common}><circle cx="32" cy="32" r="23"/><path d="M32 18v16l11 7"/></svg>`,
-  clinic: `<svg ${common}><path d="M10 56V22l22-12 22 12v34"/><path d="M26 28h12M32 22v12M20 56V42h24v14"/></svg>`,
-  consultation: `<svg ${common}><circle cx="19" cy="19" r="7"/><circle cx="45" cy="18" r="7"/><path d="M8 47c1-11 5-17 11-17s10 6 11 17M34 47c1-11 5-17 11-17s10 6 11 17"/><path d="M26 50h20M36 35c0 5 2 8 6 8s6-3 6-8M42 43v6"/></svg>`,
-  vaccine: `<svg ${common}><path d="M8 50c8-8 17-11 27-8l7 3v11H25c-7 0-12-2-17-6z"/><path d="M31 37l16-16 7 7-16 16z"/><path d="M36 32l7 7M40 28l7 7M44 24l7 7"/><path d="M31 37l-8 8M47 21l6-6M50 12l9 9M54 9l7 7"/></svg>`,
-  dentist: `<svg ${common}><path d="M20 10c7-3 10 2 12 2s5-5 12-2c8 4 7 15 4 24-3 10-5 20-10 20-4 0-3-12-6-12s-2 12-6 12c-5 0-7-10-10-20-3-9-4-20 4-24z"/></svg>`,
-  exam: `<svg ${common}><path d="M22 8h20M26 8v13L16 46c-2 5 1 10 7 10h18c6 0 9-5 7-10L38 21V8"/><path d="M20 42h24M25 49h14"/></svg>`,
   dressing: `<svg ${common}><rect x="10" y="24" width="44" height="16" rx="8" transform="rotate(-25 32 32)"/><path d="M28 28l8 8M36 28l-8 8"/></svg>`,
-  medicine: `<svg ${common}><rect x="10" y="14" width="44" height="36" rx="5"/><circle cx="22" cy="26" r="5"/><circle cx="42" cy="26" r="5"/><circle cx="22" cy="40" r="5"/><circle cx="42" cy="40" r="5"/><path d="M18 54h28"/></svg>`,
   document: `<svg ${common}><path d="M16 8h24l10 10v38H16z"/><path d="M40 8v12h10M23 30h20M23 39h20M23 48h13"/></svg>`,
-  susCard: `<svg ${common}><rect x="8" y="16" width="48" height="32" rx="5"/><path d="M20 32h12M26 26v12M38 28h11M38 36h8"/></svg>`,
   results: `<svg ${common}><path d="M15 8h34v48H15z"/><path d="M22 42l8-9 7 5 8-14M22 48h22M22 20h14"/></svg>`,
-  fasting: `<svg ${common}><path d="M14 36h36M18 36c2 10 8 16 14 16s12-6 14-16M11 56L53 8"/><path d="M23 26c2-4 5-6 9-6s7 2 9 6"/></svg>`,
-  water: `<svg ${common}><path d="M32 8s-15 18-15 31a15 15 0 0 0 30 0C47 26 32 8 32 8z"/><path d="M23 42c3 5 7 7 12 7"/></svg>`,
-  companion: `<svg ${common}><circle cx="22" cy="20" r="8"/><circle cx="44" cy="20" r="8"/><path d="M8 55c1-15 6-23 14-23s13 8 14 23M30 55c1-15 6-23 14-23s13 8 14 23"/></svg>`,
   early: `<svg ${common}><circle cx="31" cy="33" r="20"/><path d="M31 21v13l9 5M13 12l7 7M49 12l-7 7"/><path d="M8 8h12M44 8h12"/></svg>`,
   home: `<svg ${common}><path d="M8 31L32 10l24 21M14 27v29h36V27M26 56V40h12v16"/></svg>`,
   school: `<svg ${common}><path d="M8 24l24-12 24 12-24 12z"/><path d="M16 30v22h32V30M25 52V40h14v12"/></svg>`,
@@ -36,6 +29,24 @@ const svg = {
   population: `<svg ${common}><circle cx="16" cy="22" r="6"/><circle cx="32" cy="18" r="7"/><circle cx="48" cy="22" r="6"/><path d="M5 55c1-12 5-18 11-18 4 0 7 2 9 6M59 55c-1-12-5-18-11-18-4 0-7 2-9 6M18 56c1-15 6-23 14-23s13 8 14 23"/></svg>`,
   action: `<svg ${common}><path d="M10 50h14l28-28-14-14-28 28z"/><path d="M34 12l14 14M10 50l-2 8 8-2M27 49h27"/></svg>`
 };
+
+const flaticonAssets = {
+  vaccine: { iconId: '3027535', author: 'mavadee', source: 'https://www.flaticon.com/br/icone-gratis/vacina_3027535' },
+  dentist: { iconId: '5712027', author: 'kmg design', source: 'https://www.flaticon.com/br/icone-gratis/dentista_5712027' },
+  exam: { iconId: '4853471', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/teste-de-sangue_4853471' },
+  medicine: { iconId: '4355923', author: 'Andy Horvath', source: 'https://www.flaticon.com/br/icone-gratis/medicamento_4355923' },
+  consultation: { iconId: '7381105', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/consulta-medica_7381105' },
+  fasting: { iconId: '10008842', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/jejum-intermitente_10008842' },
+  water: { iconId: '14777315', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/beber-agua_14777315' },
+  susCard: { iconId: '16324772', author: 'Vectorslab', source: 'https://www.flaticon.com/br/icone-gratis/cartao-de-saude_16324772' },
+  companion: { iconId: '7070894', author: 'Freepik', source: 'https://www.flaticon.com/free-icon/caregiver_7070894' },
+  clinic: { iconId: '9931784', author: 'Fathema Khanom', source: 'https://www.flaticon.com/br/icone-gratis/hospital_9931784' }
+};
+
+function flaticonPngUrl(iconId) {
+  const id = String(iconId);
+  return `https://cdn-icons-png.flaticon.com/512/${id.slice(0, -3)}/${id}.png`;
+}
 
 export const visualSupportCatalog = [
   { id: 'vaccine', label: 'Vacina', category: 'atendimento', keywords: ['vacina', 'vacinacao', 'imunizacao', 'imunizar'] },
@@ -104,19 +115,38 @@ export function visualSupportsFor({ label = '', value = '', type = '', max = 3 }
     else if (/acao|decisao|encaminhamento|proximo/.test(normalizedLabel)) addUnique(ids, 'action');
   }
 
-  return ids.slice(0, max).map((id) => ({
-    id,
-    label: catalogById.get(id)?.label || id,
-    svg: svg[id] || svg.action
-  }));
+  return ids.slice(0, max).map((id) => {
+    const source = flaticonAssets[id] || null;
+    return {
+      id,
+      label: catalogById.get(id)?.label || id,
+      svg: source ? '' : (svg[id] || svg.action),
+      imageUrl: source ? flaticonPngUrl(source.iconId) : '',
+      flaticon: source
+    };
+  });
 }
 
 export function renderVisualSupports(subject, { max = 3, showLabels = false, className = '' } = {}) {
   const items = visualSupportsFor({ ...subject, max });
   if (!items.length) return '';
-  return `<span class="visual-support-set ${className}" aria-hidden="true">${items.map((item) => `<span class="visual-support-item" data-support="${item.id}"><span class="support-pictogram">${item.svg}</span>${showLabels ? `<small>${item.label}</small>` : ''}</span>`).join('')}</span>`;
+  return `<span class="visual-support-set ${className}" aria-hidden="true">${items.map((item) => {
+    const pictogram = item.imageUrl
+      ? `<img class="flaticon-icon" data-flaticon-icon="${item.id}" src="${item.imageUrl}" alt="" crossorigin="anonymous" referrerpolicy="no-referrer">`
+      : item.svg;
+    return `<span class="visual-support-item" data-support="${item.id}"><span class="support-pictogram">${pictogram}</span>${showLabels ? `<small>${item.label}</small>` : ''}</span>`;
+  }).join('')}</span>`;
 }
 
 export function renderVisualSupportForText(text, options = {}) {
   return renderVisualSupports({ value: text }, options);
+}
+
+export function renderFlaticonAttribution({ className = '' } = {}) {
+  const authors = [...new Set(Object.values(flaticonAssets).map((item) => item.author))];
+  return `<p class="flaticon-attribution ${className}">Ícones de apoio visual por ${authors.join(', ')} — <a href="https://www.flaticon.com/" target="_blank" rel="noopener noreferrer">Flaticon</a>. Uso gratuito com atribuição.</p>`;
+}
+
+export function hasFlaticonVisualSupport(html = '') {
+  return String(html).includes('data-flaticon-icon=');
 }
