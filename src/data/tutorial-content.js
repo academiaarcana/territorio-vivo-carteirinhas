@@ -5,11 +5,11 @@ export const territoryVivoProblem = [
   },
   {
     title: 'Do achado ao próximo passo',
-    text: 'Reconhecer uma mudança é apenas o começo: a equipe precisa transformar o que observou em pergunta, prioridade, decisão, responsável e momento de revisão.'
+    text: 'Reconhecer uma mudança é apenas o começo: a equipe precisa transformar o que observou em significado, prioridade, decisão, responsável e momento de revisão.'
   },
   {
     title: 'Comunicação que precisa circular',
-    text: 'Parte do cuidado territorial depende de orientações simples para famílias e de materiais que a equipe consiga levar para reunião, visita, atividade educativa ou planejamento.'
+    text: 'Parte do cuidado territorial depende de orientações simples para a população e de materiais que a equipe consiga levar para reunião, visita, atividade educativa ou planejamento.'
   }
 ];
 
@@ -19,13 +19,52 @@ export const territoryVivoObjectives = [
     text: 'Organizar informações territoriais úteis para que a equipe reconheça mudanças, priorize situações, combine ações e reavalie resultados.'
   },
   {
-    title: 'Apoiar o vínculo com famílias e comunidade',
-    text: 'Produzir materiais simples, legíveis e temporários para comunicação, orientação e organização do cuidado sem criar prontuário paralelo.'
+    title: 'Apoiar vínculo e comunicação',
+    text: 'Produzir materiais simples, legíveis e temporários para orientação e organização do cuidado sem criar prontuário paralelo.'
   },
   {
     title: 'Conectar dado, equipe e planejamento',
-    text: 'Aproximar indicadores, conhecimento dos ACS, rede local e decisões da equipe em um fluxo curto, compartilhável e territorial.'
+    text: 'Aproximar indicadores, conhecimento dos ACS e demais profissionais, rede local e decisões da equipe em um fluxo curto, compartilhável e territorial.'
   }
+];
+
+export const territorializationCycle = [
+  ['Conhecer', 'Reconhecer população adscrita, microáreas, rede, recursos, barreiras e dinâmicas do território.'],
+  ['Interpretar', 'Perguntar o que o achado significa, quem ou o que é afetado e quais determinantes podem estar envolvidos.'],
+  ['Priorizar', 'Definir o que pede atenção agora, o que pode ser acompanhado e o que depende de articulação com outros setores.'],
+  ['Planejar', 'Combinar uma ação possível, responsável, prazo e apoio necessário sem transformar o registro em prontuário.'],
+  ['Agir', 'Executar o próximo passo no fluxo adequado da equipe, da UBS, da rede ou da articulação intersetorial.'],
+  ['Reavaliar', 'Revisar o que mudou, atualizar o entendimento do território e ajustar o planejamento quando necessário.']
+];
+
+export const managementLevels = [
+  {
+    title: 'ACS e profissionais do território',
+    text: 'Produzem conhecimento situado sobre a microárea, reconhecem mudanças, recursos, barreiras e necessidades sem reduzir o território a uma lista de problemas.'
+  },
+  {
+    title: 'Equipe de Saúde',
+    text: 'Compartilha o significado dos achados, define prioridades, combina ações e organiza a reavaliação com responsabilidade coletiva.'
+  },
+  {
+    title: 'UBS',
+    text: 'Integra informações das equipes, organiza fluxos locais, articula parceiros e acompanha necessidades do território dentro do escopo da unidade.'
+  },
+  {
+    title: 'Gestão Municipal',
+    text: 'Observa a rede de forma agregada para apoiar planejamento, organização dos serviços e articulação intersetorial, sem usar o sistema para ranking punitivo de trabalhadores ou UBS.'
+  }
+];
+
+export const intersectoralLenses = [
+  'Saúde',
+  'Educação',
+  'Assistência social',
+  'Mobilidade e transporte',
+  'Saneamento e infraestrutura',
+  'Segurança alimentar',
+  'Esporte, lazer e cultura',
+  'Associações e espaços comunitários'
 ];
 
 export const systemFunctions = [
@@ -38,7 +77,7 @@ export const systemFunctions = [
     text: 'Explica por que o Território Vivo existe, oferece um roteiro curto de demonstração e diferencia funções do sistema, equipes pesquisadas e responsabilidades profissionais.'
   },
   {
-    title: 'Território, rede e mapa inteligente',
+    title: 'Território, rede e leitura territorial',
     text: 'Consulta unidades e equipes, organiza achados territoriais não pessoais — recursos, potencialidades, parceiros, riscos, pontos críticos e barreiras — e oferece atalho gratuito de localização quando há endereço ou coordenadas.'
   },
   {
@@ -71,7 +110,7 @@ export const systemFunctions = [
   },
   {
     title: 'Gestão da UBS e da rede',
-    text: 'Administra unidades, equipes, perfis e escopos conforme o papel do usuário, sem transformar a tela de gestão em autorização para ultrapassar as regras do banco.'
+    text: 'Administra unidades, equipes, perfis e escopos conforme o papel do usuário e oferece visão territorial agregada para planejamento, sem ultrapassar as regras do banco.'
   },
   {
     title: 'Controle de acesso e privacidade por desenho',
@@ -81,12 +120,13 @@ export const systemFunctions = [
 
 export const quickTutorial = [
   ['1', 'Confira seu contexto', 'Veja no cabeçalho o escopo da conta: vínculo territorial para o trabalho local ou rede cadastrada quando o papel é de gestão municipal/técnica.'],
-  ['2', 'Reconheça o território', 'Abra Território e rede para consultar unidades, equipes, recursos, potencialidades, parceiros, riscos, barreiras e pontos críticos não pessoais.'],
-  ['3', 'Transforme uma necessidade em material', 'Use Carteirinhas para gerar lembretes, orientações, busca ativa, notas territoriais ou indicadores, com recursos de acessibilidade quando necessário.'],
-  ['4', 'Leve uma mudança para a equipe', 'Use 5 minutos do território para registrar a situação, decidir o próximo passo, indicar responsável e combinar revisão.'],
-  ['5', 'Use números para perguntar', 'Abra Indicadores, registre o dado e escreva o que ele pode significar no território e qual ação merece teste.'],
-  ['6', 'Apoie educação e comunicação', 'Use Educação em saúde e as opções de impressão/PDF quando precisar levar a informação para fora da tela.'],
-  ['7', 'Revise o que permanece no sistema', 'Rascunhos temporários desaparecem ao recarregar, fechar a aba ou sair. Registros clínicos identificáveis devem permanecer nos sistemas oficiais adequados.']
+  ['2', 'Observe o território', 'Abra Território e rede para reconhecer unidades, equipes, recursos, potencialidades, parceiros, riscos, barreiras e pontos críticos não pessoais.'],
+  ['3', 'Registre o achado', 'Descreva somente a situação territorial necessária para a equipe compreender o contexto, sem identificar pacientes ou famílias.'],
+  ['4', 'Interprete e priorize', 'Pergunte por que o achado importa agora, quais determinantes estão envolvidos e se a resposta depende da equipe, da UBS, da rede ou de outro setor.'],
+  ['5', 'Leve para a equipe', 'Use 5 minutos do território para combinar uma decisão possível, indicar responsável e definir quando revisar.'],
+  ['6', 'Use dados e comunicação', 'Abra Indicadores para transformar números em perguntas e use Carteirinhas ou Educação em saúde quando precisar comunicar uma orientação.'],
+  ['7', 'Execute no fluxo adequado', 'Realize a ação no serviço ou articulação correspondente. O Território Vivo apoia a organização do próximo passo, mas não substitui registro clínico nem fluxo assistencial oficial.'],
+  ['8', 'Reavalie o território', 'Volte ao achado, revise o que mudou e ajuste o planejamento. Rascunhos temporários desaparecem ao recarregar, fechar a aba ou sair.']
 ];
 
 export const publicTeamResearch = [
@@ -107,10 +147,10 @@ export const publicTeamTypes = [
   },
   {
     title: 'eMulti / apoio multiprofissional',
-    text: 'A consulta pública confirmou uma eMulti. O CNES mostra, nessa composição pesquisada, fisioterapia, nutrição, psicologia, serviço social e educação física.'
+    text: 'A consulta pública confirmou uma eMulti. O CNES mostra, nessa composição pesquisada, fisioterapia, nutrição, psicologia, serviço social e educação física. A organização das eMulti na APS é complementar e integrada às equipes vinculadas, com corresponsabilidade pelo território.'
   },
   {
-    title: 'Equipe rural',
+    title: 'Atendimento rural identificado',
     text: 'Escalas públicas municipais distinguem atendimento/equipe rural vinculada à Atenção Primária. O tutorial registra apenas a identificação dessa modalidade e não atribui quantidade, número ou INE quando a fonte consultada não os informa.'
   }
 ];
