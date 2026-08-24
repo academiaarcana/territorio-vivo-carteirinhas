@@ -8,28 +8,42 @@ Este arquivo documenta referências públicas usadas apenas para contextualizaç
 
 1. **CNES / Ministério da Saúde — Cadastro Nacional de Estabelecimentos de Saúde**
    - Cadastro da UBS Madre Tereza de Calcutá: CNES 2496542.
-   - O módulo público de equipes do CNES confirma equipes ESF, ESB e eMulti vinculadas à unidade.
+   - O módulo público de equipes foi reaberto em 23/08/2026 e confirma quatro ESF, três ESB e uma eMulti vinculadas à unidade.
    - Consulta de equipes: https://cnes2.datasus.gov.br/Mod_Equipes.asp?VCo_Unidade=1100182496542
    - Referência geral: https://cnes.datasus.gov.br/
 
 2. **Páginas públicas Equipes/Profissionais do CNES**
-   - As páginas vinculadas ao módulo de equipes foram reabertas em 23/08/2026 para conferir categorias profissionais nas composições ESF, ESB e eMulti.
-   - A consulta ESF confirmou, entre outras categorias, médico da Estratégia Saúde da Família, enfermeiro da Estratégia Saúde da Família, técnico/auxiliar de enfermagem da Estratégia Saúde da Família e agente comunitário de saúde.
-   - A consulta ESB confirmou cirurgião-dentista da Estratégia Saúde da Família e auxiliar em saúde bucal.
-   - A consulta eMulti confirmou assistente social, fisioterapeuta, nutricionista, psicólogo e profissional de Educação Física na Saúde.
+   - ESF 02 / INE 0002332566: https://cnes2.datasus.gov.br/Mod_Equipes_Profisssional.asp?VMunicipio=110018&VSeqEq=2332566&VTipo=70&VUnidade=1100182496542&Varea=0001
+   - ESB 02 / INE 0002461722: https://cnes2.datasus.gov.br/Mod_Equipes_Profisssional.asp?VMunicipio=110018&VSeqEq=2461722&VTipo=71&VUnidade=1100182496542&Varea=0000
+   - eMulti / INE 0002460459: https://cnes2.datasus.gov.br/Mod_Equipes_Profisssional.asp?VMunicipio=110018&VSeqEq=2460459&VTipo=72&VUnidade=1100182496542&Varea=0000
+   - A consulta ESF confirma, entre outras categorias, médico da Estratégia Saúde da Família, enfermeiro da Estratégia Saúde da Família, técnico/auxiliar de enfermagem e agentes comunitários de saúde.
+   - A consulta ESB confirma cirurgião-dentista da Estratégia Saúde da Família e auxiliar em saúde bucal.
+   - A consulta eMulti confirma assistente social, fisioterapeuta, nutricionista, psicólogo e profissional de Educação Física na Saúde.
 
-3. **Portal da Transparência do Município — escalas públicas de profissionais da saúde**
-   - Escalas municipais publicadas em 2025/2026 foram usadas para complementar categorias profissionais e distinguir composições como Saúde da Família, Saúde Bucal, atendimento/equipe rural, apoio multiprofissional e apoio administrativo.
-   - Referência geral: https://transparencia.pimentabueno.ro.gov.br/
+3. **Portal da Transparência — escala das equipes das UBS, setembro de 2025**
+   - Documento oficial ID 1732680, CRC D22049B7.
+   - URL: https://transparencia.pimentabueno.ro.gov.br/transparencia/aplicacoes/publicacao/download.php?extencao=PDF&id_doc=041242
+   - Objeto: `ESCALAS DAS EQUIPES DAS UNIDADES BÁSICAS DE SAÚDE DE PIMENTA BUENO`.
+   - A escala mostra ACS, vacinação, odontologia/ASB, fisioterapia, nutrição, psicologia, serviço social, educação física, funções administrativas, gerência, serviços gerais e diferentes residências multiprofissionais em unidades da rede.
 
-4. **Escala pública dos profissionais médicos — janeiro de 2026**
-   - A escala pública distingue profissionais da ESF e atendimento/equipe rural vinculados à Atenção Primária.
-   - A referência a atendimento/equipe rural é tratada como **modalidade identificada**, não como contagem de uma equipe nem como INE confirmado.
+4. **Portal da Transparência — escala dos profissionais médicos, janeiro de 2026**
+   - Documento oficial ID 1875275, CRC 634107A1.
+   - URL: https://transparencia.pimentabueno.ro.gov.br/transparencia/aplicacoes/publicacao/download.php?extencao=PDF&id_doc=042774
+   - A escala identifica profissionais da ESF, residentes de Medicina e, na UBS Madre Tereza de Calcutá, uma referência explícita a `EQUIPE RURAL`.
+   - A referência rural é tratada como **modalidade identificada**, não como contagem de uma equipe nem como INE confirmado.
 
-5. **Escala pública multiprofissional — setembro de 2025**
-   - A escala pública lista categorias de Saúde Bucal, Agentes Comunitários de Saúde, fisioterapia, nutrição, psicologia, serviço social, educação física, apoio administrativo e residentes multiprofissionais.
+5. **Portal da Transparência — escala geral de profissionais da saúde, janeiro de 2026**
+   - Documento oficial ID 1876352, CRC 17868423.
+   - URL: https://transparencia.pimentabueno.ro.gov.br/transparencia/aplicacoes/publicacao/download.php?extencao=PDF&id_doc=042775
+   - Objeto: `Escala de Plantão Profissionais da Saúde - Geral Janeiro 2026`.
+   - Usada como fonte complementar para composição profissional/operacional da Atenção Básica.
 
-6. **Relatórios e-SUS fornecidos ao projeto**
+6. **Portal da Transparência — escala retificada com residentes de Medicina, setembro de 2025**
+   - Documento oficial ID 1732547, CRC 7391D720.
+   - URL: https://transparencia.pimentabueno.ro.gov.br/transparencia/aplicacoes/publicacao/download.php?extencao=PDF&id_doc=041241
+   - O próprio objeto informa que a escala foi retificada por terem sido acrescentados novos residentes de Medicina.
+
+7. **Relatórios e-SUS fornecidos ao projeto**
    - Os relatórios do projeto confirmam nominalmente a `Equipe 02` com INE `0002332566` e registros de ACS vinculados a essa equipe.
 
 ## Equipes verificadas na consulta pública do CNES
@@ -57,15 +71,15 @@ A consulta pública permite apresentar essas equipes como referência documental
 
 ## Categorias profissionais revalidadas diretamente no CNES
 
-A consulta das equipes/profissionais confirmou diretamente no CNES, entre outras, estas categorias:
-
 ### ESF / Atenção Primária
 
 - Médico(a) da Estratégia Saúde da Família;
 - Enfermeiro(a) da Estratégia Saúde da Família;
 - Técnico(a) de enfermagem da Estratégia Saúde da Família;
-- Auxiliar de enfermagem da Estratégia Saúde da Família;
-- Agente Comunitário de Saúde.
+- Técnico(a) de enfermagem;
+- Auxiliar de enfermagem;
+- Agente Comunitário de Saúde;
+- apoio administrativo identificado na composição consultada.
 
 ### Saúde Bucal
 
@@ -110,12 +124,12 @@ A presença no catálogo institucional não significa que uma equipe nominal esp
 ### Assistência e apoio da unidade
 
 - Vacinador(a);
-- Gerência de UBS;
+- Gerência de UBS/centro de saúde;
 - Agente administrativo;
 - Assessoria / apoio administrativo;
 - Auxiliar de serviços gerais.
 
-### Residência multiprofissional identificada nas escalas públicas
+### Residência identificada nas escalas públicas
 
 - Medicina;
 - Fisioterapia;
