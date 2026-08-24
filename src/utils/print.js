@@ -1,7 +1,7 @@
 import { slugify } from '../lib/dom.js';
 import { hasFlaticonVisualSupport, renderFlaticonAttribution } from '../lib/visual-support.js';
 import { assertCanvasHasContent } from './pdf-canvas.js';
-import { assertCanvasAspect, assertCardContentFits, assertFourUpGeometry, assertNoBoxOverflow, assertRectsInside } from './pdf-geometry.js';
+import { assertCanvasAspect, assertCardContentFits, assertCardsSheetGeometry, assertNoBoxOverflow, assertRectsInside } from './pdf-geometry.js';
 
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
@@ -215,6 +215,9 @@ function assertPdfCaptureReady(wrapper, { stage = 'source' } = {}) {
   assertNoBoxOverflow(cardSheet, `Folha de carteirinhas (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
   assertRectsInside(sheetRect, slotRects, `Slots da folha (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
   assertRectsInside(sheetRect, cardRects, `Carteirinhas da folha (${stage})`, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
+  if (expectedCount) {
+    assertCardsSheetGeometry(slotRects, sheetRect, expectedCount, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
+  }
 
   slots.forEach((slot, index) => {
     const card = cards[index];
@@ -224,10 +227,6 @@ function assertPdfCaptureReady(wrapper, { stage = 'source' } = {}) {
       assertCardInternals(card, index, stage);
     }
   });
-
-  if (expectedCount === 4) {
-    assertFourUpGeometry(slotRects, sheetRect, { tolerance: PDF_GEOMETRY_TOLERANCE_PX });
-  }
 }
 
 function assertCardInternals(card, index, stage) {
