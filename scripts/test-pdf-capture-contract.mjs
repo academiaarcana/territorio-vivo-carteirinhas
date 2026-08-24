@@ -186,7 +186,7 @@ assert.match(print, /appointment-card-field-service/, 'Validação do appointmen
 assert.match(print, /appointment-card-field-note/, 'Validação do appointment precisa incluir o recado/preparo.');
 assert.match(print, /appointment-card-note/, 'Validação do appointment precisa garantir que o rodapé permaneça visível.');
 assert.match(print, /img\.flaticon-icon/, 'Pictogramas precisam ser medidos dentro de cada card.');
-assert.match(print, /assertFourUpGeometry\(slotRects, sheetRect/, '4/A4 deve validar geometricamente as posições 1-2/3-4.');
+assert.match(print, /assertCardsSheetGeometry\(slotRects, sheetRect, expectedCount/, 'Todas as densidades 2/4/8/12 devem validar geometricamente suas posições antes do canvas.');
 assert.match(print, /expectedCount/, 'Validação precisa conferir a quantidade real 2/4/8/12 antes da captura.');
 assert.match(print, /await worker\.toCanvas\(\)/, 'Pipeline deve parar no canvas antes de criar o PDF.');
 assert.match(print, /await worker\.get\(['"]canvas['"]\)/, 'Pipeline deve obter o canvas intermediário real do Worker.');
@@ -243,4 +243,4 @@ assert.doesNotMatch(captureBlock, /display\s*:\s*none|visibility\s*:\s*hidden|op
 assert.doesNotMatch(cardsPrintBlock, /display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\D|$)/,
   'Área A4 das carteirinhas não pode ser ocultada por CSS.');
 
-console.log('Contrato de PDF OK: canvas não branco, clone validado, conteúdo interno protegido, Apoio visual 4/A4 compactado e grade 2 × 2 preservada.');
+console.log('Contrato de PDF OK: canvas não branco, clone validado, conteúdo interno protegido, Apoio visual 4/A4 compactado e grades 2/4/8/12 validadas.');
