@@ -3,7 +3,9 @@ import fs from 'node:fs';
 
 const layout = fs.readFileSync('src/core/layout.js', 'utf8');
 const a11y = fs.readFileSync('src/core/a11y.js', 'utf8');
+const router = fs.readFileSync('src/core/router.js', 'utf8');
 const foundation = fs.readFileSync('src/styles/foundation.css', 'utf8');
+const structural = fs.readFileSync('src/styles/structural.css', 'utf8');
 
 assert.match(layout, /import \{ setButtonBusy \} from '\.\.\/lib\/forms\.js';/, 'Layout deve reutilizar o busy state compartilhado.');
 assert.match(layout, /<header class="workspace-header">[\s\S]*data-signout>Sair da conta<\/button>/, 'A saída deve permanecer visível no cabeçalho das telas internas.');
@@ -16,4 +18,10 @@ assert.match(a11y, /document\.addEventListener\('keydown', handleTablistKeydown\
 assert.match(a11y, /ArrowDown/, 'Controlador global deve manter navegação vertical de tabs.');
 assert.match(a11y, /ArrowUp/, 'Controlador global deve manter navegação vertical de tabs.');
 
-console.log('Contrato do layout OK: logout com busy state compartilhado e um único controlador de teclado para tabs.');
+assert.match(router, /heading\.setAttribute\('tabindex', '-1'\)/, 'Título da página deve continuar como alvo de foco programático sem entrar na ordem de tabulação.');
+assert.match(router, /heading\.focus\(\{ preventScroll: true \}\)/, 'Roteador deve continuar movendo o foco programaticamente para o título após navegação.');
+assert.match(structural, /:where\(a,button,input,select,textarea,\[tabindex\]\):focus-visible\{outline:var\(--focus-ring\);outline-offset:var\(--focus-offset\)\}/, 'Controles e alvos navegáveis devem manter foco visível global.');
+assert.match(structural, /h1\[tabindex="-1"\]:focus,h1\[tabindex="-1"\]:focus-visible\{outline:none\}/, 'Heading focado apenas para anúncio programático não deve exibir contorno visual de controle interativo.');
+assert.match(structural, /\.skip-link:focus\{transform:translateY\(0\)\}/, 'Skip link deve continuar visível ao receber foco.');
+
+console.log('Contrato do layout OK: logout, acessibilidade de tabs e foco programático do heading sem contorno visual indevido.');
