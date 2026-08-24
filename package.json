@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "npm run check:architecture && npm run check:security && npm run check:migrations && npm run check:management-migrations && npm run check:production && npm run test:layout && npm run test:access-control && npm run test:master-interface && npm run test:access-management && npm run test:session-access && npm run test:auth-concurrency && npm run test:password-policy && npm run test:admin-concurrency && npm run test:territory-concurrency && npm run test:pending-concurrency && npm run test:cards-accessibility && npm run test:print-accessibility && npm run test:pdf-capture && npm run test:visual-support-matching && npm run test:volatile-drafts && npm run test:permissions",
+    "check": "npm run check:architecture && npm run check:security && npm run check:migrations && npm run check:management-migrations && npm run check:production && npm run test:layout && npm run test:access-control && npm run test:master-interface && npm run test:access-management && npm run test:session-access && npm run test:auth-concurrency && npm run test:password-policy && npm run test:admin-concurrency && npm run test:territory-concurrency && npm run test:coordinates && npm run test:pending-concurrency && npm run test:cards-accessibility && npm run test:print-accessibility && npm run test:pdf-capture && npm run test:pdf-grid && npm run test:visual-support-matching && npm run test:volatile-drafts && npm run test:permissions",
     "check:architecture": "node scripts/validate-architecture.mjs",
     "check:security": "node scripts/validate-security-contract.mjs",
     "check:migrations": "node scripts/test-migration-history-contract.mjs",
@@ -19,10 +19,12 @@
     "test:password-policy": "node scripts/test-password-policy-contract.mjs",
     "test:admin-concurrency": "node scripts/test-admin-concurrency-contract.mjs",
     "test:territory-concurrency": "node scripts/test-territory-concurrency-contract.mjs",
+    "test:coordinates": "node scripts/test-coordinate-validation-contract.mjs",
     "test:pending-concurrency": "node scripts/test-pending-concurrency-contract.mjs",
     "test:cards-accessibility": "node scripts/test-card-batch-accessibility-contract.mjs",
     "test:print-accessibility": "node scripts/test-print-accessibility-contract.mjs",
     "test:pdf-capture": "node scripts/test-pdf-capture-contract.mjs",
+    "test:pdf-grid": "node scripts/test-pdf-grid-contract.mjs",
     "test:visual-support-matching": "node scripts/test-visual-support-matching-contract.mjs",
     "test:volatile-drafts": "node scripts/test-volatile-drafts-contract.mjs",
     "test:permissions": "node scripts/test-permissions.mjs"
