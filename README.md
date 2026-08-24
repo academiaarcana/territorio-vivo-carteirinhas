@@ -29,10 +29,10 @@ A descrição detalhada está em `docs/ARQUITETURA_V2.md`. A matriz que determin
 
 - **Frontend:** GitHub Pages
 - **Backend/Auth:** Supabase Free
-- **Vercel:** deployments automáticos desabilitados neste repositório por `vercel.json`
+- **Deploy de produção:** exclusivamente pelo workflow `.github/workflows/pages.yml`, a partir da `main`
 - **Produção:** `https://academiaarcana.github.io/territorio-vivo-carteirinhas/`
 
-A branch `main` é publicada pelo workflow `.github/workflows/pages.yml` somente depois de validações estruturais e do smoke test público do Supabase.
+O repositório não depende de configuração Vercel. A branch de desenvolvimento executa somente validação; publicação no GitHub Pages ocorre pela `main` depois das validações estruturais e do smoke test público do Supabase.
 
 ## Módulos
 

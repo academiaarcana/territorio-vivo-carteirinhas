@@ -4,7 +4,7 @@
 const flaticonAssets = {
   person: { iconId: '13695871', author: 'nahumam', source: 'https://www.flaticon.com/br/icone-gratis/pessoa_13695871' },
   family: { iconId: '18408870', author: 'bsd', source: 'https://www.flaticon.com/br/icone-gratis/familia_18408870' },
-  child: { iconId: '4532153', author: 'Good Ware', source: 'https://www.flaticon.com/br/icone-gratis/recem-nascido_4532153' },
+  child: { iconId: '3037662', author: 'Freepik', source: 'https://www.flaticon.com/free-icon/little-girl_3037662' },
   elderly: { iconId: '5814218', author: 'Witdhawaty', source: 'https://www.flaticon.com/br/icone-gratis/geriatria_5814218' },
   pregnant: { iconId: '10523012', author: 'shin_icons', source: 'https://www.flaticon.com/br/icone-gratis/gravida_10523012' },
   calendar: { iconId: '10754906', author: 'Flat Icons', source: 'https://www.flaticon.com/br/icone-gratis/calendario_10754906' },
@@ -14,19 +14,20 @@ const flaticonAssets = {
   exam: { iconId: '4853471', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/teste-de-sangue_4853471' },
   dressing: { iconId: '2869769', author: 'nawicon', source: 'https://www.flaticon.com/br/icone-gratis/curativo_2869769' },
   medicine: { iconId: '4355923', author: 'Andy Horvath', source: 'https://www.flaticon.com/br/icone-gratis/medicamento_4355923' },
+  prescription: { iconId: '843180', author: 'Freepik', source: 'https://www.flaticon.com/free-icon/prescription_843180' },
   consultation: { iconId: '7381105', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/consulta-medica_7381105' },
   visit: { iconId: '12024693', author: 'kliwir art', source: 'https://www.flaticon.com/free-icon/home-care_12024693' },
-  fasting: { iconId: '10008842', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/jejum-intermitente_10008842' },
+  fasting: { iconId: '4197430', author: 'Magnific', source: 'https://www.flaticon.com/free-icon/no-eating_4197430' },
   water: { iconId: '14777315', author: 'Freepik', source: 'https://www.flaticon.com/br/icone-gratis/beber-agua_14777315' },
   susCard: { iconId: '16324772', author: 'Vectorslab', source: 'https://www.flaticon.com/br/icone-gratis/cartao-de-saude_16324772' },
-  results: { iconId: '6655425', author: 'wanicon', source: 'https://www.flaticon.com/free-icon/medical-report_6655425' },
+  results: { iconId: '3215528', author: 'Freepik', source: 'https://www.flaticon.com/free-icon/medical-report_3215528' },
   document: { iconId: '8898131', author: 'JM Graphic', source: 'https://www.flaticon.com/br/icone-gratis/identidade_8898131' },
-  companion: { iconId: '7070894', author: 'Freepik', source: 'https://www.flaticon.com/free-icon/caregiver_7070894' },
-  early: { iconId: '818', author: 'Magnific', source: 'https://www.flaticon.com/free-icon/simple-clock_818' },
+  companion: { iconId: '17583651', author: 'Freepik', source: 'https://www.flaticon.com/free-icon/caregiver_17583651' },
+  early: { iconId: '814255', author: 'Freepik', source: 'https://www.flaticon.com/free-icon/arrival-time_814255' },
   clinic: { iconId: '9931784', author: 'Fathema Khanom', source: 'https://www.flaticon.com/br/icone-gratis/hospital_9931784' },
   school: { iconId: '13334847', author: 'Karyative', source: 'https://www.flaticon.com/br/icone-gratis/edificio-escolar_13334847' },
   home: { iconId: '11453302', author: 'VectorPortal', source: 'https://www.flaticon.com/br/icone-gratis/casas_11453302' },
-  group: { iconId: '4766735', author: 'Vector Stall', source: 'https://www.flaticon.com/br/icone-gratis/reuniao_4766735' },
+  group: { iconId: '9634305', author: 'Md Tanvirul Haque', source: 'https://www.flaticon.com/free-icon/group_9634305' },
   phone: { iconId: '11680095', author: 'lakonicon', source: 'https://www.flaticon.com/br/icone-gratis/telefone-de-chamada_11680095' },
   location: { iconId: '1397897', author: 'turkkub', source: 'https://www.flaticon.com/br/icone-gratis/marcador_1397897' },
   warning: { iconId: '7783023', author: 'Yuju', source: 'https://www.flaticon.com/br/icone-gratis/alertas_7783023' },
@@ -35,7 +36,7 @@ const flaticonAssets = {
   hypertension: { iconId: '10376201', author: 'BizzBox', source: 'https://www.flaticon.com/br/icone-gratis/pressao-arterial_10376201' },
   diabetes: { iconId: '12310381', author: 'Elzicon', source: 'https://www.flaticon.com/br/icone-gratis/teste-de-diabetes_12310381' },
   population: { iconId: '3526131', author: 'GOWI', source: 'https://www.flaticon.com/br/icone-gratis/populacao_3526131' },
-  action: { iconId: '7468981', author: 'Us and Up', source: 'https://www.flaticon.com/free-icon/checklist_7468981' }
+  action: { iconId: '12244858', author: 'Uniconlabs', source: 'https://www.flaticon.es/icono-gratis/plan-de-accion_12244858' }
 };
 
 function flaticonPngUrl(iconId) {
@@ -50,7 +51,8 @@ export const visualSupportCatalog = [
   { id: 'exam', label: 'Exame ou coleta', category: 'atendimento', keywords: ['exame', 'coleta', 'laboratorio', 'sangue', 'teste'] },
   { id: 'pregnant', label: 'Pré-natal / gestante', category: 'publico', keywords: ['pre-natal', 'prenatal', 'gestante', 'gravida', 'puerpera'] },
   { id: 'dressing', label: 'Curativo', category: 'atendimento', keywords: ['curativo', 'ferida', 'troca de curativo'] },
-  { id: 'medicine', label: 'Medicamento', category: 'preparo', keywords: ['remedio', 'medicamento', 'medicacao', 'farmacia', 'receita'] },
+  { id: 'prescription', label: 'Receita / prescrição', category: 'documento', keywords: ['receita', 'prescricao', 'receita medica'] },
+  { id: 'medicine', label: 'Medicamento', category: 'preparo', keywords: ['remedio', 'medicamento', 'medicacao', 'farmacia'] },
   { id: 'consultation', label: 'Consulta / atendimento', category: 'atendimento', keywords: ['consulta', 'atendimento', 'medico', 'medica', 'enfermeiro', 'enfermeira'] },
   { id: 'visit', label: 'Visita domiciliar', category: 'acao', keywords: ['visita domiciliar', 'visitar domicilio', 'visitar casa'] },
   { id: 'fasting', label: 'Jejum', category: 'preparo', keywords: ['jejum', 'sem comer', 'nao comer'] },
@@ -63,8 +65,10 @@ export const visualSupportCatalog = [
   { id: 'clinic', label: 'Unidade de saúde', category: 'local', keywords: ['ubs', 'unidade de saude', 'posto de saude', 'centro de saude'] },
   { id: 'school', label: 'Escola', category: 'local', keywords: ['escola', 'creche', 'colegio'] },
   { id: 'home', label: 'Casa / domicílio', category: 'local', keywords: ['casa', 'domicilio', 'residencia'] },
+  { id: 'location', label: 'Localização', category: 'local', keywords: ['localizacao', 'endereco', 'local'] },
   { id: 'group', label: 'Grupo / reunião', category: 'acao', keywords: ['grupo', 'reuniao', 'roda de conversa', 'palestra', 'encontro'] },
   { id: 'child', label: 'Criança', category: 'publico', keywords: ['crianca', 'bebe', 'infantil', 'pediatria'] },
+  { id: 'person', label: 'Pessoa', category: 'publico', keywords: ['pessoa'] },
   { id: 'elderly', label: 'Pessoa idosa', category: 'publico', keywords: ['idoso', 'idosa', 'terceira idade'] },
   { id: 'family', label: 'Família', category: 'publico', keywords: ['familia', 'responsavel familiar'] },
   { id: 'phone', label: 'Telefone / contato', category: 'contato', keywords: ['telefone', 'contato', 'ligar', 'celular'] },
@@ -83,6 +87,23 @@ function normalize(value) {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9\s/-]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function keywordMatches(text, keyword) {
+  const normalizedKeyword = normalize(keyword);
+  if (!text || !normalizedKeyword) return false;
+  const pattern = escapeRegExp(normalizedKeyword).replace(/\s+/g, '[\\s/-]+');
+  return new RegExp(`(?:^|[\\s/-])${pattern}(?=$|[\\s/-])`).test(text);
+}
+
+function catalogMatches(text) {
+  return visualSupportCatalog
+    .filter((item) => item.keywords.some((keyword) => keywordMatches(text, keyword)))
+    .map((item) => item.id);
+}
+
 function addUnique(ids, id) {
   if (id && !ids.includes(id)) ids.push(id);
 }
@@ -91,14 +112,16 @@ export function visualSupportsFor({ label = '', value = '', type = '', max = 3 }
   const ids = [];
   const normalizedValue = normalize(value);
   const normalizedLabel = normalize(label);
-  const combined = `${normalizedValue} ${normalizedLabel}`.trim();
 
   if (type === 'date') addUnique(ids, 'calendar');
   if (type === 'time') addUnique(ids, 'clock');
 
-  for (const item of visualSupportCatalog) {
-    if (item.keywords.some((keyword) => combined.includes(normalize(keyword)))) addUnique(ids, item.id);
-    if (ids.length >= max) break;
+  const valueIds = catalogMatches(normalizedValue);
+  if (valueIds.length) {
+    valueIds.forEach((id) => addUnique(ids, id));
+  } else if (!ids.length) {
+    const labelIds = catalogMatches(normalizedLabel);
+    labelIds.forEach((id) => addUnique(ids, id));
   }
 
   if (!ids.length) {

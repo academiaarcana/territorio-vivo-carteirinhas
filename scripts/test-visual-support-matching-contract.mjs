@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import { visualSupportsFor } from '../src/lib/visual-support.js';
+
+const supports = (subject) => visualSupportsFor(subject);
+const ids = (subject) => supports(subject).map((item) => item.id);
+const iconId = (subject) => supports(subject)[0]?.flaticon?.iconId;
+
+assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Beber água' }), ['water']);
+assert.deepEqual(ids({ label: 'Pessoa / família / referência', value: 'Criança' }), ['child']);
+assert.deepEqual(ids({ label: 'Pessoa / família / referência', value: 'Documento' }), ['document']);
+assert.deepEqual(ids({ label: 'Tentativa / contato realizado', value: 'População' }), ['population']);
+assert.deepEqual(ids({ label: 'Próximo passo', value: 'População' }), ['population']);
+assert.deepEqual(ids({ label: 'Motivo', value: 'Localização' }), ['location']);
+assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Receita' }), ['prescription']);
+assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Acompanhante' }), ['companion']);
+assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Resultados' }), ['results']);
+assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Chegar cedo' }), ['early']);
+
+// Um conteúdo reconhecido sempre prevalece sobre o rótulo do campo.
+for (const label of ['Pessoa / família / referência', 'Motivo', 'Tentativa / contato realizado', 'Próximo passo']) {
+  assert.deepEqual(ids({ label, value: 'Pessoa' }), ['person'], `Pessoa precisa prevalecer sobre o rótulo ${label}.`);
+}
+
+assert.equal(iconId({ value: 'Pessoa' }), '13695871');
+assert.equal(iconId({ value: 'Criança' }), '3037662');
+assert.equal(iconId({ value: 'Acompanhante' }), '17583651');
+assert.equal(iconId({ value: 'Receita' }), '843180');
+assert.equal(iconId({ value: 'Grupo' }), '9634305');
+assert.equal(iconId({ value: 'Ação' }), '12244858');
+assert.equal(iconId({ value: 'Resultados' }), '3215528');
+assert.equal(iconId({ value: 'Chegar cedo' }), '814255');
+
+console.log('Contrato visual OK: conteúdo prevalece sobre rótulo, pictogramas homologáveis estão fixados e substrings não geram extras.');

@@ -1,0 +1,427 @@
+/* Coleção de carteirinhas Território Vivo — padrão compartilhado.
+   Meu Próximo Atendimento mantém sua implementação homologada isolada. */
+@media screen {
+  .collection-card {
+    min-height: 300px;
+    padding: 1rem;
+    gap: .78rem;
+    overflow: hidden;
+    border: 1px solid #bed4e4;
+    border-top: 4px solid var(--accent);
+    border-radius: 12px;
+    background: #fff;
+    color: #17364d;
+    box-shadow: 0 3px 12px rgba(19, 65, 96, .08);
+  }
+
+  .collection-card .collection-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .7rem;
+    padding: 0 0 .72rem;
+    border: 0;
+    border-bottom: 1px solid #cbdde9;
+  }
+
+  .collection-card-brand {
+    display: flex;
+    align-items: center;
+    gap: .68rem;
+    min-width: 0;
+  }
+
+  .collection-card-mark {
+    width: 39px;
+    height: 39px;
+    flex: 0 0 39px;
+    color: var(--accent);
+  }
+
+  .collection-card-symbol {
+    display: block;
+    width: 39px;
+    height: 39px;
+  }
+
+  .collection-card-brand-copy {
+    display: grid;
+    gap: .08rem;
+    min-width: 0;
+  }
+
+  .collection-card-brand-copy small {
+    color: #557185;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .collection-card-brand-copy strong {
+    color: var(--accent-strong);
+    font-size: 1.12rem;
+    line-height: 1.18;
+    letter-spacing: -.015em;
+  }
+
+  .collection-card-category {
+    flex: 0 0 auto;
+    margin-top: .1rem;
+    padding: .28rem .48rem;
+    border: 1px solid #d4e4ef;
+    border-radius: 999px;
+    background: #f5f9fc;
+    color: #46667b;
+    font-size: .64rem;
+    font-weight: 800;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+  }
+
+  .collection-card .collection-card-context {
+    display: grid;
+    gap: .16rem;
+    padding: .68rem .75rem;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    background: #f4f9fd;
+  }
+
+  .collection-card-unit {
+    color: #17364d;
+    font-size: .98rem;
+    line-height: 1.28;
+  }
+
+  .collection-card-territory {
+    color: #365c75;
+    font-size: .8rem;
+    font-weight: 750;
+  }
+
+  .collection-card-reference {
+    margin-top: .12rem;
+    color: #60798b;
+    font-size: .76rem;
+    line-height: 1.32;
+  }
+
+  .collection-card .collection-card-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .58rem;
+  }
+
+  .collection-card .collection-card-fields > .placeholder-copy {
+    grid-column: 1 / -1;
+  }
+
+  .collection-card .collection-card-field {
+    min-width: 0;
+    gap: .52rem;
+    padding: .6rem .65rem;
+    border: 1px solid #dbe7ef;
+    border-radius: 8px;
+    background: #fbfdff;
+  }
+
+  .collection-card .collection-card-field-wide {
+    grid-column: 1 / -1;
+  }
+
+  .collection-card .generated-card-field-copy small {
+    color: #587286;
+    font-size: .72rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .collection-card .generated-card-field-copy p {
+    margin-top: .16rem;
+    color: #132f45;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.34;
+  }
+
+  .collection-card-indicator .collection-card-field-number .generated-card-field-copy p {
+    color: var(--accent-strong);
+    font-size: 1.22rem;
+    line-height: 1.15;
+  }
+
+  .collection-card-meeting .collection-card-field,
+  .collection-card-management .collection-card-field {
+    align-content: start;
+  }
+
+  .collection-template-active-search .collection-card-field-reference,
+  .collection-template-active-search .collection-card-field-reason,
+  .collection-template-decision .collection-card-field-responsible,
+  .collection-template-decision .collection-card-field-review,
+  .collection-template-indicator-focus .collection-card-field-indicator,
+  .collection-template-indicator-focus .collection-card-field-value {
+    grid-column: auto;
+  }
+
+  .collection-card.visual-support .field-pictogram.visual-support-set {
+    max-width: 116px;
+  }
+
+  .collection-card.visual-support .support-pictogram {
+    border-color: #8fb8d5;
+  }
+
+  .collection-card .collection-card-note {
+    margin-top: 0;
+    padding: .7rem .78rem;
+    border-top: 1px solid #d7e4ed;
+    border-radius: 7px;
+    background: #f6f9fb;
+    color: #345469;
+    font-size: .82rem;
+    line-height: 1.42;
+  }
+
+  .collection-card.easy-read .collection-card-brand-copy strong {
+    font-size: 1.18em;
+  }
+
+  .collection-card.easy-read .collection-card-unit {
+    font-size: 1em;
+  }
+
+  .collection-card.economy,
+  .collection-card.economy .collection-card-context,
+  .collection-card.economy .collection-card-field,
+  .collection-card.economy .collection-card-note {
+    background: #fff;
+    box-shadow: none;
+  }
+
+  @media (max-width: 760px) {
+    .collection-card {
+      padding: .85rem;
+    }
+
+    .collection-card .collection-card-header {
+      align-items: center;
+    }
+
+    .collection-card-category {
+      display: none;
+    }
+
+    .collection-card .collection-card-fields {
+      grid-template-columns: 1fr;
+    }
+
+    .collection-card .collection-card-field-wide {
+      grid-column: auto;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .collection-card-brand-copy strong {
+      font-size: 1.04rem;
+    }
+
+    .collection-card-mark,
+    .collection-card-symbol {
+      width: 35px;
+      height: 35px;
+    }
+
+    .collection-card-mark {
+      flex-basis: 35px;
+    }
+  }
+}
+
+@media print {
+  .collection-card {
+    border: 1px solid #222!important;
+    border-top: 2px solid #000!important;
+    border-radius: 0!important;
+    background: #fff!important;
+    color: #000!important;
+    box-shadow: none!important;
+    gap: 1.3mm!important;
+  }
+
+  .collection-card .collection-card-header {
+    display: flex!important;
+    align-items: flex-end!important;
+    justify-content: space-between!important;
+    gap: 2mm!important;
+    padding: 0 0 1.3mm!important;
+    border: 0!important;
+    border-bottom: 1px solid #444!important;
+  }
+
+  .collection-card .collection-card-brand {
+    display: block!important;
+    min-width: 0!important;
+  }
+
+  .collection-card .collection-card-mark {
+    display: none!important;
+  }
+
+  .collection-card .collection-card-brand-copy {
+    display: grid!important;
+    gap: .2mm!important;
+  }
+
+  .collection-card .collection-card-brand-copy small {
+    color: #333!important;
+    font-size: .72em!important;
+    font-weight: 700!important;
+    letter-spacing: .03em!important;
+    text-transform: uppercase!important;
+  }
+
+  .collection-card .collection-card-brand-copy strong {
+    color: #000!important;
+    font-size: 1.08em!important;
+    line-height: 1.15!important;
+  }
+
+  .collection-card .collection-card-category {
+    flex: 0 0 auto!important;
+    padding: 0!important;
+    border: 0!important;
+    background: #fff!important;
+    color: #333!important;
+    font-size: .64em!important;
+    font-weight: 700!important;
+    text-transform: uppercase!important;
+  }
+
+  .collection-card .collection-card-context {
+    display: grid!important;
+    gap: .4mm!important;
+    padding: 0 0 1.2mm!important;
+    border: 0!important;
+    border-bottom: 1px solid #777!important;
+    border-radius: 0!important;
+    background: #fff!important;
+  }
+
+  .collection-card .collection-card-unit {
+    color: #000!important;
+    font-size: .96em!important;
+    line-height: 1.2!important;
+  }
+
+  .collection-card .collection-card-territory {
+    color: #111!important;
+    font-size: .78em!important;
+    font-weight: 700!important;
+  }
+
+  .collection-card .collection-card-reference {
+    margin-top: 0!important;
+    color: #222!important;
+    font-size: .72em!important;
+    line-height: 1.2!important;
+  }
+
+  .collection-card .collection-card-fields {
+    display: grid!important;
+    grid-template-columns: repeat(2, minmax(0, 1fr))!important;
+    gap: 1mm 2mm!important;
+  }
+
+  .collection-card .collection-card-field {
+    min-width: 0!important;
+    padding: 0 0 .8mm!important;
+    border: 0!important;
+    border-bottom: 1px solid #aaa!important;
+    border-radius: 0!important;
+    background: #fff!important;
+  }
+
+  .collection-card .collection-card-field-wide {
+    grid-column: 1 / -1!important;
+  }
+
+  .collection-card .generated-card-field-copy small {
+    color: #222!important;
+    font-size: .72em!important;
+    font-weight: 700!important;
+    line-height: 1.1!important;
+  }
+
+  .collection-card .generated-card-field-copy p {
+    margin: .2mm 0 0!important;
+    color: #000!important;
+    font-size: 1em!important;
+    font-weight: 700!important;
+    line-height: 1.2!important;
+  }
+
+  .collection-card-indicator .collection-card-field-number .generated-card-field-copy p {
+    font-size: 1.08em!important;
+  }
+
+  .collection-card .collection-card-note {
+    margin-top: auto!important;
+    padding: 1.1mm 0 0!important;
+    border: 0!important;
+    border-top: 1px solid #444!important;
+    border-radius: 0!important;
+    background: #fff!important;
+    color: #111!important;
+    font-size: .76em!important;
+    line-height: 1.25!important;
+  }
+
+  .card-sheet.count-8 .collection-card {
+    gap: .9mm!important;
+  }
+
+  .card-sheet.count-8 .collection-card .collection-card-context {
+    padding-bottom: .8mm!important;
+  }
+
+  .card-sheet.count-8 .collection-card .collection-card-fields {
+    gap: .7mm 1.4mm!important;
+  }
+
+  .card-sheet.count-8 .collection-card .collection-card-field {
+    padding-bottom: .5mm!important;
+  }
+
+  .card-sheet.count-12 .collection-card {
+    gap: .55mm!important;
+  }
+
+  .card-sheet.count-12 .collection-card .collection-card-brand-copy small,
+  .card-sheet.count-12 .collection-card .collection-card-category {
+    display: none!important;
+  }
+
+  .card-sheet.count-12 .collection-card .collection-card-context {
+    gap: .2mm!important;
+    padding-bottom: .5mm!important;
+  }
+
+  .card-sheet.count-12 .collection-card .collection-card-reference {
+    font-size: .68em!important;
+  }
+
+  .card-sheet.count-12 .collection-card .collection-card-fields {
+    gap: .35mm 1mm!important;
+  }
+
+  .card-sheet.count-12 .collection-card .collection-card-field {
+    padding-bottom: .35mm!important;
+  }
+
+  .card-sheet.count-12 .collection-card .collection-card-note {
+    padding-top: .55mm!important;
+    font-size: .7em!important;
+  }
+}

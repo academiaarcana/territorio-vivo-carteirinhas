@@ -56,12 +56,26 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `028_sync_profile_network_labels_on_catalog_update.sql` | `sync_profile_network_labels_on_catalog_update` |
 | `029_separate_gestor_and_master_account.sql` | `separate_gestor_and_master_account` |
 | `030_optimize_gestor_profile_policy.sql` | `optimize_gestor_profile_policy` |
+| `031_enforce_management_scope_shape.sql` | `enforce_management_scope_shape` |
+| `032_noop_verify_management_scope_shape.sql` | `noop_verify_management_scope_shape` |
 
 ### Nota sobre Gestor × Master
 
 A migration 029 mantém os três papéis de autorização (`acs`, `unit_admin`, `admin`) e passa a distinguir a conta técnica Master/Desenvolvimento por `profiles.is_master_account`. Assim, um perfil `admin/active` comum representa **Gestor Municipal**, enquanto a conta técnica existente permanece `admin/active` com `is_master_account=true`. Somente a conta Master pode promover outro perfil a Gestor Municipal ou administrar outra conta `admin`.
 
 A migration 030 preserva esse mesmo escopo e apenas otimiza a policy `profiles_update_by_scope`, avaliando `auth.uid()` uma única vez por consulta conforme recomendação do Performance Advisor.
+
+### Nota sobre a forma do escopo de gestão
+
+A migration 031 reforça no PostgreSQL a forma canônica do vínculo por papel:
+
+- `admin` não mantém município, UBS, equipe ou microárea no próprio perfil;
+- `unit_admin` mantém município/UBS, mas não equipe nem microárea;
+- ACS mantém o vínculo territorial profissional completo conforme aprovação.
+
+A migration também limpa vínculos herdados incompatíveis já existentes, sem depender de IDs específicos.
+
+A migration 032 é deliberadamente um **no-op** versionado. Ela espelha no Git uma verificação operacional registrada no histórico remoto durante a homologação da 031, evitando falso diagnóstico de drift sem alterar schema ou dados.
 
 ## Regra para novas alterações
 
@@ -72,6 +86,8 @@ A partir da V2, toda mudança DDL deve seguir o mesmo fluxo:
 3. verificar Security Advisor e Performance Advisor;
 4. atualizar testes de contrato quando a alteração afetar segurança ou autorização;
 5. não editar migrations históricas já aplicadas para representar uma mudança nova.
+
+O CI também executa `scripts/test-migration-history-contract.mjs`, que exige sequência local contínua e referência de todas as migrations numeradas neste documento.
 
 ## Critério de drift
 

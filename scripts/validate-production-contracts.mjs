@@ -16,6 +16,10 @@ const expect = (content, needle, message) => {
   if (!content.includes(needle)) errors.push(message);
 };
 
+if (fs.existsSync(path.join(root, 'vercel.json'))) {
+  errors.push('Produção do Território Vivo deve permanecer exclusiva no GitHub Pages; vercel.json não é permitido.');
+}
+
 const migration28 = read('supabase/migrations/028_sync_profile_network_labels_on_catalog_update.sql');
 expect(migration28, 'new.municipality_code is distinct from old.municipality_code', 'Migration 028 precisa manter município como vínculo protegido.');
 expect(migration28, 'new.unit_cnes is distinct from old.unit_cnes', 'Migration 028 precisa manter UBS como vínculo protegido.');
@@ -75,6 +79,12 @@ const pagesWorkflow = read('.github/workflows/pages.yml');
 expect(pagesWorkflow, 'branches: ["main"]', 'GitHub Pages deve publicar por push somente a partir da main.');
 expect(pagesWorkflow, "if: github.ref == 'refs/heads/main'", 'Mesmo workflow_dispatch não pode publicar uma branch diferente da main.');
 
+const validateWorkflow = read('.github/workflows/validate.yml');
+expect(validateWorkflow, 'test ! -f vercel.json', 'CI precisa impedir reintrodução de configuração Vercel no Território Vivo.');
+if (/deploy-vercel|vercel\/action|vercel\.com|\bvercel\s+(deploy|build|pull)\b/i.test(validateWorkflow)) {
+  errors.push('Workflow de validação não pode executar integração ou deploy Vercel.');
+}
+
 const admin = read('src/pages/admin.js');
 expect(admin, 'submitDialogForm', 'Gestão precisa centralizar busy state de formulários administrativos.');
 expect(admin, 'refreshAfterMutation', 'Gestão não pode anunciar sucesso se o reload pós-mutation falhar silenciosamente.');
@@ -90,11 +100,12 @@ expect(repository, "'Longitude', -180, 180", 'Serviço territorial precisa valid
 expect(repository, 'Informe latitude e longitude juntas.', 'Serviço territorial precisa exigir coordenadas em par.');
 
 const printUtil = read('src/utils/print.js');
-expect(printUtil, "return { mode: 'print-fallback' }", 'Utilitário de PDF precisa distinguir fallback de impressão.');
+expect(printUtil, "throw new Error('Gerador de PDF indisponível no navegador.')", 'Utilitário de PDF precisa falhar explicitamente se o gerador direto não estiver disponível.');
+if (printUtil.includes("return { mode: 'print-fallback' }")) errors.push('Baixar PDF não pode mascarar falha usando fallback de impressão.');
 expect(printUtil, "return { mode: 'pdf' }", 'Utilitário de PDF precisa confirmar geração real de PDF.');
 for (const file of ['src/pages/cards.js', 'src/pages/five.js', 'src/pages/indicators.js', 'src/pages/education.js']) {
   const content = read(file);
-  expect(content, "result.mode === 'pdf'", `${file} precisa diferenciar PDF real de fallback de impressão.`);
+  expect(content, "result.mode === 'pdf'", `${file} precisa diferenciar PDF real de qualquer resultado não-PDF.`);
   expect(content, 'setButtonBusy', `${file} precisa anunciar e bloquear geração repetida de PDF.`);
 }
 
@@ -127,4 +138,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Contratos de produção OK: Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos sem respostas obsoletas, busy states, dados temporários sem persistência, PDF/fallback, dialogs acessíveis e roving tabs protegidos.');
+console.log('Contratos de produção OK: GitHub Pages exclusivo, Pages restrito à main, recuperação autenticada, foco SPA, autoria territorial, sincronização canônica, catálogos assíncronos sem respostas obsoletas, busy states, dados temporários sem persistência, PDF direto sem fallback silencioso, dialogs acessíveis e roving tabs protegidos.');

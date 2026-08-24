@@ -309,14 +309,115 @@ function buildCardHtml(template, values, state, { easyRead = false, visualSuppor
   const context = state.context || {};
   const unit = context.unit?.short_name || profile.unit_name || 'Unidade de saúde';
   const team = context.team?.name || profile.team_name || '';
-  const territory = [unit, team, profile.microarea ? `Microárea ${profile.microarea}` : ''].filter(Boolean).join(' • ');
   const fields = template.fields.map((field) => ({ field, label: field.label, value: displayValue(field, values[field.id]) })).filter((item) => item.value);
+
+  if (template.id === 'appointment') {
+    return buildAppointmentCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy });
+  }
+
+  return buildCollectionCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy });
+}
+
+function buildCollectionCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy }) {
+  const teamAndMicroarea = [team, profile.microarea ? `Microárea ${profile.microarea}` : ''].filter(Boolean).join(' • ');
+  const reference = profile.full_name
+    ? `Referência: ${escapeHtml(profile.full_name)}${profile.acs_phone ? ` • ${escapeHtml(profile.acs_phone)}` : ''}`
+    : '';
+  const classes = [
+    'generated-card',
+    'collection-card',
+    `collection-card-${template.category}`,
+    `collection-template-${template.id}`,
+    easyRead ? 'easy-read' : '',
+    visualSupport ? 'visual-support' : '',
+    largePrint ? 'large-print' : '',
+    economy ? 'economy' : ''
+  ].filter(Boolean).join(' ');
+
   return `
-    <article class="generated-card ${easyRead ? 'easy-read' : ''} ${visualSupport ? 'visual-support' : ''} ${largePrint ? 'large-print' : ''} ${economy ? 'economy' : ''}">
-      <header><span>Território Vivo</span><strong>${escapeHtml(template.title)}</strong></header>
-      <div class="generated-card-context"><b>${escapeHtml(territory)}</b>${profile.full_name ? `<span>Referência: ${escapeHtml(profile.full_name)}${profile.acs_phone ? ` • ${escapeHtml(profile.acs_phone)}` : ''}</span>` : ''}</div>
-      <div class="generated-card-fields">${fields.length ? fields.map((item) => `<div class="generated-card-field">${visualSupport ? renderVisualSupports({ label: item.label, value: item.value, type: item.field.type }, { max: 3, className: 'field-pictogram' }) : ''}<span class="generated-card-field-copy"><small>${escapeHtml(item.label)}</small><p>${escapeHtml(item.value).replace(/\n/g, '<br>')}</p></span></div>`).join('') : '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha.</p>'}</div>
-      <footer>${escapeHtml(template.note || '')}</footer>
+    <article class="${classes}">
+      <header class="collection-card-header">
+        <span class="collection-card-brand">
+          <span class="collection-card-mark" aria-hidden="true">
+            <svg class="collection-card-symbol" viewBox="0 0 52 52" focusable="false" aria-hidden="true">
+              <rect x="1" y="1" width="50" height="50" rx="12" fill="currentColor"/>
+              <path d="M26 7.5c-7.7 0-14 6.1-14 13.7 0 10.3 14 23.3 14 23.3s14-13 14-23.3c0-7.6-6.3-13.7-14-13.7Z" fill="#fff"/>
+              <path d="m18.8 23.1 7.2-6 7.2 6v8.4H18.8v-8.4Z" fill="currentColor"/>
+              <circle cx="23" cy="24.8" r="1.8" fill="#fff"/>
+              <circle cx="29" cy="24.8" r="1.8" fill="#fff"/>
+              <path d="M21.4 29.3c.5-1.7 1.6-2.6 3.1-2.6s2.6.9 3.1 2.6M27 29.3c.4-1.4 1.3-2.1 2.6-2.1 1.2 0 2.1.7 2.6 2.1" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/>
+              <circle cx="39.5" cy="39.5" r="5.2" fill="#2e7d32" stroke="#fff" stroke-width="2"/>
+            </svg>
+          </span>
+          <span class="collection-card-brand-copy">
+            <small>Território Vivo</small>
+            <strong>${escapeHtml(template.title)}</strong>
+          </span>
+        </span>
+        <span class="collection-card-category">${escapeHtml(categoryLabel(template.category))}</span>
+      </header>
+      <div class="generated-card-context collection-card-context">
+        <strong class="collection-card-unit">${escapeHtml(unit)}</strong>
+        ${teamAndMicroarea ? `<span class="collection-card-territory">${escapeHtml(teamAndMicroarea)}</span>` : ''}
+        ${reference ? `<span class="collection-card-reference">${reference}</span>` : ''}
+      </div>
+      <div class="generated-card-fields collection-card-fields">${fields.length ? fields.map((item) => renderCollectionCardField(item, visualSupport)).join('') : '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha.</p>'}</div>
+      <footer class="collection-card-note">${escapeHtml(template.note || '')}</footer>
+    </article>`;
+}
+
+function renderCollectionCardField(item, visualSupport) {
+  const classes = [
+    'generated-card-field',
+    'collection-card-field',
+    `collection-card-field-${item.field.id}`,
+    item.field.type === 'textarea' ? 'collection-card-field-wide' : '',
+    item.field.type === 'number' ? 'collection-card-field-number' : '',
+    ['date', 'time'].includes(item.field.type) ? 'collection-card-field-compact' : ''
+  ].filter(Boolean).join(' ');
+
+  return `<div class="${classes}">${visualSupport ? renderVisualSupports({ label: item.label, value: item.value, type: item.field.type }, { max: 3, className: 'field-pictogram' }) : ''}<span class="generated-card-field-copy"><small>${escapeHtml(item.label)}</small><p>${escapeHtml(item.value).replace(/\n/g, '<br>')}</p></span></div>`;
+}
+
+function buildAppointmentCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy }) {
+  const teamAndMicroarea = [team, profile.microarea ? `Microárea ${profile.microarea}` : ''].filter(Boolean).join(' • ');
+  const reference = profile.full_name
+    ? `Referência: ${escapeHtml(profile.full_name)}${profile.acs_phone ? ` • ${escapeHtml(profile.acs_phone)}` : ''}`
+    : '';
+  const classes = [
+    'generated-card',
+    'appointment-card',
+    easyRead ? 'easy-read' : '',
+    visualSupport ? 'visual-support' : '',
+    largePrint ? 'large-print' : '',
+    economy ? 'economy' : ''
+  ].filter(Boolean).join(' ');
+
+  return `
+    <article class="${classes}">
+      <header class="appointment-card-header">
+        <span class="appointment-card-brand">
+          <span class="appointment-card-mark" aria-hidden="true">
+            <svg class="appointment-card-symbol" viewBox="0 0 52 52" focusable="false" aria-hidden="true">
+              <rect x="1" y="1" width="50" height="50" rx="12" fill="currentColor"/>
+              <path d="M26 7.5c-7.7 0-14 6.1-14 13.7 0 10.3 14 23.3 14 23.3s14-13 14-23.3c0-7.6-6.3-13.7-14-13.7Z" fill="#fff"/>
+              <path d="m18.8 23.1 7.2-6 7.2 6v8.4H18.8v-8.4Z" fill="currentColor"/>
+              <circle cx="23" cy="24.8" r="1.8" fill="#fff"/>
+              <circle cx="29" cy="24.8" r="1.8" fill="#fff"/>
+              <path d="M21.4 29.3c.5-1.7 1.6-2.6 3.1-2.6s2.6.9 3.1 2.6M27 29.3c.4-1.4 1.3-2.1 2.6-2.1 1.2 0 2.1.7 2.6 2.1" fill="none" stroke="#fff" stroke-width="1.45" stroke-linecap="round"/>
+              <circle cx="39.5" cy="39.5" r="5.2" fill="#2e7d32" stroke="#fff" stroke-width="2"/>
+            </svg>
+          </span>
+          <span class="appointment-card-brand-copy"><small>Território Vivo</small><strong>${escapeHtml(template.title)}</strong></span>
+        </span>
+      </header>
+      <div class="generated-card-context appointment-card-context">
+        <strong class="appointment-card-unit">${escapeHtml(unit)}</strong>
+        ${teamAndMicroarea ? `<span class="appointment-card-territory">${escapeHtml(teamAndMicroarea)}</span>` : ''}
+        ${reference ? `<span class="appointment-card-reference">${reference}</span>` : ''}
+      </div>
+      <div class="generated-card-fields appointment-card-fields">${fields.length ? fields.map((item) => `<div class="generated-card-field appointment-card-field appointment-card-field-${escapeHtml(item.field.id)}">${visualSupport ? renderVisualSupports({ label: item.label, value: item.value, type: item.field.type }, { max: 3, className: 'field-pictogram' }) : ''}<span class="generated-card-field-copy"><small>${escapeHtml(item.label)}</small><p>${escapeHtml(item.value).replace(/\n/g, '<br>')}</p></span></div>`).join('') : '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha.</p>'}</div>
+      <footer class="appointment-card-note">${escapeHtml(template.note || '')}</footer>
     </article>`;
 }
 

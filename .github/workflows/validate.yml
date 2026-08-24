@@ -28,10 +28,9 @@ jobs:
       - name: Verificar configuração pública
         run: |
           test -f .nojekyll
-          test -f vercel.json
+          test ! -f vercel.json
           grep -q "supabaseUrl" config.js
           grep -q "supabasePublishableKey" config.js
-          grep -q "deploymentEnabled" vercel.json
           ! grep -R "service_role" src config.js index.html --exclude-dir=.git
 
       - name: Testar fronteiras públicas do Supabase

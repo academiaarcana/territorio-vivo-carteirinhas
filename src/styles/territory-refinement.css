@@ -1,0 +1,270 @@
+/* Refinamento conceitual e visual — Território Vivo
+   Camada de tela: preserva impressão/PDF e a identidade principal já homologada. */
+@media screen {
+  :root {
+    --territory: #2f6f52;
+    --territory-strong: #155d46;
+    --territory-soft: #e9f3ed;
+    --planning: #9a5b21;
+    --planning-soft: #fbf1e6;
+    --info: #0b5e75;
+    --info-soft: #e8f3f5;
+    --surface-muted: #f7faf9;
+    --text-soft: #38586b;
+  }
+
+  .hero-territory {
+    position: relative;
+    border-top-color: var(--territory);
+    background: #fff;
+  }
+
+  .hero-territory::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    border-radius: 10px 0 0 10px;
+    background: var(--territory);
+  }
+
+  .hero-supporting-copy {
+    max-width: 860px!important;
+    margin: 1rem 0 0;
+    padding: .85rem 1rem;
+    border: 1px solid #d8e8df;
+    border-radius: 9px;
+    background: var(--territory-soft);
+    color: #284f3d!important;
+  }
+
+  .section-compact {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .section-emphasis {
+    margin: 1rem 0;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border: 1px solid #dce7e2;
+    border-radius: 12px;
+    background: var(--surface-muted);
+  }
+
+  .territory-cycle-section {
+    border-top: 4px solid var(--territory);
+  }
+
+  .management-section {
+    border-top: 4px solid var(--planning);
+  }
+
+  .concept-flow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .85rem;
+    margin-top: 1rem;
+  }
+
+  .concept-step {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid #d9e6df;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .concept-step h3 {
+    margin-bottom: .28rem;
+    color: var(--territory-strong);
+  }
+
+  .concept-step p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .concept-number,
+  .management-level-index {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 2rem;
+    border-radius: 50%;
+    background: var(--territory-soft);
+    color: var(--territory-strong);
+    font-size: .78rem;
+    font-weight: 850;
+  }
+
+  .management-ladder {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem;
+    margin-top: 1rem;
+  }
+
+  .management-level {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: 1rem;
+    border: 1px solid #eadbc9;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .management-level .management-level-index {
+    background: var(--planning-soft);
+    color: #7b481a;
+  }
+
+  .management-level h3 {
+    margin-bottom: .28rem;
+    color: #6f431b;
+  }
+
+  .management-level p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .intersectoral-panel {
+    display: grid;
+    grid-template-columns: minmax(260px, .85fr) minmax(320px, 1.15fr);
+    gap: 1rem;
+    align-items: start;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid #d8e5ea;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .intersectoral-panel p:last-child {
+    margin-bottom: 0;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .lens-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+
+  .lens-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: .4rem .65rem;
+    border: 1px solid #bdd5de;
+    border-radius: 999px;
+    background: var(--info-soft);
+    color: #164f60;
+    font-size: .78rem;
+    font-weight: 750;
+  }
+
+  .territory-now-block {
+    margin: 0 0 1rem;
+    padding: 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(20, 62, 91, .045);
+  }
+
+  .territory-now-block .section-actions {
+    align-items: flex-start;
+    margin-bottom: .85rem;
+  }
+
+  .territory-now-block .section-actions h2 {
+    margin-bottom: .35rem;
+  }
+
+  .territory-now-block .section-actions p:last-child {
+    max-width: 780px;
+    margin-bottom: 0;
+    color: var(--muted);
+  }
+
+  .kpi.tone-territory { border-top: 4px solid var(--territory); }
+  .kpi.tone-warning { border-top: 4px solid var(--planning); }
+  .kpi.tone-planning { border-top: 4px solid #7d5f99; }
+  .kpi.tone-info { border-top: 4px solid var(--info); }
+
+  .panel-planning { border-left: 4px solid var(--territory); }
+  .panel-management { border-left: 4px solid var(--planning); }
+
+  .public-hero-territory {
+    border-bottom: 1px solid #dfe9e5;
+    background: #f8fbfa;
+  }
+
+  .public-hero-territory .public-summary {
+    border-top: 4px solid var(--territory);
+  }
+
+  .brand-public .brand-mark.brand-symbol,
+  .brand-public .territory-vivo-symbol {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand-public .brand-mark.brand-symbol {
+    flex-basis: 44px;
+  }
+
+  .tutorial-grid article {
+    border-top: 3px solid #d9e7ee;
+  }
+
+  @media (max-width: 1050px) {
+    .concept-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    #app[data-route="/app/inicio"] .kpi-grid,
+    #app[data-route="/app/tutorial"] .kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #app[data-route="/app/inicio"] .dashboard-grid,
+    #app[data-route="/app/5-minutos"] .two-column,
+    #app[data-route="/app/tutorial"] .concept-flow,
+    #app[data-route="/app/tutorial"] .management-ladder,
+    #app[data-route="/app/tutorial"] .intersectoral-panel {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    #app[data-route="/app/inicio"] .kpi-grid,
+    #app[data-route="/app/tutorial"] .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .concept-flow,
+    .management-ladder,
+    .intersectoral-panel {
+      grid-template-columns: 1fr;
+    }
+
+    .section-emphasis {
+      padding: 1rem;
+    }
+
+    .concept-step,
+    .management-level {
+      padding: .85rem;
+    }
+  }
+}

@@ -1,0 +1,305 @@
+/* Identidade visual institucional — Território Vivo
+   Camada apenas de tela. A impressão permanece controlada pelos estilos próprios. */
+@media screen {
+  :root {
+    font-family: "Montserrat", "Segoe UI", Arial, sans-serif;
+    --bg: #f4f8fc;
+    --surface: #ffffff;
+    --text: #15344d;
+    --muted: #60788c;
+    --line: #d7e3ed;
+    --accent: #005baa;
+    --accent-strong: #004783;
+    --accent-soft: #eaf4fb;
+    --success: #2e7d32;
+    --warning: #8a6500;
+    --danger: #b42318;
+    --radius: 12px;
+  }
+
+  body { background: var(--bg); color: var(--text); }
+  a { color: var(--accent); }
+  h1, h2, h3 { color: #12324a; }
+  h1 { letter-spacing: -.025em; }
+  .eyebrow, .category-label { color: var(--accent); letter-spacing: .075em; }
+
+  .button {
+    min-height: 44px;
+    border-color: #bfd0df;
+    border-radius: 8px;
+    background: #fff;
+    color: #173b58;
+    font-weight: 750;
+    transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+  }
+  .button:hover { border-color: #7ba9cf; background: #f8fbfe; }
+  .button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .button.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .link-button { color: var(--accent); }
+
+  .public-header, .sidebar, .workspace-header { border-color: var(--line); }
+  .sidebar {
+    width: auto;
+    background: #fff;
+    border-top: 5px solid var(--accent);
+    padding: 1.05rem 1rem;
+    gap: .9rem;
+    box-shadow: 1px 0 0 rgba(0, 91, 170, .03);
+  }
+
+  .brand {
+    gap: .76rem;
+    align-items: center;
+    padding: .12rem .1rem .78rem;
+    border-bottom: 1px solid #edf3f7;
+  }
+  .brand-mark.brand-symbol {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    display: block;
+    border-radius: 0;
+    background: transparent;
+    color: var(--accent);
+    box-shadow: none;
+  }
+  .brand-mark.brand-symbol::after { content: none; }
+  .territory-vivo-symbol { display: block; width: 48px; height: 48px; overflow: visible; }
+  .brand-copy { min-width: 0; display: flex; flex-direction: column; }
+  .brand-copy strong { color: #12324a; font-size: 1.06rem; line-height: 1.12; letter-spacing: -.01em; }
+  .brand-signature { margin-top: .16rem; color: var(--accent)!important; font-size: .7rem; font-weight: 850; line-height: 1.2; }
+  .brand-program { margin-top: .05rem; color: #31566f!important; font-size: .68rem; font-weight: 750; line-height: 1.2; }
+  .brand-context {
+    margin-top: .28rem;
+    padding-top: .25rem;
+    color: var(--muted)!important;
+    font-size: .68rem;
+    line-height: 1.28;
+  }
+
+  .app-nav { gap: .2rem; }
+  .nav-link {
+    position: relative;
+    min-height: 44px;
+    padding: .68rem .72rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #27485f;
+    font-weight: 650;
+  }
+  .nav-link:hover { background: #f4f8fc; border-color: #e1ebf2; }
+  .nav-link.active {
+    background: var(--accent-soft);
+    border-color: #bed8eb;
+    color: var(--accent-strong);
+    font-weight: 800;
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+  .nav-flaticon-icon { width: 19px; height: 19px; flex-basis: 19px; }
+
+  .account-card { border-top-color: var(--line); padding-top: .9rem; }
+  .avatar { background: var(--accent-soft); color: var(--accent-strong); border: 1px solid #c5ddeb; }
+
+  .workspace-header {
+    position: relative;
+    padding: 1.35rem clamp(1rem,3vw,2.4rem) 1.25rem;
+    background: #fff;
+    border-top: 5px solid var(--accent);
+    box-shadow: 0 1px 0 rgba(12, 61, 95, .03);
+  }
+  .workspace-heading { min-width: 0; }
+  .workspace-brandline {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    flex-wrap: wrap;
+    margin-bottom: .42rem;
+    color: var(--muted);
+    font-size: .74rem;
+    font-weight: 750;
+  }
+  .workspace-context-label {
+    color: var(--accent);
+    font-weight: 850;
+    letter-spacing: .015em;
+  }
+  .workspace-header h1 { margin-bottom: .3rem; font-size: clamp(1.65rem, 2.4vw, 2.25rem); }
+  .workspace-header .workspace-subtitle { margin: 0; max-width: 800px; color: var(--muted); line-height: 1.5; }
+  .workspace-territory {
+    display: inline-flex;
+    margin: .72rem 0 0!important;
+    padding: .42rem .62rem;
+    border: 1px solid #d9e6ef;
+    border-radius: 7px;
+    background: #f8fbfd;
+    color: #36576e!important;
+    font-size: .78rem;
+    font-weight: 700;
+  }
+  .workspace-signout { flex: 0 0 auto; }
+  .page-content { padding-top: clamp(1rem,2.5vw,2rem); }
+
+  .public-summary, .panel, .template-card, .education-card, .unit-card, .kpi, .hero-panel, .auth-panel, .territory-point-card, .profile-sections fieldset {
+    border-color: var(--line);
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(20, 62, 91, .045);
+  }
+  .hero-panel { border-top: 3px solid #d8eaf6; }
+  .template-card, .education-card, .unit-card { transition: border-color .15s ease, box-shadow .15s ease; }
+  .template-card:hover, .education-card:hover, .unit-card:hover { border-color: #b9d2e4; box-shadow: 0 2px 7px rgba(20, 62, 91, .07); }
+
+  .stack-form input, .stack-form select, .stack-form textarea,
+  .form-grid input, .form-grid select, .form-grid textarea,
+  .indicator-grid input, .compact-search input, .filter-grid input, .filter-grid select {
+    border-color: #c6d6e2;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .stack-form input:focus, .stack-form select:focus, .stack-form textarea:focus,
+  .form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus,
+  .indicator-grid input:focus, .compact-search input:focus, .filter-grid input:focus, .filter-grid select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 91, 170, .12);
+  }
+
+  .filter-button, .tab-button { border-color: #c8d8e4; color: #31526a; background: #fff; }
+  .filter-button.active, .tab-button.active, .tab-button[aria-selected="true"] {
+    background: var(--accent-soft);
+    border-color: #9fc6e1;
+    color: var(--accent-strong);
+  }
+
+  .editor-dialog { border-radius: 12px; border-top: 5px solid var(--accent); box-shadow: 0 20px 60px rgba(12, 49, 76, .22); }
+  .editor-dialog::backdrop { background: rgba(16, 42, 61, .48); }
+  .clinical-disclaimer { border-left-color: var(--accent); background: var(--accent-soft); }
+  .status-badge { background: var(--accent-soft); color: var(--accent-strong); }
+  .status-badge.warning { background: #fff5cc; color: #6e5200; }
+
+  /* Meu Próximo Atendimento: evolução visual isolada antes de propagar o padrão. */
+  .appointment-card {
+    min-height: 300px;
+    padding: 1rem;
+    gap: .78rem;
+    overflow: hidden;
+    border: 1px solid #bed4e4;
+    border-top: 4px solid var(--accent);
+    border-radius: 12px;
+    background: #fff;
+    color: #17364d;
+    box-shadow: 0 3px 12px rgba(19, 65, 96, .08);
+  }
+  .appointment-card .appointment-card-header {
+    display: block;
+    padding: 0 0 .72rem;
+    border: 0;
+    border-bottom: 1px solid #cbdde9;
+  }
+  .appointment-card-brand { display: flex; align-items: center; gap: .68rem; min-width: 0; }
+  .appointment-card-mark { width: 39px; height: 39px; flex: 0 0 39px; color: var(--accent); }
+  .appointment-card-symbol { display: block; width: 39px; height: 39px; }
+  .appointment-card-brand-copy { display: grid; gap: .08rem; min-width: 0; }
+  .appointment-card-brand-copy small {
+    color: #557185;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .appointment-card-brand-copy strong {
+    color: var(--accent-strong);
+    font-size: 1.14rem;
+    line-height: 1.18;
+    letter-spacing: -.015em;
+  }
+  .appointment-card .appointment-card-context {
+    gap: .16rem;
+    padding: .68rem .75rem;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    background: #f4f9fd;
+  }
+  .appointment-card-unit { color: #17364d; font-size: .98rem; line-height: 1.28; }
+  .appointment-card-territory { color: #365c75; font-size: .8rem; font-weight: 750; }
+  .appointment-card-reference { margin-top: .12rem; color: #60798b; font-size: .76rem; line-height: 1.32; }
+  .appointment-card .appointment-card-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .58rem;
+  }
+  .appointment-card .appointment-card-field {
+    min-width: 0;
+    gap: .52rem;
+    padding: .6rem .65rem;
+    border: 1px solid #dbe7ef;
+    border-radius: 8px;
+    background: #fbfdff;
+  }
+  .appointment-card .appointment-card-field-name,
+  .appointment-card .appointment-card-field-service,
+  .appointment-card .appointment-card-field-note { grid-column: 1 / -1; }
+  .appointment-card .generated-card-field-copy small {
+    color: #587286;
+    font-size: .72rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .appointment-card .generated-card-field-copy p {
+    margin-top: .16rem;
+    color: #132f45;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.34;
+  }
+  .appointment-card.visual-support .field-pictogram.visual-support-set { max-width: 116px; }
+  .appointment-card.visual-support .support-pictogram { border-color: #8fb8d5; }
+  .appointment-card .appointment-card-note {
+    margin-top: 0;
+    padding: .7rem .78rem;
+    border-top: 1px solid #d7e4ed;
+    border-radius: 7px;
+    background: #f6f9fb;
+    color: #345469;
+    font-size: .82rem;
+    line-height: 1.42;
+  }
+  .appointment-card.easy-read .appointment-card-brand-copy strong { font-size: 1.18em; }
+  .appointment-card.easy-read .appointment-card-unit { font-size: 1em; }
+  .appointment-card.economy,
+  .appointment-card.economy .appointment-card-context,
+  .appointment-card.economy .appointment-card-field,
+  .appointment-card.economy .appointment-card-note { background: #fff; box-shadow: none; }
+
+  .workspace-credits {
+    display: grid;
+    gap: .45rem;
+    padding: 1rem clamp(1rem,3vw,2.4rem) 1.3rem;
+    border-top: 1px solid var(--line);
+    background: #fff;
+  }
+  .institutional-disclaimer { margin: 0; max-width: 900px; color: #657e91; font-size: .72rem; line-height: 1.45; }
+  .workspace-attribution { font-size: .72rem; }
+
+  @media (max-width: 760px) {
+    .sidebar { border-top-width: 4px; padding-top: .9rem; }
+    .brand { align-items: center; padding-bottom: .65rem; }
+    .brand-mark.brand-symbol, .territory-vivo-symbol { width: 43px; height: 43px; }
+    .brand-mark.brand-symbol { flex-basis: 43px; }
+    .brand-copy strong { font-size: 1rem; }
+    .brand-signature, .brand-program { font-size: .66rem; }
+    .brand-context { font-size: .65rem; }
+    .workspace-header { border-top-width: 4px; }
+    .workspace-territory { display: flex; width: 100%; }
+    .appointment-card { padding: .85rem; }
+    .appointment-card .appointment-card-fields { grid-template-columns: 1fr; }
+    .appointment-card .appointment-card-field-name,
+    .appointment-card .appointment-card-field-service,
+    .appointment-card .appointment-card-field-note { grid-column: auto; }
+  }
+
+  @media (max-width: 430px) {
+    .brand-context { max-width: 27ch; }
+    .workspace-brandline { font-size: .7rem; }
+    .appointment-card-brand-copy strong { font-size: 1.04rem; }
+    .appointment-card-mark, .appointment-card-symbol { width: 35px; height: 35px; }
+    .appointment-card-mark { flex-basis: 35px; }
+  }
+}
