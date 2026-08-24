@@ -8,7 +8,8 @@ import {
   quickTutorial,
   researchNote,
   systemFunctions,
-  territoryVivoObjectives
+  territoryVivoObjectives,
+  territoryVivoProblem
 } from '../data/tutorial-content.js';
 
 export function renderTutorialPage() {
@@ -20,7 +21,12 @@ export function renderTutorialPage() {
     </section>
 
     <section class="section-block">
-      <header><p class="eyebrow">Por que existe</p><h2>Do território observado ao cuidado organizado</h2></header>
+      <header><p class="eyebrow">O problema</p><h2>O território produz informação todos os dias — mas ela nem sempre chega organizada à decisão.</h2><p>O ponto de partida não é criar mais um sistema clínico. É aproximar conhecimento territorial, conversa de equipe e planejamento.</p></header>
+      <div class="feature-grid">${territoryVivoProblem.map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.text)}</p></article>`).join('')}</div>
+    </section>
+
+    <section class="section-block">
+      <header><p class="eyebrow">Como o sistema responde</p><h2>Do território observado ao cuidado organizado</h2></header>
       <div class="feature-grid">${territoryVivoObjectives.map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.text)}</p></article>`).join('')}</div>
     </section>
 
@@ -30,26 +36,26 @@ export function renderTutorialPage() {
     </section>
 
     <section class="section-block">
-      <header><p class="eyebrow">Todas as funções</p><h2>O que o Território Vivo faz</h2></header>
+      <header><p class="eyebrow">Ferramentas</p><h2>O que o Território Vivo faz</h2><p>Funções do sistema e funções profissionais são apresentadas separadamente para evitar confusão entre ferramenta, papel de acesso e composição de equipe.</p></header>
       <div class="feature-grid">${systemFunctions.map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.text)}</p></article>`).join('')}</div>
     </section>
 
     <section class="section-block">
-      <header><p class="eyebrow">Equipes e trabalho multiprofissional</p><h2>Composições identificadas em fontes públicas</h2><p>Esta parte serve como referência para a apresentação. A pesquisa pública é apresentada sem criar dependência territorial fixa no software nem transformar automaticamente a fonte em lotação operacional.</p></header>
+      <header><p class="eyebrow">Equipes e trabalho multiprofissional</p><h2>Composições identificadas em fontes públicas</h2><p>Esta parte é referência documental para a apresentação. Pesquisa pública não cria automaticamente lotação, vínculo de usuário ou cadastro operacional no Território Vivo.</p></header>
       <div class="kpi-grid">${publicTeamResearch.map((item) => `<article class="kpi"><small>${escapeHtml(item.label)}</small><strong>${escapeHtml(item.value)}</strong></article>`).join('')}</div>
       <div class="feature-grid">${publicTeamTypes.map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.text)}</p></article>`).join('')}</div>
       <article class="panel"><h3>Funções profissionais identificadas</h3><div class="filter-row">${professionalFunctions.map((role) => `<span class="status-badge">${escapeHtml(role)}</span>`).join('')}</div><p class="field-hint">${escapeHtml(researchNote)}</p></article>
     </section>
 
     <section class="section-block">
-      <header><p class="eyebrow">Rede pública cadastrada</p><h2>Unidades e equipes disponíveis no catálogo operacional</h2><p>Esta seção mostra somente o que está efetivamente cadastrado no banco do Território Vivo. O catálogo cresce por dados e fontes, não por valores fixos no código.</p></header>
+      <header><p class="eyebrow">Catálogo operacional</p><h2>Unidades e equipes efetivamente cadastradas</h2><p>Esta seção é diferente da pesquisa pública acima: ela lê somente o catálogo atual do Supabase. O software continua multi-município e não depende de uma UBS fixa no código.</p></header>
       <div id="tutorial-network-summary" class="kpi-grid" aria-live="polite"></div>
       <div id="tutorial-network" class="unit-grid" aria-live="polite"><p>Carregando rede…</p></div>
     </section>
 
     <section class="clinical-disclaimer">
-      <strong>Limite importante</strong>
-      <span>Território Vivo é ferramenta de apoio à Atenção Primária. Dados clínicos identificáveis e registros assistenciais devem permanecer nos sistemas oficiais adequados.</span>
+      <strong>Privacidade e limite da ferramenta</strong>
+      <span>Território Vivo é ferramenta de apoio à Atenção Primária à Saúde. Não constitui sistema oficial do Ministério da Saúde. Dados clínicos identificáveis e registros assistenciais devem permanecer nos sistemas oficiais adequados.</span>
     </section>`;
 
   return appLayout({
