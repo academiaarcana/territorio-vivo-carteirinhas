@@ -1,5 +1,12 @@
 const DEFAULT_TOLERANCE_PX = 2;
 
+const CARD_GRID_SHAPES = Object.freeze({
+  2: Object.freeze({ columns: 2, rows: 1 }),
+  4: Object.freeze({ columns: 2, rows: 2 }),
+  8: Object.freeze({ columns: 2, rows: 4 }),
+  12: Object.freeze({ columns: 3, rows: 4 })
+});
+
 function geometryError(message, code = 'PDF_PAGE_GEOMETRY') {
   const error = new Error(message);
   error.code = code;
@@ -85,35 +92,92 @@ export function assertCardContentFits({
   return { card, contentRects: Array.from(contentRects || [], normalizeRect) };
 }
 
-export function assertFourUpGeometry(slotRects, sheetRect, { tolerance = DEFAULT_TOLERANCE_PX } = {}) {
+export function assertSheetGridGeometry(slotRects, sheetRect, {
+  columns,
+  rows,
+  tolerance = DEFAULT_TOLERANCE_PX,
+  code = 'PDF_SHEET_GEOMETRY',
+  label = 'Grade de carteirinhas'
+} = {}) {
   const slots = Array.from(slotRects || [], normalizeRect);
   const sheet = normalizeRect(sheetRect);
-  if (slots.length !== 4) {
-    throw geometryError('A folha 4/A4 não contém exatamente quatro posições.', 'PDF_FOUR_UP_GEOMETRY');
+  const expected = Number(columns) * Number(rows);
+  if (!Number.isInteger(columns) || !Number.isInteger(rows) || columns < 1 || rows < 1 || slots.length !== expected) {
+    throw geometryError(`${label} não contém a quantidade esperada de posições.`, code);
   }
 
-  assertRectsInside(sheet, slots, 'Grade 4/A4', { tolerance });
-  const [one, two, three, four] = slots;
-
-  const alignedRows = approximatelyEqual(one.top, two.top, tolerance)
-    && approximatelyEqual(three.top, four.top, tolerance);
-  const alignedColumns = approximatelyEqual(one.left, three.left, tolerance)
-    && approximatelyEqual(two.left, four.left, tolerance);
-  const orderedColumns = two.left > one.left + tolerance && four.left > three.left + tolerance;
-  const orderedRows = three.top > one.top + tolerance && four.top > two.top + tolerance;
-  const equalWidths = slots.every((slot) => approximatelyEqual(slot.width, one.width, tolerance));
-  const equalHeights = slots.every((slot) => approximatelyEqual(slot.height, one.height, tolerance));
-  const horizontalSeparation = one.right <= two.left + tolerance && three.right <= four.left + tolerance;
-  const verticalSeparation = one.bottom <= three.top + tolerance && two.bottom <= four.top + tolerance;
-
-  if (!alignedRows || !alignedColumns || !orderedColumns || !orderedRows
-      || !equalWidths || !equalHeights || !horizontalSeparation || !verticalSeparation) {
-    const error = geometryError('A grade 4/A4 perdeu o alinhamento 2 × 2 e o PDF não foi gerado.', 'PDF_FOUR_UP_GEOMETRY');
-    error.detail = { sheet, slots };
+  assertRectsInside(sheet, slots, label, { tolerance });
+  const reference = slots[0];
+  const equalWidths = slots.every((slot) => approximatelyEqual(slot.width, reference.width, tolerance));
+  const equalHeights = slots.every((slot) => approximatelyEqual(slot.height, reference.height, tolerance));
+  if (!equalWidths || !equalHeights) {
+    const error = geometryError(`${label} perdeu a uniformidade das posições.`, code);
+    error.detail = { sheet, slots, columns, rows };
     throw error;
   }
 
-  return { sheet, slots };
+  for (let row = 0; row < rows; row += 1) {
+    const rowSlots = slots.slice(row * columns, (row + 1) * columns);
+    const rowTop = rowSlots[0].top;
+    if (!rowSlots.every((slot) => approximatelyEqual(slot.top, rowTop, tolerance))) {
+      const error = geometryError(`${label} perdeu o alinhamento das linhas.`, code);
+      error.detail = { sheet, slots, columns, rows, row };
+      throw error;
+    }
+    for (let column = 1; column < columns; column += 1) {
+      if (rowSlots[column - 1].right > rowSlots[column].left + tolerance) {
+        throw geometryError(`${label} possui sobreposição horizontal.`, code);
+      }
+    }
+  }
+
+  for (let column = 0; column < columns; column += 1) {
+    const columnSlots = Array.from({ length: rows }, (_, row) => slots[(row * columns) + column]);
+    const columnLeft = columnSlots[0].left;
+    if (!columnSlots.every((slot) => approximatelyEqual(slot.left, columnLeft, tolerance))) {
+      const error = geometryError(`${label} perdeu o alinhamento das colunas.`, code);
+      error.detail = { sheet, slots, columns, rows, column };
+      throw error;
+    }
+    for (let row = 1; row < rows; row += 1) {
+      if (columnSlots[row - 1].bottom > columnSlots[row].top + tolerance) {
+        throw geometryError(`${label} possui sobreposição vertical.`, code);
+      }
+    }
+  }
+
+  if (columns > 1) {
+    const firstRow = slots.slice(0, columns);
+    for (let column = 1; column < columns; column += 1) {
+      if (firstRow[column].left <= firstRow[column - 1].left + tolerance) {
+        throw geometryError(`${label} perdeu a ordem das colunas.`, code);
+      }
+    }
+  }
+  if (rows > 1) {
+    for (let row = 1; row < rows; row += 1) {
+      if (slots[row * columns].top <= slots[(row - 1) * columns].top + tolerance) {
+        throw geometryError(`${label} perdeu a ordem das linhas.`, code);
+      }
+    }
+  }
+
+  return { sheet, slots, columns, rows };
+}
+
+export function assertCardsSheetGeometry(slotRects, sheetRect, count, { tolerance = DEFAULT_TOLERANCE_PX } = {}) {
+  const shape = CARD_GRID_SHAPES[Number(count)];
+  if (!shape) throw geometryError('Quantidade de carteirinhas não possui grade A4 conhecida.', 'PDF_SHEET_GEOMETRY');
+  return assertSheetGridGeometry(slotRects, sheetRect, {
+    ...shape,
+    tolerance,
+    code: Number(count) === 4 ? 'PDF_FOUR_UP_GEOMETRY' : 'PDF_SHEET_GEOMETRY',
+    label: `Grade ${count}/A4`
+  });
+}
+
+export function assertFourUpGeometry(slotRects, sheetRect, { tolerance = DEFAULT_TOLERANCE_PX } = {}) {
+  return assertCardsSheetGeometry(slotRects, sheetRect, 4, { tolerance });
 }
 
 export function assertCanvasAspect(canvas, expectedWidth, expectedHeight, { maxRelativeDrift = 0.03 } = {}) {
