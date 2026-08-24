@@ -2,37 +2,52 @@ import { appLayout, mountAppLayout } from '../core/layout.js';
 import { escapeHtml } from '../lib/dom.js';
 import { listTeams, listUnits } from '../services/repository.js';
 import {
+  intersectoralLenses,
+  managementLevels,
   professionalFunctions,
   publicTeamResearch,
   publicTeamTypes,
   quickTutorial,
   researchNote,
   systemFunctions,
+  territorializationCycle,
   territoryVivoObjectives,
   territoryVivoProblem
 } from '../data/tutorial-content.js';
 
 export function renderTutorialPage() {
   const content = `
-    <section class="hero-panel">
+    <section class="hero-panel hero-territory">
       <p class="eyebrow">Objetivo</p>
       <h2>Reconhecer, compreender e planejar a partir do território.</h2>
-      <p>O Território Vivo organiza conhecimento territorial para apoiar decisões da Atenção Primária. Ele aproxima o que a equipe observa, os dados disponíveis e os próximos passos, sem substituir e-SUS APS, PEC, prontuário ou outros sistemas oficiais.</p>
+      <p>O Território Vivo organiza informações do território para apoiar decisões da Atenção Primária. Ele aproxima o que a equipe observa, os dados disponíveis, a rede e os próximos passos, sem substituir e-SUS APS, PEC, prontuário ou outros sistemas oficiais.</p>
+      <p class="hero-supporting-copy"><strong>Territorializar não é apenas localizar pontos no mapa.</strong> É compreender relações, necessidades, recursos, barreiras, circulação e mudanças que influenciam a vida e a saúde no território.</p>
     </section>
 
-    <section class="section-block">
+    <section class="section-block section-compact">
       <header><p class="eyebrow">O problema</p><h2>O território produz informação todos os dias — mas ela nem sempre chega organizada à decisão.</h2><p>O ponto de partida não é criar mais um sistema clínico. É aproximar conhecimento territorial, conversa de equipe e planejamento.</p></header>
       <div class="feature-grid">${territoryVivoProblem.map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.text)}</p></article>`).join('')}</div>
     </section>
 
+    <section class="section-block section-emphasis territory-cycle-section">
+      <header><p class="eyebrow">Território → decisão</p><h2>Um ciclo contínuo de leitura, ação e reavaliação</h2><p>A territorialização é tratada como processo: o entendimento muda quando a realidade muda e o planejamento precisa acompanhar essa dinâmica.</p></header>
+      <div class="concept-flow" aria-label="Ciclo da territorialização">${territorializationCycle.map(([title, text], index) => `<article class="concept-step"><span class="concept-number">${index + 1}</span><div><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div></article>`).join('')}</div>
+    </section>
+
     <section class="section-block">
-      <header><p class="eyebrow">Como o sistema responde</p><h2>Do território observado ao cuidado organizado</h2></header>
+      <header><p class="eyebrow">Como o sistema responde</p><h2>Do território observado ao planejamento compartilhado</h2></header>
       <div class="feature-grid">${territoryVivoObjectives.map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.text)}</p></article>`).join('')}</div>
     </section>
 
     <section class="section-block">
       <header><p class="eyebrow">Tutorial rápido</p><h2>Uma apresentação guiada em poucos minutos</h2><p>Esta sequência pode ser usada tanto para aprender quanto para demonstrar o sistema para uma equipe.</p></header>
-      <div class="feature-grid">${quickTutorial.map(([step, title, text]) => `<article><span class="status-badge">Passo ${escapeHtml(step)}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}</div>
+      <div class="feature-grid tutorial-grid">${quickTutorial.map(([step, title, text]) => `<article><span class="status-badge">Passo ${escapeHtml(step)}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}</div>
+    </section>
+
+    <section class="section-block section-emphasis management-section">
+      <header><p class="eyebrow">Do território à gestão</p><h2>O conhecimento muda de escala sem perder o escopo</h2><p>O sistema organiza responsabilidades diferentes para apoiar planejamento local e municipal. Gestão não significa acesso irrestrito nem avaliação punitiva de trabalhadores.</p></header>
+      <div class="management-ladder">${managementLevels.map((item, index) => `<article class="management-level"><span class="management-level-index">${index + 1}</span><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.text)}</p></div></article>`).join('')}</div>
+      <div class="intersectoral-panel"><div><p class="eyebrow">Olhar intersetorial</p><h3>Nem toda resposta territorial acontece apenas dentro da saúde.</h3><p>Parceiros e determinantes podem estar em outros setores. O Território Vivo mantém categorias territoriais simples e usa estes setores apenas como lentes para discussão, sem criar um cadastro burocrático adicional.</p></div><div class="lens-list">${intersectoralLenses.map((item) => `<span class="lens-chip">${escapeHtml(item)}</span>`).join('')}</div></div>
     </section>
 
     <section class="section-block">
@@ -55,12 +70,12 @@ export function renderTutorialPage() {
 
     <section class="clinical-disclaimer">
       <strong>Privacidade e limite da ferramenta</strong>
-      <span>Território Vivo é ferramenta de apoio à Atenção Primária à Saúde. Não constitui sistema oficial do Ministério da Saúde. Dados clínicos identificáveis e registros assistenciais devem permanecer nos sistemas oficiais adequados.</span>
+      <span>Território Vivo — ferramenta de apoio à Atenção Primária à Saúde. Não constitui sistema oficial do Ministério da Saúde. Dados clínicos identificáveis e registros assistenciais devem permanecer nos sistemas oficiais adequados.</span>
     </section>`;
 
   return appLayout({
     title: 'Objetivo e tutorial',
-    subtitle: 'Guia rápido para entender, demonstrar e usar as funções do Território Vivo.',
+    subtitle: 'Territorialização, planejamento, ferramentas e limites em um roteiro único.',
     activePath: '/app/tutorial',
     content
   });
