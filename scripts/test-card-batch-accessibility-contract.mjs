@@ -19,9 +19,30 @@ assert.match(cards, /field-pictogram/, 'Cartões com apoio visual devem renderiz
 assert.match(print, /export function cardsForSheet/, 'Utilitário de impressão precisa aceitar cartões diferentes por folha.');
 assert.match(print, /cards\[index\] \|\| ''/, 'Cada posição da folha deve receber seu próprio HTML.');
 
+const cardsForSheetSource = print.match(/export function cardsForSheet[\s\S]*?\n}\n\nexport function repeatForSheet/)?.[0]
+  ?.replace(/^export /, '')
+  ?.replace(/\n\nexport function repeatForSheet[\s\S]*$/, '');
+assert.ok(cardsForSheetSource, 'Função pura cardsForSheet precisa permanecer testável.');
+const cardsForSheet = new Function(`${cardsForSheetSource}\nreturn cardsForSheet;`)();
+const distinctSheet = cardsForSheet([
+  '<article>Conteúdo Alfa</article>',
+  '<article>Conteúdo Beta</article>',
+  '<article>Conteúdo Gama</article>',
+  '<article>Conteúdo Delta</article>'
+], 4);
+for (const value of ['Conteúdo Alfa', 'Conteúdo Beta', 'Conteúdo Gama', 'Conteúdo Delta']) {
+  assert.equal(distinctSheet.split(value).length - 1, 1, `${value} precisa aparecer exatamente uma vez no lote.`);
+}
+assert.ok(
+  distinctSheet.indexOf('Conteúdo Alfa') < distinctSheet.indexOf('Conteúdo Beta')
+    && distinctSheet.indexOf('Conteúdo Beta') < distinctSheet.indexOf('Conteúdo Gama')
+    && distinctSheet.indexOf('Conteúdo Gama') < distinctSheet.indexOf('Conteúdo Delta'),
+  'Lote precisa preservar a ordem 1, 2, 3 e 4 sem duplicar a primeira entrada.'
+);
+
 assert.match(css, /generated-card\.large-print/, 'CSS deve ampliar tipografia da carteirinha.');
 assert.match(css, /field-pictogram/, 'CSS deve dimensionar pictogramas para tela e impressão.');
 assert.match(css, /count-4 \.generated-card\.large-print/, 'Impressão ampliada deve ter regra específica para A4.');
 assert.match(index, /cards-accessibility\.css/, 'Estilos de lote e acessibilidade devem ser carregados pela aplicação.');
 
-console.log('Contrato de carteirinhas em lote e acessibilidade OK.');
+console.log('Contrato de carteirinhas em lote e acessibilidade OK: quatro conteúdos distintos permanecem em posições distintas.');
