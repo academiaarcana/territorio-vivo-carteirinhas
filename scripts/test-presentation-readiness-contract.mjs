@@ -100,5 +100,9 @@ assert.match(territoryCss, /--territory:\s*#2f6f52/, 'Paleta precisa ter cor sec
 assert.match(territoryCss, /--planning:\s*#9a5b21/, 'Paleta precisa distinguir planejamento sem depender apenas do azul institucional.');
 assert.doesNotMatch(territoryCss, /linear-gradient|radial-gradient/, 'Refinamento não deve introduzir gradientes decorativos.');
 assert.match(territoryCss, /@media screen/, 'Refinamento visual não pode alterar estilos de impressão/PDF homologados.');
+assert.match(territoryCss, /@media \(max-width: 900px\)[\s\S]*#app\[data-route="\/app\/inicio"\] \.kpi-grid[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/, 'KPIs internos precisam reduzir para duas colunas antes do breakpoint mobile em tablets estreitos.');
+assert.match(territoryCss, /#app\[data-route="\/app\/5-minutos"\] \.two-column/, '5 minutos precisa abandonar duas colunas quando a área útil do tablet fica estreita.');
+assert.match(territoryCss, /#app\[data-route="\/app\/tutorial"\] \.intersectoral-panel/, 'Painel intersetorial precisa colapsar antes que suas larguras mínimas causem overflow no tablet.');
+assert.match(territoryCss, /@media \(max-width: 760px\)[\s\S]*#app\[data-route="\/app\/inicio"\] \.kpi-grid[\s\S]*grid-template-columns: 1fr/, 'KPIs internos precisam continuar em uma coluna no mobile.');
 
-console.log('Contrato de apresentação OK: territorialização, gestão pública, intersetorialidade, privacidade, escopos e identidade visual protegidos.');
+console.log('Contrato de apresentação OK: territorialização, gestão pública, intersetorialidade, privacidade, escopos, responsividade e identidade visual protegidos.');
