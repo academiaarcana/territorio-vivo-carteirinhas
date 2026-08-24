@@ -1,3 +1,18 @@
+export const territoryVivoProblem = [
+  {
+    title: 'Informação espalhada',
+    text: 'Observações de campo, reuniões, indicadores, referências da rede e barreiras de acesso podem ficar separadas, dificultando uma visão comum do território.'
+  },
+  {
+    title: 'Do achado ao próximo passo',
+    text: 'Reconhecer uma mudança é apenas o começo: a equipe precisa transformar o que observou em pergunta, prioridade, decisão, responsável e momento de revisão.'
+  },
+  {
+    title: 'Comunicação que precisa circular',
+    text: 'Parte do cuidado territorial depende de orientações simples para famílias e de materiais que a equipe consiga levar para reunião, visita, atividade educativa ou planejamento.'
+  }
+];
+
 export const territoryVivoObjectives = [
   {
     title: 'Transformar território em decisão',
@@ -16,7 +31,7 @@ export const territoryVivoObjectives = [
 export const systemFunctions = [
   {
     title: 'Início e contexto territorial',
-    text: 'Apresenta o escopo atual do usuário e mantém município, UBS, equipe e microárea visíveis para orientar o uso das ferramentas.'
+    text: 'Apresenta o escopo atual: vínculo territorial para profissionais e Administrador da UBS, ou rede cadastrada para Gestor Municipal e Master / Desenvolvimento.'
   },
   {
     title: 'Objetivo e tutorial',
@@ -28,7 +43,7 @@ export const systemFunctions = [
   },
   {
     title: 'Carteirinhas e acessibilidade',
-    text: 'Gera materiais temporários para família, território, reunião, indicadores e gestão, com leitura fácil, apoio visual, letra ampliada, modo econômico e preenchimento contextual automático.'
+    text: 'Gera materiais temporários para família, território, reunião, indicadores e gestão, com leitura fácil, apoio visual, letra ampliada, modo econômico e preenchimento contextual quando aplicável.'
   },
   {
     title: 'Lote, impressão e PDF A4',
@@ -48,7 +63,7 @@ export const systemFunctions = [
   },
   {
     title: 'Meu perfil',
-    text: 'Mantém os dados profissionais e o vínculo territorial necessários para preencher automaticamente o contexto permitido em cada ferramenta.'
+    text: 'Mantém dados profissionais e o escopo permitido pelo papel da conta. Profissionais usam vínculo territorial; Administrador da UBS usa o escopo da unidade; Gestor Municipal e Master operam a rede sem vínculo territorial fixo no próprio perfil.'
   },
   {
     title: 'Aprovações',
@@ -65,7 +80,7 @@ export const systemFunctions = [
 ];
 
 export const quickTutorial = [
-  ['1', 'Confira seu contexto', 'Veja no cabeçalho se município, UBS, equipe e microárea correspondem ao seu vínculo.'],
+  ['1', 'Confira seu contexto', 'Veja no cabeçalho o escopo da conta: vínculo territorial para o trabalho local ou rede cadastrada quando o papel é de gestão municipal/técnica.'],
   ['2', 'Reconheça o território', 'Abra Território e rede para consultar unidades, equipes, recursos, potencialidades, parceiros, riscos, barreiras e pontos críticos não pessoais.'],
   ['3', 'Transforme uma necessidade em material', 'Use Carteirinhas para gerar lembretes, orientações, busca ativa, notas territoriais ou indicadores, com recursos de acessibilidade quando necessário.'],
   ['4', 'Leve uma mudança para a equipe', 'Use 5 minutos do território para registrar a situação, decidir o próximo passo, indicar responsável e combinar revisão.'],
