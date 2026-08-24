@@ -88,6 +88,7 @@ export async function mountProfilePage({ root, state }) {
     }
     try {
       const rows = await listUnits({ municipalityCode });
+      if (municipality.value !== municipalityCode) return;
       units = rows.filter((row) => row.cnes === state.profile?.unit_cnes);
       unit.innerHTML = '<option value="">Selecione</option>' + units.map((row) => `<option value="${escapeHtml(row.cnes)}">${escapeHtml(row.short_name)}${row.neighborhood ? ` — ${escapeHtml(row.neighborhood)}` : ''}</option>`).join('');
       setSelectReady(unit);
@@ -115,7 +116,9 @@ export async function mountProfilePage({ root, state }) {
       return;
     }
     try {
-      teams = await listTeams({ unitCnes });
+      const rows = await listTeams({ unitCnes });
+      if (unit.value !== unitCnes) return;
+      teams = rows;
       team.innerHTML = '<option value="">Equipe ainda não informada</option>' + teams.map((row) => `<option value="${escapeHtml(row.id)}" data-name="${escapeHtml(row.name)}">${escapeHtml(row.name)}${row.ine ? ` • INE ${escapeHtml(row.ine)}` : ''}</option>`).join('');
       setSelectReady(team);
       if ((!reset || scopeLocked) && state.profile?.team_id && teams.some((row) => row.id === state.profile.team_id)) team.value = state.profile.team_id;
