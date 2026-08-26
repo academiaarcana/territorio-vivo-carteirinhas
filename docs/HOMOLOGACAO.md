@@ -4,7 +4,7 @@
 
 - V2 desenvolvida em `refactor/arquitetura-v2` e PR #1 Draft.
 - `main` não recebe a V2 antes da homologação final.
-- Supabase dedicado ao Território Vivo (`wguurbmtoofkubdawzzr`).
+- Supabase dedicado ao Território Vivo (`wknmlbiqbiissedzrato`).
 - Estrutura: município → unidade/ponto → equipe → microárea → profissional.
 - RLS ativo em `profiles`, `municipalities`, `health_units`, `teams` e `territory_points`.
 - Três papéis: `acs`, `unit_admin`, `admin`.
@@ -23,7 +23,7 @@ No Supabase:
 
 Site URL:
 
-`https://academiaarcana.github.io/territorio-vivo-carteirinhas/`
+`https://territoriovivo.github.io/territorio-vivo-carteirinhas/`
 
 Adicionar também o mesmo endereço em **Redirect URLs**.
 
