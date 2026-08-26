@@ -6,6 +6,7 @@
 - Fonte visual aberta: sim; referência “Painel de Campo”, 1488 × 1058 px.
 - Implementação: `src/pages/territory.js`, `src/styles/field-territory.css`, `src/pages/cards.js`, `src/styles/field-cards.css`, `src/pages/five.js`, `src/styles/field-five.css`, `src/pages/indicators.js` e `src/styles/field-indicators.css`.
 - Captura da implementação: indisponível.
+- Tentativa atual de captura: a prévia local respondeu na porta `4173`, mas o navegador em nuvem bloqueou o endereço antes da renderização com `ERR_BLOCKED_BY_CLIENT`.
 - Viewport-alvo: desktop 1440 × 1024 CSS px, densidade 1×; reflow previsto em 760 px.
 - Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos` e `#/app/indicadores` com um perfil autenticado e vínculo territorial válido.
 - Interações prioritárias: filtrar achados e rede, cadastrar e gerenciar achados conforme permissão; buscar e filtrar modelos, abrir o editor, preencher lote, ajustar acessibilidade e iniciar PDF/impressão; preencher a nota dos 5 minutos; selecionar escopo, informar indicadores, registrar a leitura contextual; preservar os rascunhos durante a navegação, limpar, imprimir e gerar PDF.
