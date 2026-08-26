@@ -1,5 +1,14 @@
 import { supabase, appConfig } from './supabase.js';
 import { hydrateSession, clearSession } from '../core/session.js';
+import { resolveAuthRedirectUrl } from '../lib/auth-redirect.js';
+
+function authRedirectUrl({ recovery = false } = {}) {
+  return resolveAuthRedirectUrl({
+    publicUrl: appConfig.publicUrl,
+    currentUrl: location.href,
+    recovery
+  });
+}
 
 export async function getSession() {
   const { data, error } = await supabase.auth.getSession();
@@ -28,7 +37,7 @@ export async function signUp(payload) {
     email: email.trim().toLowerCase(),
     password,
     options: {
-      emailRedirectTo: appConfig.publicUrl,
+      emailRedirectTo: authRedirectUrl(),
       data: {
         full_name: fullName.trim(),
         municipality_code: municipalityCode || null,
@@ -51,9 +60,8 @@ export async function signOut() {
 }
 
 export async function sendPasswordReset(email) {
-  const separator = appConfig.publicUrl.includes('?') ? '&' : '?';
   const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-    redirectTo: `${appConfig.publicUrl}${separator}recovery=1`
+    redirectTo: authRedirectUrl({ recovery: true })
   });
   if (error) throw error;
 }

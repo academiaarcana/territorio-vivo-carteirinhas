@@ -6,6 +6,24 @@ import { listMunicipalities, listUnits, listTeams } from '../services/repository
 
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+const PASSWORD_LEAKED_MESSAGE = 'Esta senha já apareceu em vazamentos conhecidos. Escolha outra senha exclusiva.';
+const PASSWORD_CHARACTERS_MESSAGE = 'Esta senha não atende aos requisitos de segurança. Tente combinar letras, números e símbolos.';
+const PASSWORD_WEAK_MESSAGE = 'Esta senha é muito fácil de adivinhar. Escolha uma senha mais longa e menos previsível.';
+
+function passwordField({ id, name, label, autocomplete, describedBy = '', minimumLength = false }) {
+  const description = describedBy ? ` aria-describedby="${describedBy}"` : '';
+  const minlength = minimumLength ? ` minlength="${PASSWORD_MIN_LENGTH}"` : '';
+  return `<div class="password-field">
+    <label for="${id}">${escapeHtml(label)}</label>
+    <div class="password-control">
+      <input id="${id}" name="${name}" type="password"${minlength} autocomplete="${autocomplete}"${description} autocapitalize="none" spellcheck="false" required>
+      <button type="button" class="password-toggle" data-password-toggle aria-controls="${id}" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">
+        <svg data-password-show-icon aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.75"></circle></svg>
+        <svg data-password-hide-icon aria-hidden="true" viewBox="0 0 24 24" focusable="false" hidden><path d="M3 3 21 21M10.6 6.1A9 9 0 0 1 12 6c6 0 9.5 6 9.5 6a15.2 15.2 0 0 1-2.1 2.8M6.2 6.2C3.8 7.8 2.5 12 2.5 12s3.5 6 9.5 6a9.7 9.7 0 0 0 3-.5M9.9 9.9a3 3 0 0 0 4.2 4.2"></path></svg>
+      </button>
+    </div>
+  </div>`;
+}
 
 function passwordGuidance(id) {
   return `<aside id="${id}" class="clinical-disclaimer password-guidance" aria-label="Orientação para criar a senha">
@@ -23,7 +41,7 @@ export function renderLoginPage() {
   return authFrame('Entrar', 'Use o e-mail e a senha da sua conta profissional.', `
     <form id="login-form" class="stack-form">
       <label>E-mail<input name="email" type="email" autocomplete="username" required></label>
-      <label>Senha<input name="password" type="password" autocomplete="current-password" required></label>
+      ${passwordField({ id: 'login-password', name: 'password', label: 'Senha', autocomplete: 'current-password' })}
       <button class="button primary" type="submit" data-default-label="Entrar">Entrar</button>
       <p id="auth-status" class="form-status" aria-live="polite"></p>
     </form>
@@ -96,8 +114,8 @@ export function renderSignupPage() {
       <label>Microárea<input name="microarea" id="signup-microarea" maxlength="40" placeholder="Ex.: 08" required></label>
       <p class="field-hint">Toda nova conta profissional entra como ACS pendente. A gestão confirma o vínculo e libera o nível correto; o cadastro não permite escolher papel ou se autoaprovar.</p>
       ${passwordGuidance('signup-password-help')}
-      <label>Senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="signup-password-help" required></label>
-      <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="signup-password-help" required></label>
+      ${passwordField({ id: 'signup-password', name: 'password', label: 'Senha', autocomplete: 'new-password', describedBy: 'signup-password-help', minimumLength: true })}
+      ${passwordField({ id: 'signup-password-confirmation', name: 'password2', label: 'Repita a senha', autocomplete: 'new-password', describedBy: 'signup-password-help', minimumLength: true })}
       <button class="button primary" type="submit" data-default-label="Criar conta">Criar conta</button>
       <p id="auth-status" class="form-status" aria-live="polite"></p>
     </form>
@@ -244,8 +262,8 @@ export function renderRecoveryPage() {
   return authFrame('Definir nova senha', 'Escolha uma nova senha para sua conta profissional.', `
     <form id="recovery-form" class="stack-form">
       ${passwordGuidance('recovery-password-help')}
-      <label>Nova senha<input name="password" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="recovery-password-help" required></label>
-      <label>Repita a senha<input name="password2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password" aria-describedby="recovery-password-help" required></label>
+      ${passwordField({ id: 'recovery-password', name: 'password', label: 'Nova senha', autocomplete: 'new-password', describedBy: 'recovery-password-help', minimumLength: true })}
+      ${passwordField({ id: 'recovery-password-confirmation', name: 'password2', label: 'Repita a senha', autocomplete: 'new-password', describedBy: 'recovery-password-help', minimumLength: true })}
       <button class="button primary" type="submit" data-default-label="Salvar nova senha">Salvar nova senha</button>
       <p id="auth-status" class="form-status" aria-live="polite"></p>
     </form>`);
@@ -285,13 +303,24 @@ function validatePassword(password) {
   return '';
 }
 
+function weakPasswordMessage(error) {
+  const reasons = Array.isArray(error?.reasons) ? error.reasons.map((reason) => String(reason).toLowerCase()) : [];
+  const message = String(error?.message || '').toLowerCase();
+  if (reasons.includes('pwned') || message.includes('pwned') || message.includes('leaked')) return PASSWORD_LEAKED_MESSAGE;
+  const serverMinimum = message.match(/at least\s+(\d+)\s+characters?/i)?.[1];
+  if (serverMinimum) return `Use pelo menos ${serverMinimum} caracteres.`;
+  if (reasons.includes('length') || message.includes('minimum password length') || message.includes('characters long')) return PASSWORD_REQUIREMENT;
+  if (reasons.includes('characters') || message.includes('required character') || message.includes('contain at least one')) return PASSWORD_CHARACTERS_MESSAGE;
+  return PASSWORD_WEAK_MESSAGE;
+}
+
 function authErrorMessage(error, context) {
   const code = String(error?.code || '').toLowerCase();
   const message = String(error?.message || '').toLowerCase();
   if (code.includes('email_not_confirmed') || message.includes('email not confirmed')) return 'Seu e-mail ainda não foi confirmado. Abra a mensagem enviada pelo Território Vivo e tente novamente.';
   if (code.includes('invalid_credentials') || message.includes('invalid login credentials')) return 'E-mail ou senha incorretos.';
   if (code.includes('user_already_exists') || message.includes('already registered')) return 'Não foi possível concluir o cadastro. Se você já tiver uma conta, use “Já tenho conta” ou recupere a senha.';
-  if (code.includes('weak_password') || message.includes('weak password')) return PASSWORD_REQUIREMENT;
+  if (code.includes('weak_password') || message.includes('weak password')) return weakPasswordMessage(error);
   if (code.includes('over_request_rate_limit') || code.includes('rate_limit') || message.includes('rate limit')) return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
   if (context === 'reset') return 'Não foi possível enviar o link agora. Aguarde um pouco e tente novamente.';
   if (context === 'password') return 'Não foi possível atualizar a senha. Abra novamente o link de recuperação recebido por e-mail.';
@@ -301,4 +330,18 @@ function authErrorMessage(error, context) {
 
 function bindCommon(root) {
   root.querySelector('[data-home]')?.addEventListener('click', () => navigate('/'));
+  root.querySelectorAll('[data-password-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const input = button.closest('.password-control')?.querySelector('input');
+      if (!input) return;
+      const showing = input.type === 'password';
+      const label = showing ? 'Ocultar senha' : 'Mostrar senha';
+      input.type = showing ? 'text' : 'password';
+      button.setAttribute('aria-pressed', String(showing));
+      button.setAttribute('aria-label', label);
+      button.title = label;
+      button.querySelector('[data-password-show-icon]').hidden = showing;
+      button.querySelector('[data-password-hide-icon]').hidden = !showing;
+    });
+  });
 }

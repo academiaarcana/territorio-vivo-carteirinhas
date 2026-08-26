@@ -1,5 +1,5 @@
 window.TERRITORIO_VIVO_CONFIG = Object.freeze({
-  supabaseUrl: 'https://wguurbmtoofkubdawzzr.supabase.co',
-  supabasePublishableKey: 'sb_publishable_rQHwNahb5qL7gkXa0JVXow_fxws-PLY',
-  publicUrl: 'https://academiaarcana.github.io/territorio-vivo-carteirinhas/'
+  supabaseUrl: 'https://wknmlbiqbiissedzrato.supabase.co',
+  supabasePublishableKey: 'sb_publishable_wnlgYYxIJ089tnEk4sUp4w_SYch4EZl',
+  publicUrl: 'https://territoriovivo.github.io/territorio-vivo-carteirinhas/'
 });

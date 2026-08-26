@@ -14,6 +14,9 @@ if (!errors.length) {
   const files = fs.readdirSync(migrationsDir)
     .filter((name) => /^\d{3}_.+\.sql$/.test(name))
     .sort();
+  const timestampedFiles = fs.readdirSync(migrationsDir)
+    .filter((name) => /^\d{14}_.+\.sql$/.test(name))
+    .sort();
   const history = fs.readFileSync(historyPath, 'utf8');
 
   if (!files.length) errors.push('Nenhuma migration numerada encontrada.');
@@ -28,6 +31,12 @@ if (!errors.length) {
     }
   });
 
+  timestampedFiles.forEach((file) => {
+    if (!history.includes(`\`${file}\``)) {
+      errors.push(`Histórico não referencia a migration gerada pelo Supabase CLI ${file}.`);
+    }
+  });
+
   for (const hotfix of ['harden_profile_functions', 'restrict_master_role_trigger_search_path']) {
     if (!history.includes(`\`${hotfix}\``)) errors.push(`Histórico não documenta o hotfix ${hotfix}.`);
   }
@@ -35,6 +44,10 @@ if (!errors.length) {
   const numberedInHistory = [...history.matchAll(/`(\d{3}_[^`]+\.sql)`/g)].map((match) => match[1]);
   const unknown = [...new Set(numberedInHistory)].filter((file) => !files.includes(file));
   if (unknown.length) errors.push(`Histórico referencia migrations numeradas inexistentes: ${unknown.join(', ')}.`);
+
+  const timestampedInHistory = [...history.matchAll(/`(\d{14}_[^`]+\.sql)`/g)].map((match) => match[1]);
+  const unknownTimestamped = [...new Set(timestampedInHistory)].filter((file) => !timestampedFiles.includes(file));
+  if (unknownTimestamped.length) errors.push(`Histórico referencia migrations com timestamp inexistentes: ${unknownTimestamped.join(', ')}.`);
 }
 
 if (errors.length) {

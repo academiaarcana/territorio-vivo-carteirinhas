@@ -58,6 +58,10 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `030_optimize_gestor_profile_policy.sql` | `optimize_gestor_profile_policy` |
 | `031_enforce_management_scope_shape.sql` | `enforce_management_scope_shape` |
 | `032_noop_verify_management_scope_shape.sql` | `noop_verify_management_scope_shape` |
+| — correção operacional | `remove_legacy_territory_point_policies` |
+| — correção operacional | `revoke_anon_profiles_select` |
+| — correção operacional | `revoke_set_updated_at_client_execute` |
+| `20260826135329_repair_reapplied_auth_objects.sql` | `036_repair_reapplied_auth_objects` |
 
 ### Nota sobre Gestor × Master
 
@@ -77,17 +81,23 @@ A migration também limpa vínculos herdados incompatíveis já existentes, sem 
 
 A migration 032 é deliberadamente um **no-op** versionado. Ela espelha no Git uma verificação operacional registrada no histórico remoto durante a homologação da 031, evitando falso diagnóstico de drift sem alterar schema ou dados.
 
+### Nota sobre a reparação operacional 036
+
+Após as três correções operacionais posteriores à 032, as migrations históricas 002, 003, 004 e 005 foram registradas novamente por engano. A reaplicação restaurou versões antigas de `private.is_admin`, `public.handle_new_user`, `public.enforce_profile_role`, do trigger `profiles_enforce_role` e de duas policies permissivas de `profiles`.
+
+A migration `20260826135329_repair_reapplied_auth_objects.sql`, criada pelo Supabase CLI, restaura somente as definições finais já versionadas nas migrations 016 e 029, remove as policies antigas reintroduzidas e não altera dados. As entradas duplicadas permanecem no histórico remoto para preservar a rastreabilidade e não devem ser apagadas ou reaplicadas.
+
 ## Regra para novas alterações
 
 A partir da V2, toda mudança DDL deve seguir o mesmo fluxo:
 
-1. criar um novo arquivo SQL numerado na branch;
+1. criar um novo arquivo SQL com o Supabase CLI na branch;
 2. aplicar a mesma alteração ao projeto Supabase;
 3. verificar Security Advisor e Performance Advisor;
 4. atualizar testes de contrato quando a alteração afetar segurança ou autorização;
 5. não editar migrations históricas já aplicadas para representar uma mudança nova.
 
-O CI também executa `scripts/test-migration-history-contract.mjs`, que exige sequência local contínua e referência de todas as migrations numeradas neste documento.
+O CI também executa `scripts/test-migration-history-contract.mjs`, que exige sequência local contínua para as migrations numeradas e documentação de migrations com timestamp geradas pelo Supabase CLI.
 
 ## Critério de drift
 
