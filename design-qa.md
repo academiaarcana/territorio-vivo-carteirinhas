@@ -1,48 +1,52 @@
-# Design QA — Painel de Campo
+# Design QA — Território em Campo
 
 ## Evidências
 
 - Fonte visual: `/workspace/scratch/47bc8ece9b5f/generated_images/exec-86adee3b-15ca-4c3c-ac9f-6a057afe5359.png`
-- Implementação: `src/core/layout.js`, `src/pages/dashboard.js` e `src/styles/field-dashboard.css`
-- Captura da implementação: indisponível; a prévia local foi recusada pela ponte do navegador (`ERR_CONNECTION_REFUSED`).
-- Viewport-alvo: 1440 × 1024 CSS px, densidade 1×.
-- Fonte visual: 1488 × 1058 px.
-- Estado-alvo: tela inicial de ACS ativo, UBS Madre Tereza de Calcutá, Equipe 02, Microárea 08.
-- Navegador: Chrome em ambiente isolado.
-- Interações primárias no navegador: não executadas porque a página local não ficou acessível ao navegador.
-- Console do navegador: não verificado pelo mesmo bloqueio.
+- Fonte visual aberta: sim; referência “Painel de Campo”, 1488 × 1058 px.
+- Implementação: `src/pages/territory.js` e `src/styles/field-territory.css`.
+- Captura da implementação: indisponível.
+- Viewport-alvo: desktop 1440 × 1024 CSS px, densidade 1×; reflow previsto em 760 px.
+- Estado-alvo: rota `#/app/territorio` com um perfil autenticado e vínculo territorial válido.
+- Interações prioritárias: filtrar achados, filtrar rede, abrir o cadastro, registrar, editar, resolver e excluir conforme permissão.
+- Console do navegador: não verificado porque o navegador em nuvem não está disponível nesta sessão e a ponte local já havia recusado a prévia com `ERR_CONNECTION_REFUSED`.
 
 ## Comparação de tela inteira
 
-Bloqueada. A referência foi aberta e inspecionada, mas não foi possível obter uma captura renderizada da implementação no mesmo navegador e estado. Testes automatizados e inspeção de código não substituem essa evidência visual.
+Bloqueada. A referência aprovada define shell, cores, tipografia, densidade e hierarquia, mas representa a rota Início. A nova rota territorial estende esse sistema sem uma tela-fonte específica gerada pelo 12UI, cuja autenticação foi cancelada após bloqueio de segurança do Fortinet. Sem captura real da implementação, não é possível encerrar diferenças visuais P0/P1/P2.
 
 ## Comparação de regiões focadas
 
-Bloqueada pelo mesmo motivo. Não foi possível comparar navegação lateral, faixa territorial, jornada em três etapas e leitura territorial em uma composição conjunta de referência e implementação.
+Bloqueada. Não foi possível produzir uma composição conjunta contendo a referência e uma captura renderizada dos seguintes trechos:
+
+- introdução do território e ação principal;
+- filtros e métricas de achados;
+- cartões de achados e estados;
+- formulário de registro;
+- rede de unidades e breakpoint móvel.
 
 ## Superfícies de fidelidade
 
-- Tipografia: Montserrat e a escala escolhida foram preservadas no código, mas wrapping, peso óptico e rasterização não foram confirmados em navegador.
-- Espaçamento e ritmo: a grade, as larguras e os breakpoints foram implementados, mas não há captura válida para confirmar proporções.
-- Cores e tokens: azul profundo, azul SUS, verde territorial e neutros foram mapeados em tokens CSS; contraste visual final ainda requer captura.
-- Imagens e ícones: o símbolo existente e os ícones Flaticon já atribuídos foram reutilizados; nenhum ativo substituto foi criado. Qualidade de renderização ainda requer captura.
-- Texto: títulos, escopos, ações e mensagens do produto foram preservados e os testes contratuais passaram.
+- Tipografia: a família Inter e a escala do Painel de Campo foram preservadas no código; wrapping e peso óptico não foram confirmados em navegador.
+- Espaçamento e ritmo: a página usa faixa introdutória, área de trabalho assimétrica, métricas leves e grade de duas colunas; proporções finais dependem de captura.
+- Cores e tokens: azul profundo, azul de ação, verde territorial e neutros reutilizam os tokens de `field-dashboard.css`; contraste renderizado ainda requer evidência visual.
+- Imagens e ícones: somente a biblioteca Flaticon já atribuída no projeto foi reutilizada. Não foram criados placeholders, ícones artesanais ou novos ativos.
+- Texto e conteúdo: a redação permanece não clínica, não pessoal e orientada à equipe; os dados e as permissões existentes não foram alterados.
 
 ## Histórico de comparação
 
-Não houve iteração visual válida, pois a primeira captura da implementação foi bloqueada antes de renderizar. Nenhum P0/P1/P2 visual pode ser encerrado sem essa evidência.
+Não houve iteração visual válida porque não foi possível abrir a implementação em navegador. A inspeção da referência e os testes automatizados não substituem a comparação visual exigida.
 
 ## Verificações concluídas
 
-- `npm run check` executado em modo offline: aprovado integralmente.
-- Novo contrato do Painel de Campo: aprovado.
-- Arquitetura, segurança, migrations, papéis, autenticação, impressão e PDF: aprovados.
+- `npm run check`: aprovado integralmente em modo offline.
+- Contrato “Território em Campo”: aprovado.
+- Sintaxe JavaScript: aprovada.
+- Arquitetura, segurança, migrations, Auth, papéis, concorrência, coordenadas, impressão e PDF: aprovados.
+- Alterações de banco, RLS, migrations e contas: nenhuma.
 
-## Pendência
+## Bloqueador
 
-- Abrir a implementação em uma prévia acessível ao navegador.
-- Capturar desktop 1440 × 1024 e um breakpoint móvel.
-- Testar as ações principais e verificar o console.
-- Comparar referência e implementação na mesma composição e corrigir diferenças P0/P1/P2.
+Obter uma captura real da rota autenticada em desktop e celular, verificar as interações e o console e comparar a implementação com a referência em uma composição conjunta.
 
 final result: blocked
