@@ -127,6 +127,7 @@
   .workspace-header .workspace-subtitle { margin: 0; max-width: 800px; color: var(--muted); line-height: 1.5; }
   .workspace-territory {
     display: inline-flex;
+    align-items: center;
     margin: .72rem 0 0!important;
     padding: .42rem .62rem;
     border: 1px solid #d9e6ef;
@@ -135,6 +136,15 @@
     color: #36576e!important;
     font-size: .78rem;
     font-weight: 700;
+  }
+  .workspace-territory-action {
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .workspace-territory-action:hover {
+    border-color: #9fc2da;
+    background: #edf6fb;
+    color: var(--accent)!important;
   }
   .workspace-signout { flex: 0 0 auto; }
   .page-content { padding-top: clamp(1rem,2.5vw,2rem); }
