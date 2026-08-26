@@ -17,6 +17,7 @@ const expect = (content, needle, message) => {
 };
 
 const m29 = read('supabase/migrations/029_separate_gestor_and_master_account.sql');
+const bootstrapMaster = read('supabase/migrations/20260826145213_bootstrap_initial_master_account.sql');
 expect(m29, 'is_master_account boolean not null default false', 'Migration 029 precisa distinguir explicitamente a conta Master técnica.');
 expect(m29, "new.is_master_account := false", 'Novas contas nunca podem nascer como Master.');
 expect(m29, "new.role := 'acs'", 'Novas contas precisam nascer como ACS.');
@@ -38,6 +39,17 @@ expect(m29, "or (private.is_admin() and role <> 'admin')", 'Gestor Municipal dev
 const m30 = read('supabase/migrations/030_optimize_gestor_profile_policy.sql');
 expect(m30, '(select auth.uid()) = id', 'Policy otimizada precisa avaliar auth.uid() uma vez por consulta.');
 expect(m30, 'or private.is_master_account()', 'Otimização não pode remover o escopo da conta Master.');
+
+expect(bootstrapMaster, 'if master_count > 0 then', 'Bootstrap precisa ser idempotente quando a conta Master já existe.');
+expect(bootstrapMaster, 'if eligible_count = 0 then', 'Bootstrap precisa ser seguro em banco vazio.');
+expect(bootstrapMaster, 'if eligible_count <> 1 then', 'Bootstrap não pode escolher uma conta de forma ambígua.');
+expect(bootstrapMaster, "role = 'admin'", 'Bootstrap precisa promover o perfil ao papel administrativo superior.');
+expect(bootstrapMaster, "access_status = 'active'", 'Bootstrap precisa ativar o acesso da conta Master.');
+expect(bootstrapMaster, 'is_master_account = true', 'Bootstrap precisa marcar explicitamente a conta técnica Master.');
+expect(bootstrapMaster, 'municipality_code = null', 'Conta Master não deve manter escopo territorial herdado.');
+expect(bootstrapMaster, 'enable trigger profiles_enforce_scope_security', 'Bootstrap precisa restaurar o gatilho de segurança de escopo.');
+expect(bootstrapMaster, 'enable trigger profiles_enforce_role', 'Bootstrap precisa restaurar o gatilho de proteção de papel.');
+if (/@/.test(bootstrapMaster)) errors.push('Migration de bootstrap não pode versionar endereço de e-mail.');
 expect(m30, "or (private.is_admin() and role <> 'admin')", 'Otimização não pode ampliar Gestor para outros admins.');
 expect(m30, "and role = 'acs'", 'Administrador da UBS deve continuar limitado a ACS na própria unidade.');
 

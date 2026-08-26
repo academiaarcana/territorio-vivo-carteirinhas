@@ -18,6 +18,8 @@ assert.match(permissions, /targetProfile\.is_master_account === true/, 'Conta Ma
 assert.match(layout, /Master \/ Desenvolvimento • Administração técnica/, 'Shell da conta técnica deve identificá-la explicitamente.');
 assert.match(layout, /Gestor Municipal • Administração geral/, 'Shell do gestor deve diferenciá-lo da conta técnica.');
 assert.match(layout, /Território Vivo • Gestão municipal/, 'Cabeçalho do gestor deve comunicar gestão municipal.');
+assert.match(layout, /masterAccount[\s\S]*workspace-territory-action[\s\S]*data-nav="\/app\/gestao"/, 'Atalho de administração técnica do Master deve ser um controle interativo que abre a gestão da rede.');
+assert.match(layout, /aria-label="Abrir administração técnica do Território Vivo"/, 'Atalho de administração técnica deve ter nome acessível explícito.');
 
 assert.match(dashboard, /Painel Gestor/, 'Dashboard precisa ter identidade própria para o Gestor Municipal.');
 assert.match(dashboard, /Painel Master/, 'Dashboard precisa preservar identidade separada para a conta técnica.');

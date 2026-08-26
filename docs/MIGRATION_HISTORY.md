@@ -62,6 +62,7 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | — correção operacional | `revoke_anon_profiles_select` |
 | — correção operacional | `revoke_set_updated_at_client_execute` |
 | `20260826135329_repair_reapplied_auth_objects.sql` | `036_repair_reapplied_auth_objects` |
+| `20260826145213_bootstrap_initial_master_account.sql` | `bootstrap_initial_master_account` |
 
 ### Nota sobre Gestor × Master
 
@@ -86,6 +87,10 @@ A migration 032 é deliberadamente um **no-op** versionado. Ela espelha no Git u
 Após as três correções operacionais posteriores à 032, as migrations históricas 002, 003, 004 e 005 foram registradas novamente por engano. A reaplicação restaurou versões antigas de `private.is_admin`, `public.handle_new_user`, `public.enforce_profile_role`, do trigger `profiles_enforce_role` e de duas policies permissivas de `profiles`.
 
 A migration `20260826135329_repair_reapplied_auth_objects.sql`, criada pelo Supabase CLI, restaura somente as definições finais já versionadas nas migrations 016 e 029, remove as policies antigas reintroduzidas e não altera dados. As entradas duplicadas permanecem no histórico remoto para preservar a rastreabilidade e não devem ser apagadas ou reaplicadas.
+
+### Nota sobre o bootstrap da conta Master
+
+A migration `20260826145213_bootstrap_initial_master_account.sql` registra a promoção operacional da primeira conta confirmada do projeto definitivo para `admin/active` com `is_master_account=true`. O arquivo não contém e-mail ou UUID, exige que não exista Master anterior, recusa seleção ambígua e remove do perfil o escopo territorial incompatível com a administração global. Em banco vazio ou com Master já configurado, a migration é deliberadamente um no-op.
 
 ## Regra para novas alterações
 

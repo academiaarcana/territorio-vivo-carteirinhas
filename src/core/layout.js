@@ -52,6 +52,9 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
     : networkAdmin
       ? 'Gestor Municipal • Administração geral'
       : `${escapeHtml(roleLabel(profile))}${profile?.microarea ? ` • Microárea ${escapeHtml(profile.microarea)}` : ''}`;
+  const territoryScopeControl = masterAccount
+    ? `<button type="button" class="workspace-territory workspace-territory-action" data-nav="/app/gestao" aria-label="Abrir administração técnica do Território Vivo">${escapeHtml(territoryScopeLabel)}</button>`
+    : `<p class="workspace-territory">${escapeHtml(territoryScopeLabel)}</p>`;
 
   return `
     <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
@@ -92,7 +95,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
             </div>
             <h1>${escapeHtml(title)}</h1>
             ${subtitle ? `<p class="workspace-subtitle">${escapeHtml(subtitle)}</p>` : ''}
-            <p class="workspace-territory">${escapeHtml(territoryScopeLabel)}</p>
+            ${territoryScopeControl}
           </div>
           <button type="button" class="button workspace-signout" data-signout>Sair da conta</button>
         </header>
