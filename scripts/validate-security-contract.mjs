@@ -27,7 +27,8 @@ const mustExist = [
   'supabase/migrations/024_least_privilege_table_grants.sql',
   'supabase/migrations/025_canonicalize_health_unit_municipality.sql',
   'supabase/migrations/026_protect_health_unit_identity.sql',
-  'supabase/migrations/027_restrict_territory_point_kinds.sql'
+  'supabase/migrations/027_restrict_territory_point_kinds.sql',
+  'supabase/migrations/20260826135329_repair_reapplied_auth_objects.sql'
 ];
 
 for (const file of mustExist) {
@@ -155,6 +156,16 @@ for (const kind of ['resource','partner','potentiality','access_barrier','risk',
   expect(migration27, `'${kind}'`, `domínio territorial precisa manter a categoria ${kind}`);
 }
 if (migration27.includes("'other'")) errors.push('Domínio territorial não deve aceitar categoria genérica other.');
+
+const repairMigration = read('supabase/migrations/20260826135329_repair_reapplied_auth_objects.sql');
+expect(repairMigration, "and access_status = 'active'", 'gestor inativo não pode recuperar privilégio administrativo');
+expect(repairMigration, "new.is_master_account := old.is_master_account", 'conta Master precisa permanecer imutável pelo cliente');
+expect(repairMigration, 'before insert or update of role, id, is_master_account', 'trigger de papel precisa observar a marca Master');
+expect(repairMigration, "'acs', 'pending', false", 'novo cadastro precisa nascer ACS pendente e não Master');
+expect(repairMigration, 'municipality_code, unit_cnes, team_id, unit_name, team_name', 'cadastro precisa preservar o vínculo territorial validado');
+expect(repairMigration, 'drop policy if exists profiles_select_own_or_admin', 'policy antiga de leitura precisa ser removida');
+expect(repairMigration, 'drop policy if exists profiles_update_own_or_admin', 'policy antiga de atualização precisa ser removida');
+expect(repairMigration, 'revoke all on function public.handle_new_user() from public, anon, authenticated', 'função de cadastro não pode ser invocada diretamente pelo cliente');
 
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');
