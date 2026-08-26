@@ -27,6 +27,11 @@ Site URL:
 
 Adicionar também o mesmo endereço em **Redirect URLs**.
 
+Para homologação local, adicionar ainda:
+
+- `http://localhost:3000/**`
+- `http://127.0.0.1:3000/**`
+
 Essa etapa é necessária para confirmação de e-mail e recuperação de senha retornarem corretamente ao site.
 
 ### Limitação conhecida do plano Free
