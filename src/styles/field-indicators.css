@@ -1,0 +1,199 @@
+/* Indicadores em Campo — leitura contextual e ação planejada.
+   Restrita à tela para preservar impressão, PDF e rascunhos voláteis. */
+@media screen {
+  #app[data-route="/app/indicadores"] .page-content {
+    padding-top: clamp(1.2rem, 2.8vw, 2.4rem);
+    padding-bottom: 2.5rem;
+    background: #f7f9fc;
+  }
+
+  #app[data-route="/app/indicadores"] .indicators-intro-panel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 1.35rem 1.5rem;
+    border: 0;
+    border-left: 4px solid var(--field-green);
+    border-radius: 0 10px 10px 0;
+    box-shadow: none;
+  }
+  .indicators-intro-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #cfe0d7;
+    border-radius: 10px;
+    background: #f3faf6;
+  }
+  .indicators-intro-icon img { width: 29px; height: 29px; object-fit: contain; }
+  .indicators-intro-panel .eyebrow { margin-bottom: .3rem; color: var(--field-green); }
+  .indicators-intro-panel h2 { margin-bottom: .35rem; color: var(--field-ink); font-size: clamp(1.35rem, 2.4vw, 1.9rem); }
+  .indicators-intro-panel p:last-child { margin-bottom: 0; color: var(--field-muted); line-height: 1.55; }
+  .indicators-intro-metrics { display: flex; gap: .6rem; }
+  .indicators-intro-metrics span {
+    display: grid;
+    min-width: 92px;
+    gap: .12rem;
+    padding: .65rem .75rem;
+    border-left: 1px solid var(--field-line);
+  }
+  .indicators-intro-metrics strong { color: var(--field-ink); font-size: 1.25rem; }
+  .indicators-intro-metrics small { color: var(--field-muted); font-size: .72rem; line-height: 1.25; }
+
+  #app[data-route="/app/indicadores"] .indicators-journey {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding: .9rem 1.1rem;
+    border: 1px solid var(--field-line);
+    border-radius: 10px;
+    background: #fff;
+    list-style: none;
+  }
+  .indicators-journey li {
+    display: grid;
+    grid-template-columns: 25px 31px minmax(0, 1fr);
+    gap: .55rem;
+    align-items: center;
+    min-width: 0;
+    padding: .15rem .9rem;
+    border-right: 1px solid var(--field-line);
+  }
+  .indicators-journey li:first-child { padding-left: 0; }
+  .indicators-journey li:last-child { padding-right: 0; border-right: 0; }
+  .indicators-journey li > span,
+  .indicator-reflection-step > header > span {
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--field-green);
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 850;
+  }
+  .indicators-step-icon { width: 29px; height: 29px; object-fit: contain; }
+  .indicators-journey strong { color: var(--field-ink); font-size: .82rem; }
+  .indicators-journey p { margin: .12rem 0 0; color: var(--field-muted); font-size: .7rem; line-height: 1.35; }
+
+  #app[data-route="/app/indicadores"] .indicators-workbench {
+    grid-template-columns: minmax(520px, 1.18fr) minmax(380px, .82fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+  .indicators-data-panel,
+  .indicators-reading-panel {
+    padding: clamp(1.15rem, 2.4vw, 1.6rem);
+    border-color: var(--field-line);
+    border-radius: 10px;
+    box-shadow: none;
+  }
+  .indicators-data-panel { border-top: 4px solid var(--field-green); }
+  .indicators-reading-panel { border-top: 4px solid var(--field-blue); }
+  .indicators-panel-heading { padding-bottom: .9rem; border-bottom: 1px solid var(--field-line); }
+  .indicators-panel-heading .eyebrow { margin-bottom: .3rem; color: var(--field-green); }
+  .indicators-reading-panel .indicators-panel-heading .eyebrow { color: var(--field-blue); }
+  .indicators-panel-heading h2 { margin-bottom: .35rem; color: var(--field-ink); font-size: 1.4rem; }
+  .indicators-panel-heading p:last-child { margin-bottom: 0; color: var(--field-muted); font-size: .86rem; line-height: 1.5; }
+  .indicators-draft-note,
+  .indicators-reflection-note {
+    margin: 1rem 0;
+    padding: .75rem .85rem;
+    border: 1px solid #d7e3ee;
+    border-radius: 8px;
+    background: #f8fbfe;
+    line-height: 1.45;
+  }
+  .indicators-draft-note { border-left: 4px solid var(--field-green); }
+  .indicators-reflection-note { border-left: 4px solid var(--field-blue); }
+
+  .indicators-data-form { gap: .9rem; }
+  #app[data-route="/app/indicadores"] .indicators-data-form fieldset {
+    padding: 1rem;
+    border-color: var(--field-line);
+    border-radius: 9px;
+    background: #fff;
+  }
+  #app[data-route="/app/indicadores"] .indicators-data-form legend {
+    display: inline-flex;
+    gap: .5rem;
+    align-items: center;
+    color: var(--field-ink);
+    font-size: .88rem;
+  }
+  .indicator-group-icon { width: 24px; height: 24px; object-fit: contain; }
+  .indicators-data-form .indicator-grid { margin-bottom: 0; }
+  .indicators-data-form input,
+  .indicators-data-form select,
+  .indicators-reflection-form textarea { border-color: #c6d6e2; }
+  .indicators-data-form input:focus,
+  .indicators-data-form select:focus,
+  .indicators-reflection-form textarea:focus { outline: 3px solid rgba(7, 95, 203, .16); border-color: var(--field-blue); }
+  .indicators-data-form input:disabled { color: #72859a; background: #eef2f5; }
+  .indicator-reference { border-left: 4px solid var(--field-blue)!important; }
+  .indicator-group[data-indicator-group="population"] { border-left: 4px solid var(--field-green)!important; }
+  .indicator-group[data-indicator-group="conditions"] { border-left: 4px solid #a95d35!important; }
+  .indicator-group[data-indicator-group="care"] { border-left: 4px solid #7b60a8!important; }
+  .indicator-group[data-indicator-group="work"] { border-left: 4px solid #9a5b21!important; }
+
+  .indicators-reflection-form { gap: .8rem; }
+  .indicator-reflection-step {
+    padding: .9rem;
+    border: 1px solid var(--field-line);
+    border-radius: 9px;
+    background: #fff;
+  }
+  .indicator-reflection-step > header {
+    display: grid;
+    grid-template-columns: 25px minmax(0, 1fr);
+    gap: .65rem;
+    align-items: start;
+    margin-bottom: .7rem;
+  }
+  .indicator-reflection-step h3 { margin-bottom: .12rem; color: var(--field-ink); font-size: .95rem; }
+  .indicator-reflection-step header p { margin: 0; color: var(--field-muted); font-size: .75rem; line-height: 1.4; }
+  .indicator-reflection-step label { color: var(--field-ink); font-size: .78rem; }
+  .indicator-action-step { border-left: 4px solid var(--field-green); background: #fbfdfc; }
+  .indicators-output-section {
+    margin-top: .95rem;
+    padding: 1rem;
+    border: 1px solid var(--field-line);
+    border-radius: 9px;
+    background: #f8fbfe;
+  }
+  .indicators-output-section > header { margin-bottom: .7rem; }
+  .indicators-output-section .eyebrow { margin-bottom: .25rem; color: var(--field-green); }
+  .indicators-output-section h3 { margin-bottom: 0; color: var(--field-ink); font-size: 1rem; }
+  .indicators-output-section .print-accessibility-options { margin-bottom: .85rem; background: #fff; }
+  .indicators-actions { justify-content: flex-end; padding-top: .85rem; border-top: 1px solid var(--field-line); }
+  .indicators-actions .button { min-width: 132px; }
+  .indicators-actions .button.primary { background: var(--field-blue); border-color: var(--field-blue); }
+  .indicators-actions .indicators-clear-button { min-width: 72px; margin-right: auto; border-color: transparent; color: var(--field-muted); background: transparent; }
+
+  @media (max-width: 1180px) {
+    #app[data-route="/app/indicadores"] .indicators-workbench { grid-template-columns: 1fr; }
+    #app[data-route="/app/indicadores"] .indicators-journey { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem 0; }
+    .indicators-journey li:nth-child(2) { border-right: 0; }
+    .indicators-journey li:nth-child(3) { padding-left: 0; }
+  }
+
+  @media (max-width: 760px) {
+    #app[data-route="/app/indicadores"] .page-content { padding-top: 1rem; }
+    #app[data-route="/app/indicadores"] .page-content > * { margin-right: 1rem; margin-left: 1rem; }
+    #app[data-route="/app/indicadores"] .indicators-intro-panel { grid-template-columns: auto minmax(0, 1fr); padding: 1rem; }
+    .indicators-intro-metrics { grid-column: 1 / -1; width: 100%; }
+    .indicators-intro-metrics span { flex: 1; }
+    #app[data-route="/app/indicadores"] .indicators-journey { grid-template-columns: 1fr; }
+    .indicators-journey li { padding: .65rem 0; border-right: 0; border-bottom: 1px solid var(--field-line); }
+    .indicators-journey li:last-child { border-bottom: 0; }
+    .indicators-actions { align-items: stretch; }
+    .indicators-actions .button { width: 100%; }
+    .indicators-actions .indicators-clear-button { order: 3; margin-right: 0; }
+  }
+}
