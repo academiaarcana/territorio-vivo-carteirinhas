@@ -54,7 +54,33 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
       : `${escapeHtml(roleLabel(profile))}${profile?.microarea ? ` • Microárea ${escapeHtml(profile.microarea)}` : ''}`;
   const territoryScopeControl = masterAccount
     ? `<button type="button" class="workspace-territory workspace-territory-action" data-nav="/app/gestao" aria-label="Abrir administração técnica do Território Vivo">${escapeHtml(territoryScopeLabel)}</button>`
-    : `<p class="workspace-territory">${escapeHtml(territoryScopeLabel)}</p>`;
+    : '';
+  const scopeItems = masterAccount
+    ? [
+        ['partner', 'Escopo', 'Administração técnica'],
+        ['population', 'Abrangência', 'Rede cadastrada'],
+        ['action', 'Conta', 'Master protegida']
+      ]
+    : networkAdmin
+      ? [
+          ['population', 'Escopo', 'Gestão municipal'],
+          ['location', 'Abrangência', 'Rede cadastrada'],
+          ['action', 'Acesso', 'Administração geral']
+        ]
+      : management
+        ? [
+            ['clinic', 'UBS', context?.unit?.short_name || profile?.unit_name || 'Unidade cadastrada'],
+            ['person', 'Papel', roleLabel(profile)],
+            ['location', 'Abrangência', 'Unidade de saúde']
+          ]
+        : [
+            ['clinic', 'UBS', context?.unit?.short_name || profile?.unit_name || 'Unidade não informada'],
+            ['group', 'Equipe', context?.team?.name || profile?.team_name || 'Equipe não informada'],
+            ['location', 'Microárea', profile?.microarea || 'Não informada']
+          ];
+  const scopeBand = `<section class="workspace-scope-band" aria-label="Escopo de acesso atual">
+    ${scopeItems.map(([icon, label, value]) => `<div class="workspace-scope-item">${renderFlaticonIcon(icon, { className: 'workspace-scope-icon' })}<span><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></span></div>`).join('')}
+  </section>`;
 
   return `
     <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
@@ -99,6 +125,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
           </div>
           <button type="button" class="button workspace-signout" data-signout>Sair da conta</button>
         </header>
+        ${scopeBand}
         <main id="main-content" class="page-content" tabindex="-1">${content}</main>
         <footer class="workspace-credits">
           <p class="institutional-disclaimer">Território Vivo — ferramenta de apoio à Atenção Primária à Saúde. Não constitui sistema oficial do Ministério da Saúde.</p>

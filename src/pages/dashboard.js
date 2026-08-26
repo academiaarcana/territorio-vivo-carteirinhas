@@ -3,6 +3,7 @@ import { escapeHtml } from '../lib/dom.js';
 import { navigate } from '../core/router.js';
 import { isManagement, isMaster, isMasterAccount, roleLabel } from '../core/permissions.js';
 import { listTerritoryPoints } from '../services/repository.js';
+import { renderFlaticonIcon } from '../lib/visual-support.js';
 
 export function renderDashboard({ state }) {
   const profile = state.profile || {};
@@ -14,9 +15,23 @@ export function renderDashboard({ state }) {
     : [context.unit?.short_name || profile.unit_name, context.team?.name || profile.team_name, profile.microarea ? `Microárea ${profile.microarea}` : ''].filter(Boolean).join(' • ') || 'Complete seu perfil territorial';
   const management = isManagement(profile);
   const missingTerritory = !networkAdmin && (!profile.municipality_code || !profile.unit_cnes);
+  const journey = networkAdmin
+    ? [
+        ['population', 'Ler a rede', 'Reconheça necessidades e potências nos territórios cadastrados.'],
+        ['group', 'Organizar prioridades', 'Apoie unidades e equipes sem transformar informação em ranking.'],
+        ['action', 'Acompanhar decisões', 'Defina responsáveis, próximos passos e momentos de reavaliação.']
+      ]
+    : [
+        ['location', 'Conhecer o território', 'Abra o território e identifique o que importa agora.'],
+        ['group', 'Levar para a equipe', 'Converse com o time e alinhe um próximo passo.'],
+        ['action', 'Agir e reavaliar', 'Transforme informação em ação e acompanhe os resultados.']
+      ];
+  const journeyMarkup = `<ol class="dashboard-journey" aria-label="Ciclo rápido de trabalho territorial">
+    ${journey.map(([icon, title, description], index) => `<li><span class="journey-number" aria-hidden="true">${index + 1}</span>${renderFlaticonIcon(icon, { className: 'journey-icon' })}<div><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></div></li>`).join('')}
+  </ol>`;
   const hero = networkAdmin
-    ? `<section class="hero-panel hero-territory"><p class="eyebrow">${masterAccount ? 'Master / Desenvolvimento' : 'Gestão municipal'}</p><h2>${masterAccount ? 'Administração técnica da rede cadastrada.' : 'Planejamento da rede a partir do território.'}</h2><p>${masterAccount ? 'Conta técnica protegida para administração superior e manutenção do modelo de acesso.' : 'Use a visão agregada para organizar rede, acompanhar necessidades territoriais e apoiar decisões sem transformar informação em ranking punitivo.'}</p><div class="actions"><button class="button primary" data-go="/app/gestao">Abrir gestão da rede</button><button class="button" data-go="/app/territorio">Abrir território</button><button class="button" data-go="/app/aprovacoes">Revisar aprovações</button><button class="button" data-go="/app/tutorial">Objetivo e tutorial</button></div></section>`
-    : '<section class="hero-panel hero-territory"><p class="eyebrow">Território Vivo</p><h2>Conhecimento do território orienta planejamento e ação.</h2><p>Reconheça mudanças, recursos e barreiras; leve o que importa para a equipe; combine um próximo passo e reavalie.</p><div class="actions"><button class="button primary" data-go="/app/territorio">Abrir território</button><button class="button" data-go="/app/5-minutos">Levar aos 5 minutos</button><button class="button" data-go="/app/carteirinhas">Criar carteirinha</button><button class="button" data-go="/app/tutorial">Ver objetivo e tutorial</button></div></section>';
+    ? `<section class="hero-panel hero-territory"><p class="eyebrow">${masterAccount ? 'Master / Desenvolvimento' : 'Gestão municipal'}</p><h2>${masterAccount ? 'Administração técnica da rede cadastrada.' : 'Planejamento da rede a partir do território.'}</h2><p>${masterAccount ? 'Conta técnica protegida para administração superior e manutenção do modelo de acesso.' : 'Use a visão agregada para organizar rede, acompanhar necessidades territoriais e apoiar decisões sem transformar informação em ranking punitivo.'}</p>${journeyMarkup}<div class="actions"><button class="button primary" data-go="/app/gestao">Abrir gestão da rede</button><button class="button" data-go="/app/territorio">Abrir território</button><button class="button" data-go="/app/aprovacoes">Revisar aprovações</button></div></section>`
+    : `<section class="hero-panel hero-territory"><p class="eyebrow">Território Vivo</p><h2>Conhecimento do território orienta planejamento e ação.</h2><p>Reconheça mudanças, recursos e barreiras; leve o que importa para a equipe; combine um próximo passo e reavalie.</p>${journeyMarkup}<div class="actions"><button class="button primary" data-go="/app/territorio">Abrir território</button><button class="button" data-go="/app/5-minutos">Levar aos 5 minutos</button><button class="button" data-go="/app/tutorial">Ver objetivo e tutorial</button></div></section>`;
   const accountSummary = networkAdmin
     ? `<article class="panel"><h3>Conta e escopo</h3><dl class="summary-list"><div><dt>Responsável</dt><dd>${escapeHtml(profile.full_name || '—')}</dd></div><div><dt>Conta</dt><dd>${escapeHtml(roleLabel(profile))}</dd></div><div><dt>Escopo</dt><dd>${escapeHtml(territory)}</dd></div><div><dt>Status</dt><dd>${masterAccount ? 'Administração técnica ativa' : 'Gestão municipal ativa'}</dd></div></dl><button class="link-button" data-go="/app/perfil">Configurar conta</button></article>`
     : `<article class="panel"><h3>Seu contexto</h3><dl class="summary-list"><div><dt>Profissional</dt><dd>${escapeHtml(profile.full_name || '—')}</dd></div><div><dt>Acesso</dt><dd>${escapeHtml(roleLabel(profile))}</dd></div><div><dt>Território</dt><dd>${escapeHtml(territory)}</dd></div><div><dt>Contato</dt><dd>${escapeHtml(profile.acs_phone || 'Não informado')}</dd></div></dl><button class="link-button" data-go="/app/perfil">Atualizar perfil</button></article>`;
@@ -25,7 +40,7 @@ export function renderDashboard({ state }) {
     ${hero}
     <section class="territory-now-block" aria-labelledby="territory-now-title">
       <div class="section-actions"><div><p class="eyebrow">O território agora</p><h2 id="territory-now-title">Uma leitura rápida do que pede atenção</h2><p>Contagens de achados não pessoais visíveis no seu escopo. Servem para orientar conversa e planejamento, não para avaliar desempenho individual.</p></div><button class="link-button" data-go="/app/territorio">Ver todos os achados</button></div>
-      <div id="dashboard-territory-kpis" class="kpi-grid" aria-live="polite"><article class="kpi"><small>Carregando</small><strong>…</strong></article></div>
+      <div id="dashboard-territory-kpis" class="dashboard-briefing-list" aria-live="polite"><article class="dashboard-briefing-row"><div><small>Carregando</small><strong>Leitura territorial</strong></div><b>…</b></article></div>
     </section>
     <section class="dashboard-grid">
       ${accountSummary}
@@ -68,11 +83,11 @@ async function loadTerritorySnapshot(root, state) {
     const barriers = active.filter((point) => point.kind === 'access_barrier' || point.kind === 'critical_point' || point.kind === 'risk');
     const assets = active.filter((point) => point.kind === 'resource' || point.kind === 'potentiality' || point.kind === 'partner');
     target.innerHTML = [
-      ['Achados ativos', active.length, 'tone-info'],
-      ['Barreiras / riscos', barriers.length, 'tone-warning'],
-      ['Recursos / potencialidades', assets.length, 'tone-territory'],
-      ['Precisam de revisão', needsReview.length, 'tone-planning']
-    ].map(([label, value, tone]) => `<article class="kpi ${tone}"><small>${escapeHtml(label)}</small><strong>${value}</strong></article>`).join('');
+      ['location', 'Achados ativos', 'Situações territoriais disponíveis no seu escopo.', active.length, 'tone-info'],
+      ['warning', 'Barreiras / riscos', 'Pontos que podem dificultar acesso, cuidado ou circulação.', barriers.length, 'tone-warning'],
+      ['partner', 'Recursos / potencialidades', 'Apoios e forças do território que podem ser mobilizados.', assets.length, 'tone-territory'],
+      ['action', 'Precisam de revisão', 'Registros que pedem atualização ou nova leitura da equipe.', needsReview.length, 'tone-planning']
+    ].map(([icon, label, description, value, tone]) => `<article class="dashboard-briefing-row ${tone}">${renderFlaticonIcon(icon, { className: 'briefing-icon' })}<div><strong>${escapeHtml(label)}</strong><small>${escapeHtml(description)}</small></div><b aria-label="${value} ${escapeHtml(label.toLowerCase())}">${value}</b></article>`).join('');
   } catch (error) {
     console.error(error);
     target.innerHTML = '<div class="empty-state"><h3>Leitura territorial indisponível</h3><p>Não foi possível carregar os achados agora. As demais funções continuam disponíveis.</p></div>';
