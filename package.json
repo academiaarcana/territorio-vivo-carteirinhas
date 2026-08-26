@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "npm run check:architecture && npm run check:security && npm run check:migrations && npm run check:management-migrations && npm run check:production && npm run test:layout && npm run test:presentation && npm run test:field-dashboard && npm run test:field-territory && npm run test:access-control && npm run test:master-interface && npm run test:access-management && npm run test:session-access && npm run test:auth-concurrency && npm run test:auth-redirect && npm run test:password-policy && npm run test:admin-concurrency && npm run test:territory-concurrency && npm run test:coordinates && npm run test:pending-concurrency && npm run test:cards-accessibility && npm run test:print-accessibility && npm run test:pdf-capture && npm run test:pdf-grid && npm run test:visual-support-matching && npm run test:volatile-drafts && npm run test:permissions",
+    "check": "npm run check:architecture && npm run check:security && npm run check:migrations && npm run check:management-migrations && npm run check:production && npm run test:layout && npm run test:presentation && npm run test:field-dashboard && npm run test:field-territory && npm run test:field-cards && npm run test:access-control && npm run test:master-interface && npm run test:access-management && npm run test:session-access && npm run test:auth-concurrency && npm run test:auth-redirect && npm run test:password-policy && npm run test:admin-concurrency && npm run test:territory-concurrency && npm run test:coordinates && npm run test:pending-concurrency && npm run test:cards-accessibility && npm run test:print-accessibility && npm run test:pdf-capture && npm run test:pdf-grid && npm run test:visual-support-matching && npm run test:volatile-drafts && npm run test:permissions",
     "check:architecture": "node scripts/validate-architecture.mjs",
     "check:security": "node scripts/validate-security-contract.mjs",
     "check:migrations": "node scripts/test-migration-history-contract.mjs",
@@ -14,6 +14,7 @@
     "test:presentation": "node scripts/test-presentation-readiness-contract.mjs",
     "test:field-dashboard": "node scripts/test-field-dashboard-contract.mjs",
     "test:field-territory": "node scripts/test-field-territory-contract.mjs",
+    "test:field-cards": "node scripts/test-field-cards-contract.mjs",
     "test:access-control": "node scripts/test-access-control-contract.mjs",
     "test:master-interface": "node scripts/test-master-interface-contract.mjs",
     "test:access-management": "node scripts/test-access-management-contract.mjs",
