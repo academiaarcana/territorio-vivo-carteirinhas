@@ -14,6 +14,7 @@ Tabelas principais:
 - `municipalities`: municípios habilitados no sistema;
 - `health_units`: unidades/pontos de atenção identificados por CNES;
 - `teams`: equipes vinculadas a uma unidade, com estado `pending` ou `confirmed`;
+- `microareas`: microáreas vinculadas a uma equipe, com total populacional agregado opcional;
 - `profiles`: perfil profissional do usuário e seu vínculo territorial.
 
 O primeiro município cadastrado é Pimenta Bueno/RO (`110018`). Novos municípios podem ser incluídos sem mudar o modelo de dados.
@@ -34,7 +35,7 @@ Supabase Auth usa login individual por e-mail e senha.
 - Conta master: administra perfis, catálogo institucional e equipes.
 - A função master é determinada no banco e não pode ser escolhida no frontend.
 
-RLS está ativo em `profiles`, `municipalities`, `health_units` e `teams`.
+RLS está ativo em `profiles`, `municipalities`, `health_units`, `teams` e `microareas`.
 
 ## Privacidade
 - O banco armazena apenas dados profissionais e institucionais necessários ao funcionamento da plataforma.
