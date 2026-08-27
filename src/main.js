@@ -14,6 +14,7 @@ import { renderCardsPage, mountCardsPage } from './pages/cards.js';
 import { renderFivePage, mountFivePage } from './pages/five.js';
 import { renderIndicatorsPage, mountIndicatorsPage } from './pages/indicators.js';
 import { renderEducationPage, mountEducationPage } from './pages/education.js';
+import { renderRegistrationGuidePage, mountRegistrationGuidePage } from './pages/registration-guide.js';
 import { renderPrescriptionsPage, mountPrescriptionsPage } from './pages/prescriptions.js';
 import { renderTutorialPage, mountTutorialPage } from './pages/tutorial.js';
 import { renderProfilePage, mountProfilePage } from './pages/profile.js';
@@ -32,6 +33,7 @@ registerRoute('/app/carteirinhas', { auth: true, capability: CAPABILITIES.USE_TE
 registerRoute('/app/5-minutos', { auth: true, capability: CAPABILITIES.USE_TEMPORARY_TOOLS, render: renderFivePage, mount: mountFivePage });
 registerRoute('/app/indicadores', { auth: true, capability: CAPABILITIES.USE_TEMPORARY_TOOLS, render: renderIndicatorsPage, mount: mountIndicatorsPage });
 registerRoute('/app/educacao', { auth: true, capability: CAPABILITIES.USE_TEMPORARY_TOOLS, render: renderEducationPage, mount: mountEducationPage });
+registerRoute('/app/guia-cadastro', { auth: true, capability: CAPABILITIES.USE_TEMPORARY_TOOLS, render: renderRegistrationGuidePage, mount: mountRegistrationGuidePage });
 registerRoute('/app/prescricoes', { auth: true, capability: CAPABILITIES.USE_EXTERNAL_PRESCRIPTIONS, render: renderPrescriptionsPage, mount: mountPrescriptionsPage });
 registerRoute('/app/tutorial', { auth: true, capability: CAPABILITIES.ACCESS_INTERNAL, render: renderTutorialPage, mount: mountTutorialPage });
 registerRoute('/app/perfil', { auth: true, capability: CAPABILITIES.EDIT_OWN_PROFILE_DATA, render: renderProfilePage, mount: mountProfilePage });

@@ -37,7 +37,7 @@ export async function getProfile(userId) {
 
 export async function updateProfile(userId, patch) {
   const allowed = [
-    'full_name','microarea','acs_phone','municipality_code','unit_cnes','team_id',
+    'full_name','microarea','microarea_id','acs_phone','municipality_code','unit_cnes','team_id',
     'unit_name','team_name','unit_phone','unit_address','unit_hours',
     'doctor_name','nurse_name','tech_name'
   ];
@@ -106,6 +106,67 @@ export async function listTeams({ unitCnes = null, includeInactive = false } = {
 export async function getTeam(teamId) {
   if (!teamId) return null;
   const { data, error } = await supabase.from('teams').select('*').eq('id', teamId).maybeSingle();
+  assertNoError(error);
+  return data;
+}
+
+export async function listMicroareas({ teamId = null, includeInactive = false } = {}) {
+  let query = supabase.from('microareas').select('*').order('code');
+  if (teamId) query = query.eq('team_id', teamId);
+  if (!includeInactive) query = query.eq('active', true);
+  const { data, error } = await query;
+  assertNoError(error);
+  return data || [];
+}
+
+function normalizePopulationCount(value) {
+  if (value === '' || value === null || value === undefined) return null;
+  const count = Number(value);
+  if (!Number.isSafeInteger(count) || count < 0) throw new RangeError('Quantidade de pessoas deve ser um numero inteiro maior ou igual a zero.');
+  return count;
+}
+
+function normalizePopulationMetadata(populationCount, payload) {
+  if (populationCount === null) return { population_reference_date: null, data_status: 'not_informed', source_checked_on: null };
+  if (!payload.population_reference_date) throw new Error('Informe a data de referência do total de pessoas.');
+  if (!['local_confirmed', 'esus_report'].includes(payload.data_status)) throw new Error('Informe a origem do total de pessoas.');
+  return {
+    population_reference_date: payload.population_reference_date,
+    data_status: payload.data_status,
+    source_checked_on: payload.source_checked_on || new Date().toISOString().slice(0, 10)
+  };
+}
+
+export async function createMicroarea(payload) {
+  const populationCount = normalizePopulationCount(payload.population_count);
+  const populationMetadata = normalizePopulationMetadata(populationCount, payload);
+  const clean = {
+    team_id: payload.team_id,
+    code: payload.code.trim(),
+    population_count: populationCount,
+    ...populationMetadata,
+    source_label: payload.source_label?.trim() || '',
+    source_note: payload.source_note?.trim() || '',
+    active: payload.active ?? true
+  };
+  const { data, error } = await supabase.from('microareas').insert(clean).select('*').single();
+  assertNoError(error);
+  return data;
+}
+
+export async function updateMicroarea(microareaId, patch) {
+  const clean = pickAllowed(patch, [
+    'code','population_count','population_reference_date','data_status',
+    'source_label','source_checked_on','source_note','active'
+  ]);
+  if (clean.code !== undefined) clean.code = clean.code.trim();
+  if (clean.population_count !== undefined) {
+    clean.population_count = normalizePopulationCount(clean.population_count);
+    Object.assign(clean, normalizePopulationMetadata(clean.population_count, { ...patch, ...clean }));
+  }
+  if (clean.source_label !== undefined) clean.source_label = clean.source_label?.trim() || '';
+  if (clean.source_note !== undefined) clean.source_note = clean.source_note?.trim() || '';
+  const { data, error } = await supabase.from('microareas').update(clean).eq('id', microareaId).select('*').single();
   assertNoError(error);
   return data;
 }
