@@ -64,6 +64,7 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `20260826135329_repair_reapplied_auth_objects.sql` | `036_repair_reapplied_auth_objects` |
 | `20260826145213_bootstrap_initial_master_account.sql` | `bootstrap_initial_master_account` |
 | `20260826234754_add_clinical_professional_roles.sql` | pendente — `add_clinical_professional_roles` |
+| `20260827161226_add_microareas_and_population_counts.sql` | pendente — `add_microareas_and_population_counts` |
 
 ### Nota sobre Gestor × Master
 
@@ -98,6 +99,12 @@ A migration `20260826145213_bootstrap_initial_master_account.sql` registra a pro
 A migration `20260826234754_add_clinical_professional_roles.sql` acrescenta `physician` e `nurse` ao domínio fechado de papéis. Ambos permanecem perfis profissionais de menor privilégio, vinculados a UBS/equipe, sem poderes administrativos. A gestão da própria UBS pode visualizar, aprovar, suspender e manter esses perfis dentro do mesmo escopo aplicado ao ACS. O acesso a prescrições é uma capacidade exclusiva do frontend e abre um serviço externo; o banco do Território Vivo não recebe receitas nem dados clínicos.
 
 O arquivo foi criado pela Supabase CLI e permanece **pendente de aplicação** no projeto Supabase. A aplicação deverá usar o nome `add_clinical_professional_roles`, seguida dos Advisors de segurança e desempenho, antes de integrar a PR.
+
+### Nota sobre microáreas e população acompanhada
+
+A migration `20260827161226_add_microareas_and_population_counts.sql`, criada pela Supabase CLI, normaliza a hierarquia `UBS → equipe → microárea → ACS`. O total de pessoas é agregado, opcional e acompanhado por data/status de origem. Ausência de informação permanece `null` e não é convertida em zero.
+
+O arquivo não cadastra pessoas, famílias identificáveis ou dados clínicos. Perfis ACS existentes são vinculados somente quando equipe e código textual permitem correspondência segura; casos ambíguos permanecem sem identificador para conferência administrativa. A migration está **pendente de aplicação** e não altera o projeto Supabase enquanto a PR permanecer em rascunho.
 
 ## Regra para novas alterações
 
