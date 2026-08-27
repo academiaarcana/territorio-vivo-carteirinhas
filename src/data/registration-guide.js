@@ -8,8 +8,16 @@ export const registrationGuide = {
       url: 'https://sisaps.saude.gov.br/sistemas/esusaps/docs/manual/TERRITORIO/territorio_03/'
     },
     {
+      label: 'Ministério da Saúde — Manual e-SUS APS 2026: Cadastro Individual e conceitos dos campos',
+      url: 'https://sisaps.saude.gov.br/sistemas/esusaps/docs/manual/PEC/PEC_07_cds/'
+    },
+    {
       label: 'Ministério da Saúde — Nota Técnica nº 21/2024: orientação sexual e identidade de gênero',
       url: 'https://www.gov.br/saude/pt-br/centrais-de-conteudo/publicacoes/notas-tecnicas/2024/nota-tecnica-no-21-2024-caeq-cgesco-desco-saps-ms.pdf'
+    },
+    {
+      label: 'Ministério da Saúde — Nota Técnica nº 10/2026: cuidado integral à população LGBTIA+ na APS',
+      url: 'https://www.gov.br/saude/pt-br/composicao/saps/notas-tecnicas-e-informativas/nota-tecnica-no-10-2026-cgaeq-desf-saps-ms'
     }
   ],
   dimensions: [
@@ -119,13 +127,32 @@ export const registrationGuide = {
       term: 'Nome social',
       definition: 'Nome pelo qual a pessoa deseja ser chamada e reconhecida socialmente.',
       options: 'Pergunte como a pessoa deseja ser chamada e use esse nome no atendimento, conforme o fluxo do serviço.'
+    },
+    {
+      term: 'Direito de não informar',
+      definition: 'O sistema exige que a pergunta seja apresentada, mas a pessoa pode escolher não declarar orientação sexual ou identidade de gênero.',
+      options: 'Quando a resposta for “não”, registre essa escolha no campo “Deseja informar?”. Nunca complete a categoria por suposição.'
+    }
+  ],
+  sampleQuestions: [
+    {
+      title: 'Nome e pronome',
+      question: 'Como você gostaria que eu te chamasse? Você possui nome social? Quais pronomes devemos usar?'
+    },
+    {
+      title: 'Identidade de gênero',
+      question: 'Você deseja informar sua identidade de gênero? Se sim: com qual gênero você se identifica?'
+    },
+    {
+      title: 'Orientação sexual',
+      question: 'Você deseja informar sua orientação sexual? Se sim: qual das opções apresentadas representa como você se identifica?'
     }
   ],
   conversationSteps: [
     'Explique que as perguntas fazem parte do cadastro da Atenção Primária e ajudam a equipe a planejar um cuidado mais adequado.',
     'Faça a pergunta para todas as pessoas quando o campo for apresentado, sem selecionar quem “parece” precisar responder.',
     'Pergunte orientação sexual e identidade de gênero separadamente, porque são informações diferentes.',
-    'Leia as alternativas da versão instalada e aguarde a autodeclaração da pessoa.',
+    'Leia as alternativas da versão instalada e aguarde a autodeclaração da pessoa. Se ela não desejar informar, registre essa escolha sem insistir.',
     'Se a pessoa não compreender um termo, explique de forma simples, sem conduzir a resposta.',
     'Mantenha tom de voz respeitoso e evite expor a resposta diante de familiares, vizinhos ou outras pessoas.'
   ],

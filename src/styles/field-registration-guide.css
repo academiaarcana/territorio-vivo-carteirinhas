@@ -98,6 +98,23 @@
   .registration-concept-card p { margin-bottom: .5rem; color: var(--field-ink); font-size: .85rem; line-height: 1.5; }
   .registration-concept-card small { color: var(--field-muted); line-height: 1.45; }
 
+  #app[data-route="/app/guia-cadastro"] .registration-question-section {
+    margin-bottom: 1rem;
+    padding: clamp(1.15rem, 2.4vw, 1.6rem);
+    border-color: #c9dcef;
+    border-top: 4px solid var(--field-blue);
+    border-radius: 10px;
+    box-shadow: none;
+  }
+  .registration-question-section > header { margin-bottom: 1rem; }
+  .registration-question-section > header .eyebrow { margin-bottom: .3rem; color: var(--field-blue); }
+  .registration-question-section > header h2 { margin-bottom: .35rem; color: var(--field-ink); font-size: 1.35rem; }
+  .registration-question-section > header p:last-child { margin: 0; color: var(--field-muted); font-size: .86rem; line-height: 1.5; }
+  .registration-question-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+  .registration-question-list article { padding: 1rem; border: 1px solid #c9dcef; border-radius: 9px; background: #f8fbfe; }
+  .registration-question-list span { color: var(--field-blue); font-size: .72rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+  .registration-question-list p { margin: .55rem 0 0; color: var(--field-ink); font-size: .9rem; line-height: 1.55; }
+
   .registration-conversation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
   #app[data-route="/app/guia-cadastro"] .registration-conversation-grid .panel { padding: 1.2rem; border-radius: 10px; box-shadow: none; }
   .registration-do-card { border-top: 4px solid var(--field-green); }
@@ -126,6 +143,7 @@
     .registration-guide-boundary,
     .registration-steps,
     .registration-concepts,
+    .registration-question-list,
     .registration-conversation-grid,
     .registration-sources { grid-template-columns: 1fr; }
     .registration-step > div { padding-left: .9rem; }

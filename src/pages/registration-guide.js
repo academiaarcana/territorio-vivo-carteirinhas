@@ -46,6 +46,10 @@ export function renderRegistrationGuidePage() {
       <header><p class="eyebrow">Cadastro sem suposições</p><h2 id="registration-identity-title">Orientação sexual, identidade de gênero e nome social</h2><p>Esses conceitos são diferentes. A resposta pertence à pessoa e deve ser registrada conforme sua autodeclaração.</p></header>
       <div class="registration-concepts">${guide.concepts.map(renderConcept).join('')}</div>
     </section>
+    <section class="panel registration-question-section" aria-labelledby="registration-questions-title">
+      <header><p class="eyebrow">Perguntas prontas</p><h2 id="registration-questions-title">Como perguntar sem conduzir a resposta</h2><p>Use estas frases como apoio, em ambiente reservado e com tom natural. Leia as opções que aparecem na versão instalada do e-SUS APS.</p></header>
+      <div class="registration-question-list">${guide.sampleQuestions.map((item) => `<article><span>${escapeHtml(item.title)}</span><p>“${escapeHtml(item.question)}”</p></article>`).join('')}</div>
+    </section>
     <section class="registration-conversation-grid">
       <article class="panel registration-do-card"><p class="eyebrow">Como perguntar</p><h2>Conversa respeitosa</h2><ol>${guide.conversationSteps.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ol></article>
       <article class="panel registration-avoid-card"><p class="eyebrow">O que evitar</p><h2>Não presumir nem expor</h2><ul>${guide.avoid.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul></article>
