@@ -1,17 +1,25 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { applyNamedFormValues, clearVolatileDraft, readNamedFormValues, readVolatileDraft, writeVolatileDraft } from '../core/volatile-drafts.js';
-import { getPrescriptionRoute, getPrescriptionSchedule, prescriptionRoutes, prescriptionSchedules } from '../data/prescription-support.js';
+import {
+  getPrescriptionRoute,
+  getPrescriptionSchedule,
+  getPrescriptionSupportItem,
+  prescriptionRoutes,
+  prescriptionSchedules,
+  prescriptionSupportCategories,
+  prescriptionSupportItemsFor
+} from '../data/prescription-support.js';
 import { escapeHtml, setStatus } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
 import { renderFlaticonIcon } from '../lib/visual-support.js';
 import { ROLES, roleLabel } from '../core/permissions.js';
 import { printHtml, downloadPdf } from '../utils/print.js';
 
-const CUIDADO_PARA_TODOS_URL = 'https://www.cuidadoparatodos.com.br/';
 const PRESCRIPTION_DRAFT_KEY = 'accessible-prescription-builder';
+const MAX_OPTIONAL_SUPPORTS = 4;
 
 const emptyDraft = () => ({
-  values: { source_text: '', medication: '', dose: '', route: 'oral', schedule: 'morning', observation: '' },
+  values: { source_text: '', medication: '', dose: '', route: 'oral', schedule: 'morning', observation: '', support_ids: '' },
   items: []
 });
 
@@ -48,6 +56,8 @@ export function renderPrescriptionsPage({ state }) {
           <label>Horário, intervalo ou observação
             <input name="observation" maxlength="220" placeholder="Ex.: a cada 8 horas, por 7 dias, 30 min antes do almoço">
           </label>
+          <input type="hidden" name="support_ids" value="">
+          ${renderSupportLibraryShell()}
           <div class="actions prescription-form-actions"><button class="button primary" type="submit">Adicionar orientação</button><button class="button" type="button" data-clear-fields>Limpar campos</button></div>
         </form>
       </article>
@@ -62,7 +72,7 @@ export function renderPrescriptionsPage({ state }) {
     <section class="panel prescription-guidance">
       <div>${renderFlaticonIcon('warning')}<div><p class="eyebrow">Responsabilidade profissional</p><h2>O apoio visual não amplia atribuições clínicas</h2></div></div>
       <p>${escapeHtml(professionalNotice)} Confira identificação profissional, assinatura, registro no prontuário e entrega do documento original.</p>
-      <div class="prescription-external-reference"><div><strong>Biblioteca externa de referência</strong><span>O Cuidado Para Todos continua disponível em outra página, com conta e políticas próprias.</span></div><a class="button" href="${CUIDADO_PARA_TODOS_URL}" target="_blank" rel="noopener noreferrer">Abrir Cuidado Para Todos <span aria-hidden="true">↗</span></a></div>
+      <div class="prescription-library-origin"><strong>Biblioteca própria do Território Vivo</strong><span>As imagens autorais ficam dentro deste site. A referência externa foi estudada apenas para compreender categorias e fluxo; nenhum código, logotipo ou banco de imagens de terceiros foi incorporado.</span></div>
     </section>`;
 
   return appLayout({ title: 'Prescrições e receitas', subtitle: 'Acesso exclusivo para médicas(os) e enfermeiras(os) com perfil ativo.', activePath: '/app/prescricoes', content });
@@ -74,15 +84,26 @@ export function mountPrescriptionsPage({ root, state }) {
   const status = root.querySelector('[data-prescription-status]');
   let draft = readVolatileDraft(PRESCRIPTION_DRAFT_KEY, emptyDraft());
   draft.items = Array.isArray(draft.items) ? draft.items : [];
+  let activeSupportCategory = 'combined';
+  let selectedSupportIds = parseSupportIds(draft.values?.support_ids);
   applyNamedFormValues(form, draft.values || {});
+  syncSupportField(form, selectedSupportIds);
 
   const persist = () => {
+    syncSupportField(form, selectedSupportIds);
     draft.values = readNamedFormValues(form);
     writeVolatileDraft(PRESCRIPTION_DRAFT_KEY, draft);
   };
   const refresh = () => {
-    renderCurrentPreview(root, readNamedFormValues(form));
+    const values = readNamedFormValues(form);
+    renderCurrentPreview(root, values);
     renderPrescriptionItems(root, draft.items);
+    renderSupportLibrary(root, {
+      category: activeSupportCategory,
+      query: root.querySelector('[data-support-search]')?.value || '',
+      values,
+      selectedSupportIds
+    });
   };
 
   form.addEventListener('input', () => { persist(); refresh(); });
@@ -102,11 +123,14 @@ export function mountPrescriptionsPage({ root, state }) {
       dose,
       route: getPrescriptionRoute(values.route).id,
       schedule: getPrescriptionSchedule(values.schedule).id,
-      observation: String(values.observation || '').trim()
+      observation: String(values.observation || '').trim(),
+      supports: selectedSupportIds.slice(0, MAX_OPTIONAL_SUPPORTS)
     });
     values.medication = '';
     values.dose = '';
     values.observation = '';
+    values.support_ids = '';
+    selectedSupportIds = [];
     draft.values = values;
     writeVolatileDraft(PRESCRIPTION_DRAFT_KEY, draft);
     applyNamedFormValues(form, values);
@@ -118,6 +142,7 @@ export function mountPrescriptionsPage({ root, state }) {
   root.querySelector('[data-clear-fields]').addEventListener('click', () => {
     const sourceText = form.elements.source_text.value;
     draft.values = { ...emptyDraft().values, source_text: sourceText };
+    selectedSupportIds = [];
     applyNamedFormValues(form, draft.values);
     persist();
     refresh();
@@ -135,6 +160,7 @@ export function mountPrescriptionsPage({ root, state }) {
 
   root.querySelector('[data-clear-draft]').addEventListener('click', () => {
     draft = emptyDraft();
+    selectedSupportIds = [];
     clearVolatileDraft(PRESCRIPTION_DRAFT_KEY);
     applyNamedFormValues(form, draft.values);
     refresh();
@@ -165,7 +191,128 @@ export function mountPrescriptionsPage({ root, state }) {
     }
   });
 
+  root.querySelector('[data-support-tabs]').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-support-category]');
+    if (!button) return;
+    activeSupportCategory = button.dataset.supportCategory;
+    refresh();
+  });
+  root.querySelector('[data-support-tabs]').addEventListener('keydown', (event) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    const buttons = [...root.querySelectorAll('[data-support-category]')];
+    const current = buttons.indexOf(event.target.closest('[data-support-category]'));
+    if (current < 0) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (current + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
+    activeSupportCategory = buttons[next].dataset.supportCategory;
+    refresh();
+    buttons[next].focus();
+  });
+
+  root.querySelector('[data-support-search]').addEventListener('input', refresh);
+
+  root.querySelector('[data-support-library]').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-support-item]');
+    if (!button) return;
+    const item = getPrescriptionSupportItem(button.dataset.supportItem);
+    if (!item) return;
+
+    if (item.action === 'preset') {
+      form.elements.route.value = item.route;
+      form.elements.schedule.value = item.schedule;
+      if (item.observation) form.elements.observation.value = appendObservation(form.elements.observation.value, item.observation);
+      setStatus(status, 'Combinado aplicado. Confira todos os campos antes de adicionar.', 'success');
+    } else if (item.action === 'route') {
+      form.elements.route.value = item.id;
+      setStatus(status, 'Via de uso selecionada. Confira com a prescrição original.', 'success');
+    } else if (item.action === 'schedule') {
+      form.elements.schedule.value = item.id;
+      setStatus(status, 'Período selecionado. Informe também horário, intervalo e duração quando necessário.', 'success');
+    } else if (item.action === 'observation') {
+      form.elements.observation.value = appendObservation(form.elements.observation.value, item.observation);
+      setStatus(status, 'Intervalo acrescentado ao texto. Complete a duração e confira a receita.', 'success');
+    } else if (item.action === 'support') {
+      const alreadySelected = selectedSupportIds.includes(item.id);
+      if (alreadySelected) selectedSupportIds = selectedSupportIds.filter((id) => id !== item.id);
+      else if (selectedSupportIds.length < MAX_OPTIONAL_SUPPORTS) selectedSupportIds.push(item.id);
+      else {
+        setStatus(status, `Escolha no máximo ${MAX_OPTIONAL_SUPPORTS} apoios adicionais por orientação.`, 'error');
+        return;
+      }
+      setStatus(status, alreadySelected ? 'Apoio visual removido.' : 'Apoio visual selecionado. Confira se ele corresponde ao texto.', 'success');
+    }
+
+    persist();
+    refresh();
+  });
+
   refresh();
+}
+
+function renderSupportLibraryShell() {
+  return `<section class="prescription-support-library" aria-labelledby="prescription-library-heading">
+    <header><div><p class="eyebrow">4 · Biblioteca visual</p><h3 id="prescription-library-heading">Acrescente imagens de apoio</h3><p>Escolha até ${MAX_OPTIONAL_SUPPORTS} apoios. Via, dose, horário, intervalo e duração continuam escritos e conferidos pela(o) profissional.</p></div><label>Buscar na biblioteca<input type="search" data-support-search maxlength="80" placeholder="Ex.: dor, água, criança, 8 horas"></label></header>
+    <div class="prescription-support-tabs" role="tablist" aria-label="Categorias da biblioteca" data-support-tabs>${prescriptionSupportCategories.map((category, index) => `<button id="prescription-tab-${escapeHtml(category.id)}" type="button" role="tab" aria-controls="prescription-support-panel" aria-selected="${index === 0 ? 'true' : 'false'}" tabindex="${index === 0 ? '0' : '-1'}" data-support-category="${escapeHtml(category.id)}">${escapeHtml(category.label)}</button>`).join('')}</div>
+    <p class="prescription-support-description" data-support-description></p>
+    <div id="prescription-support-panel" class="prescription-support-grid" role="tabpanel" aria-labelledby="prescription-tab-combined" data-support-library></div>
+    <p class="prescription-cultural-note" data-cultural-note hidden><strong>Validação cultural necessária:</strong> estas imagens não representam todos os povos indígenas. Antes de usar, confirme linguagem, cena e significado com a comunidade atendida.</p>
+    <p class="prescription-taper-note" data-taper-note hidden><strong>Retirada de corticoide:</strong> o desenho não define etapas. Escreva dose, datas e duração de cada redução exatamente como prescritas.</p>
+  </section>`;
+}
+
+function renderSupportLibrary(root, { category, query, values, selectedSupportIds }) {
+  const categoryData = prescriptionSupportCategories.find((item) => item.id === category) || prescriptionSupportCategories[0];
+  const items = prescriptionSupportItemsFor(categoryData.id, query);
+  const target = root.querySelector('[data-support-library]');
+  const description = root.querySelector('[data-support-description]');
+  if (!target || !description) return;
+
+  root.querySelectorAll('[data-support-category]').forEach((button) => {
+    const selected = button.dataset.supportCategory === categoryData.id;
+    button.setAttribute('aria-selected', String(selected));
+    button.tabIndex = selected ? 0 : -1;
+  });
+  target.setAttribute('aria-labelledby', `prescription-tab-${categoryData.id}`);
+  description.textContent = categoryData.description;
+  root.querySelector('[data-cultural-note]').hidden = categoryData.id !== 'indigenous';
+  root.querySelector('[data-taper-note]').hidden = categoryData.id !== 'taper';
+
+  if (!items.length) {
+    target.innerHTML = '<p class="prescription-support-empty">Nenhuma imagem encontrada nesta categoria.</p>';
+    return;
+  }
+
+  target.innerHTML = items.map((item) => {
+    const selected = item.action === 'support'
+      ? selectedSupportIds.includes(item.id)
+      : (item.action === 'route' && values.route === item.id) || (item.action === 'schedule' && values.schedule === item.id);
+    const actionLabel = item.action === 'support' ? (selected ? 'Remover' : 'Selecionar') : 'Aplicar';
+    return `<button type="button" class="prescription-support-card" data-support-item="${escapeHtml(item.id)}" aria-pressed="${selected ? 'true' : 'false'}">
+      <span class="prescription-support-card-visual">${renderSupportVisual(item)}</span>
+      <strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.hint || '')}</small><span class="prescription-support-card-action">${actionLabel}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderSupportVisual(item) {
+  if (item?.image) return `<img src="${escapeHtml(item.image)}" alt="" aria-hidden="true">`;
+  if (item?.icon) return renderFlaticonIcon(item.icon);
+  return '';
+}
+
+function parseSupportIds(value) {
+  return String(value || '').split(',').map((id) => id.trim()).filter((id) => getPrescriptionSupportItem(id)?.action === 'support').slice(0, MAX_OPTIONAL_SUPPORTS);
+}
+
+function syncSupportField(form, selectedSupportIds) {
+  if (form?.elements?.support_ids) form.elements.support_ids.value = selectedSupportIds.join(',');
+}
+
+function appendObservation(current, addition) {
+  const cleanCurrent = String(current || '').trim();
+  const cleanAddition = String(addition || '').trim();
+  if (!cleanAddition || cleanCurrent.toLocaleLowerCase('pt-BR').includes(cleanAddition.toLocaleLowerCase('pt-BR'))) return cleanCurrent;
+  return [cleanCurrent, cleanAddition].filter(Boolean).join('; ').slice(0, 220);
 }
 
 function renderChoiceGroup(name, legend, options) {
@@ -196,7 +343,13 @@ function renderPrescriptionItems(root, items) {
 function renderVisualInstruction(item, { compact = false } = {}) {
   const route = getPrescriptionRoute(item.route);
   const schedule = getPrescriptionSchedule(item.schedule);
-  return `<article class="prescription-visual-instruction${compact ? ' compact' : ''}"><div class="prescription-instruction-text"><strong>${escapeHtml(item.medication)}</strong><span>${escapeHtml(item.dose)}</span>${item.observation ? `<small>${escapeHtml(item.observation)}</small>` : ''}</div><div class="prescription-pictograms"><figure><img src="${escapeHtml(route.image)}" alt=""><figcaption>${escapeHtml(route.label)}</figcaption></figure><span aria-hidden="true">+</span><figure><img src="${escapeHtml(schedule.image)}" alt=""><figcaption>${escapeHtml(schedule.label)}</figcaption></figure></div></article>`;
+  const supports = (Array.isArray(item.supports) ? item.supports : parseSupportIds(item.support_ids)).map(getPrescriptionSupportItem).filter(Boolean);
+  const figures = [
+    `<figure><img src="${escapeHtml(route.image)}" alt=""><figcaption>${escapeHtml(route.label)}</figcaption></figure>`,
+    `<figure><img src="${escapeHtml(schedule.image)}" alt=""><figcaption>${escapeHtml(schedule.label)}</figcaption></figure>`,
+    ...supports.map((support) => `<figure>${renderSupportVisual(support)}<figcaption>${escapeHtml(support.label)}</figcaption></figure>`)
+  ];
+  return `<article class="prescription-visual-instruction${compact ? ' compact' : ''}"><div class="prescription-instruction-text"><strong>${escapeHtml(item.medication)}</strong><span>${escapeHtml(item.dose)}</span>${item.observation ? `<small>${escapeHtml(item.observation)}</small>` : ''}</div><div class="prescription-pictograms">${figures.join('')}</div></article>`;
 }
 
 function ensurePrintable(items, status) {
