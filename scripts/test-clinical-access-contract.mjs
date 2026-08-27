@@ -6,6 +6,7 @@ const permissions = fs.readFileSync('src/core/permissions.js', 'utf8');
 const layout = fs.readFileSync('src/core/layout.js', 'utf8');
 const main = fs.readFileSync('src/main.js', 'utf8');
 const page = fs.readFileSync('src/pages/prescriptions.js', 'utf8');
+const support = fs.readFileSync('src/data/prescription-support.js', 'utf8');
 const admin = fs.readFileSync('src/pages/admin.js', 'utf8');
 const css = fs.readFileSync('src/styles/field-prescriptions.css', 'utf8');
 const migration = fs.readFileSync('supabase/migrations/20260826234754_add_clinical_professional_roles.sql', 'utf8');
@@ -22,9 +23,21 @@ assert.match(admin, /<option value="nurse"/, 'Gestão precisa atribuir papel enf
 
 assert.match(page, /https:\/\/www\.cuidadoparatodos\.com\.br\//, 'A área deve abrir o Cuidado Para Todos.');
 assert.match(page, /target="_blank" rel="noopener noreferrer"/, 'Serviço externo deve abrir com isolamento de janela.');
-assert.match(page, /não recebe nem grava nome de paciente, diagnóstico, medicamento, dose, receita, arquivo, assinatura ou credencial/, 'Fronteira de privacidade deve ser explícita.');
+assert.match(page, /Dados temporários: nada é salvo no Supabase/, 'Fronteira de não persistência deve ser explícita.');
+assert.match(page, /permanecem somente nesta aba/, 'A duração do rascunho precisa ser explicada.');
+assert.match(page, /não interpreta nem corrige a prescrição/, 'A tela não pode prometer interpretação automática da receita.');
+assert.match(page, /Apoio visual não substitui o texto da prescrição/, 'O limite clínico dos pictogramas deve ser explícito.');
+assert.match(page, /readVolatileDraft/, 'Rascunho deve usar somente o armazenamento volátil compartilhado.');
+assert.match(page, /printHtml/, 'Orientação deve permitir impressão local.');
+assert.match(page, /downloadPdf/, 'Orientação deve permitir PDF local.');
+assert.doesNotMatch(page, /name="(patient|patient_name|cpf|diagnosis)"/, 'V1 não deve coletar identificação ou diagnóstico do paciente.');
 assert.doesNotMatch(page, /from ['"][^'"]*(supabase|repository)\.js['"]/, 'Área clínica externa não pode importar persistência.');
 for (const forbidden of ['localStorage', 'sessionStorage', 'indexedDB']) assert.doesNotMatch(page, new RegExp(forbidden), `Área clínica não pode usar ${forbidden}.`);
+
+for (const file of ['morning.png', 'lunch.png', 'evening.png', 'bedtime.png', 'oral.png', 'injection.png', 'topical.png', 'drops.png']) {
+  assert.match(support, new RegExp(file.replace('.', '\\.')), `Catálogo deve referenciar ${file}.`);
+  assert.ok(fs.statSync(`src/assets/prescription-support/${file}`).size > 10_000, `${file} precisa ser um ativo visual real.`);
+}
 
 assert.match(migration, /check \(role in \('acs', 'physician', 'nurse', 'unit_admin', 'admin'\)\)/, 'Banco precisa limitar papéis ao domínio ampliado.');
 assert.match(migration, /caller_is_master and new\.role in \('acs', 'physician', 'nurse', 'unit_admin', 'admin'\)/, 'Somente Master pode continuar atribuindo admin.');
@@ -35,6 +48,7 @@ assert.match(migration, /revoke all on function public\.enforce_profile_role\(\)
 
 assert.match(css, /@media screen/, 'Camada visual clínica deve ficar restrita à tela.');
 assert.match(css, /#app\[data-route="\/app\/prescricoes"\]/, 'Estilos devem ficar limitados à rota clínica.');
-assert.doesNotMatch(css, /@media print/, 'Área externa não deve criar contrato de impressão local.');
+assert.match(css, /@media print/, 'Orientações locais precisam de contrato de impressão.');
+assert.match(css, /prescription-print-sheet/, 'Impressão deve ter folha própria.');
 
-console.log('Contrato clínico OK: Médico/Enfermeiro, menor privilégio, rota protegida e fronteira externa sem persistência.');
+console.log('Contrato clínico OK: Médico/Enfermeiro, menor privilégio, pictogramas autorais e rascunho local sem persistência.');
