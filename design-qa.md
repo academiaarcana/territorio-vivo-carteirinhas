@@ -8,13 +8,13 @@
 - Captura da implementação: indisponível.
 - Tentativa atual de captura: a prévia local respondeu na porta `4173`, mas o navegador em nuvem bloqueou o endereço antes da renderização com `ERR_BLOCKED_BY_CLIENT`.
 - Viewport-alvo: desktop 1440 × 1024 CSS px, densidade 1×; reflow previsto em 760 px.
-- Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos`, `#/app/indicadores`, `#/app/educacao` e `#/app/prescricoes` com um perfil autenticado e vínculo territorial válido; a última exige papel Médico ou Enfermeiro ativo.
+- Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos`, `#/app/indicadores`, `#/app/educacao`, `#/app/guia-cadastro` e `#/app/prescricoes` com um perfil autenticado e vínculo territorial válido; a última exige papel Médico ou Enfermeiro ativo.
 - Interações prioritárias: filtrar achados e rede, cadastrar e gerenciar achados conforme permissão; buscar e filtrar modelos, abrir o editor, preencher lote, ajustar acessibilidade e iniciar PDF/impressão; preencher a nota dos 5 minutos; selecionar escopo, informar indicadores, registrar a leitura contextual; abrir materiais educativos, imprimir, gerar PDF e acessar ferramentas externas identificadas; preservar os rascunhos durante a navegação e limpar quando aplicável.
 - Console do navegador: não verificado porque o navegador em nuvem bloqueou o endereço local nesta sessão com `ERR_BLOCKED_BY_CLIENT`; a ponte local anterior também havia recusado a prévia com `ERR_CONNECTION_REFUSED`.
 
 ## Comparação de tela inteira
 
-Bloqueada. A referência aprovada define shell, cores, tipografia, densidade e hierarquia, mas representa a rota Início. As rotas Território, Carteirinhas, 5 Minutos, Indicadores e Educação estendem esse sistema sem telas-fonte específicas geradas pelo 12UI, cuja autenticação foi cancelada após bloqueio de segurança do Fortinet. Sem capturas reais da implementação, não é possível encerrar diferenças visuais P0/P1/P2.
+Bloqueada. A referência aprovada define shell, cores, tipografia, densidade e hierarquia, mas representa a rota Início. As rotas Território, Carteirinhas, 5 Minutos, Indicadores, Educação e Guia de Cadastro estendem esse sistema sem telas-fonte específicas geradas pelo 12UI, cuja autenticação foi cancelada após bloqueio de segurança do Fortinet. Sem capturas reais da implementação, não é possível encerrar diferenças visuais P0/P1/P2.
 
 ## Comparação de regiões focadas
 
@@ -63,6 +63,6 @@ Não houve iteração visual válida porque não foi possível abrir a implement
 
 ## Bloqueador
 
-Obter capturas reais das rotas autenticadas Território, Carteirinhas, 5 Minutos, Indicadores, Educação e Prescrições em desktop e celular, verificar as interações e o console e comparar as implementações com a referência em uma composição conjunta.
+Obter capturas reais das rotas autenticadas Território, Carteirinhas, 5 Minutos, Indicadores, Educação, Guia de Cadastro e Prescrições em desktop e celular, verificar as interações e o console e comparar as implementações com a referência em uma composição conjunta.
 
 final result: blocked
