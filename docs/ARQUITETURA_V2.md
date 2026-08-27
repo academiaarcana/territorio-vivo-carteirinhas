@@ -223,6 +223,7 @@ Protegidas e ativas:
 - `#/app/5-minutos`;
 - `#/app/indicadores`;
 - `#/app/educacao`;
+- `#/app/guia-cadastro` — guia educativo de consulta, sem coleta ou persistência de respostas do cidadão;
 - `#/app/prescricoes` — somente `physician` ou `nurse` ativos; abre serviço externo sem persistência local;
 - `#/app/perfil`.
 
