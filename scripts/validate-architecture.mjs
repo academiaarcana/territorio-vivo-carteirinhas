@@ -11,7 +11,7 @@ const required = [
   'src/main.js','src/core/access-control.js','src/core/store.js','src/core/router.js','src/core/layout.js','src/core/session.js','src/core/permissions.js','src/core/a11y.js',
   'src/services/supabase.js','src/services/auth.js','src/services/repository.js','src/services/access.js','src/data/cards.js','src/data/education.js','src/data/indicators.js',
   'src/pages/public.js','src/pages/auth.js','src/pages/access-pending.js','src/pages/access-management.js','src/pages/dashboard.js','src/pages/territory.js','src/pages/cards.js','src/pages/five.js','src/pages/indicators.js',
-  'src/pages/education.js','src/pages/profile.js','src/pages/admin.js','src/lib/forms.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css',
+  'src/pages/education.js','src/pages/prescriptions.js','src/pages/profile.js','src/pages/admin.js','src/lib/forms.js','src/utils/print.js','src/styles/foundation.css','src/styles/structural.css','src/styles/print-structural.css','src/styles/field-prescriptions.css',
   'scripts/validate-security-contract.mjs','scripts/test-access-control-contract.mjs','scripts/test-permissions.mjs'
 ];
 

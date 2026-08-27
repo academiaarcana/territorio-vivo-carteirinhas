@@ -63,6 +63,7 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | — correção operacional | `revoke_set_updated_at_client_execute` |
 | `20260826135329_repair_reapplied_auth_objects.sql` | `036_repair_reapplied_auth_objects` |
 | `20260826145213_bootstrap_initial_master_account.sql` | `bootstrap_initial_master_account` |
+| `20260826234754_add_clinical_professional_roles.sql` | pendente — `add_clinical_professional_roles` |
 
 ### Nota sobre Gestor × Master
 
@@ -91,6 +92,12 @@ A migration `20260826135329_repair_reapplied_auth_objects.sql`, criada pelo Supa
 ### Nota sobre o bootstrap da conta Master
 
 A migration `20260826145213_bootstrap_initial_master_account.sql` registra a promoção operacional da primeira conta confirmada do projeto definitivo para `admin/active` com `is_master_account=true`. O arquivo não contém e-mail ou UUID, exige que não exista Master anterior, recusa seleção ambígua e remove do perfil o escopo territorial incompatível com a administração global. Em banco vazio ou com Master já configurado, a migration é deliberadamente um no-op.
+
+### Nota sobre Médico e Enfermeiro
+
+A migration `20260826234754_add_clinical_professional_roles.sql` acrescenta `physician` e `nurse` ao domínio fechado de papéis. Ambos permanecem perfis profissionais de menor privilégio, vinculados a UBS/equipe, sem poderes administrativos. A gestão da própria UBS pode visualizar, aprovar, suspender e manter esses perfis dentro do mesmo escopo aplicado ao ACS. O acesso a prescrições é uma capacidade exclusiva do frontend e abre um serviço externo; o banco do Território Vivo não recebe receitas nem dados clínicos.
+
+O arquivo foi criado pela Supabase CLI e permanece **pendente de aplicação** no projeto Supabase. A aplicação deverá usar o nome `add_clinical_professional_roles`, seguida dos Advisors de segurança e desempenho, antes de integrar a PR.
 
 ## Regra para novas alterações
 

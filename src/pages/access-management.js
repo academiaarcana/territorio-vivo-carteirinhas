@@ -1,7 +1,7 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { escapeHtml, setStatus } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
-import { accessStatusLabel, canChangeAccessStatus, isMaster } from '../core/permissions.js';
+import { accessStatusLabel, canChangeAccessStatus, isMaster, roleLabel } from '../core/permissions.js';
 import { listAccessProfiles, setProfileAccessStatus } from '../services/access.js';
 
 export function renderAccessManagementPage({ state }) {
@@ -70,11 +70,11 @@ export async function mountAccessManagementPage({ root, state }) {
     const filtered = rows.filter((profile) => {
       if (filter !== 'all' && profile.access_status !== filter) return false;
       if (!query) return true;
-      return [profile.full_name, profile.unit_name, profile.team_name, profile.microarea, profile.acs_phone]
+      return [profile.full_name, profile.unit_name, profile.team_name, profile.microarea, profile.acs_phone, roleLabel(profile)]
         .filter(Boolean).join(' ').toLowerCase().includes(query);
     });
 
-    target.innerHTML = filtered.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Vínculo solicitado</th><th>Status</th><th>Ações</th></tr></thead><tbody>${filtered.map((profile) => renderProfileRow(profile, state.profile)).join('')}</tbody></table></div>` : '<div class="empty-state"><h3>Nenhum perfil neste filtro</h3><p>Altere o filtro ou a busca.</p></div>';
+    target.innerHTML = filtered.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Função</th><th>Vínculo solicitado</th><th>Status</th><th>Ações</th></tr></thead><tbody>${filtered.map((profile) => renderProfileRow(profile, state.profile)).join('')}</tbody></table></div>` : '<div class="empty-state"><h3>Nenhum perfil neste filtro</h3><p>Altere o filtro ou a busca.</p></div>';
   }
 
   root.querySelectorAll('[data-access-filter]').forEach((button) => button.addEventListener('click', () => {
@@ -132,5 +132,5 @@ function renderProfileRow(profile, actor) {
       ? `<button class="button" type="button" data-access-action="suspended" data-profile-id="${escapeHtml(profile.id)}">Suspender</button>`
       : `<button class="button primary" type="button" data-access-action="active" data-profile-id="${escapeHtml(profile.id)}">Reativar</button>`;
 
-  return `<tr><td><strong>${escapeHtml(profile.full_name || '—')}</strong>${profile.acs_phone ? `<br><small>${escapeHtml(profile.acs_phone)}</small>` : ''}</td><td>${escapeHtml(territory)}</td><td>${escapeHtml(accessStatusLabel(profile))}</td><td><div class="actions">${actions}</div></td></tr>`;
+  return `<tr><td><strong>${escapeHtml(profile.full_name || '—')}</strong>${profile.acs_phone ? `<br><small>${escapeHtml(profile.acs_phone)}</small>` : ''}</td><td>${escapeHtml(roleLabel(profile))}</td><td>${escapeHtml(territory)}</td><td>${escapeHtml(accessStatusLabel(profile))}</td><td><div class="actions">${actions}</div></td></tr>`;
 }

@@ -7,6 +7,8 @@ import {
 
 const acsA = { id: 'acs-a', role: ROLES.ACS, access_status: ACCESS_STATUS.ACTIVE, unit_cnes: 'UNIT-A' };
 const acsB = { id: 'acs-b', role: ROLES.ACS, access_status: ACCESS_STATUS.ACTIVE, unit_cnes: 'UNIT-B' };
+const physicianA = { id: 'physician-a', role: ROLES.PHYSICIAN, access_status: ACCESS_STATUS.ACTIVE, unit_cnes: 'UNIT-A' };
+const nurseA = { id: 'nurse-a', role: ROLES.NURSE, access_status: ACCESS_STATUS.ACTIVE, unit_cnes: 'UNIT-A' };
 const pendingA = { ...acsA, id: 'pending-a', access_status: ACCESS_STATUS.PENDING };
 const suspendedA = { ...acsA, id: 'suspended-a', access_status: ACCESS_STATUS.SUSPENDED };
 const unitAdminA = { id: 'unit-admin-a', role: ROLES.UNIT_ADMIN, access_status: ACCESS_STATUS.ACTIVE, unit_cnes: 'UNIT-A' };
@@ -58,6 +60,8 @@ assert.equal(canChangeAccessStatus(master, unitAdminA), true);
 assert.equal(canChangeAccessStatus(master, master), false);
 assert.equal(canChangeAccessStatus(unitAdminA, acsA), true);
 assert.equal(canChangeAccessStatus(unitAdminA, acsB), false, 'unit_admin não aprova outra UBS');
+assert.equal(canChangeAccessStatus(unitAdminA, physicianA), true, 'unit_admin aprova médico da própria UBS');
+assert.equal(canChangeAccessStatus(unitAdminA, nurseA), true, 'unit_admin aprova enfermeiro da própria UBS');
 assert.equal(canChangeAccessStatus(unitAdminA, unitAdminB), false, 'unit_admin não controla outro administrador');
 assert.equal(canChangeAccessStatus(suspendedUnitAdminA, acsA), false);
 

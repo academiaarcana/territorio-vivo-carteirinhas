@@ -1,5 +1,7 @@
 export const ACCOUNT_ROLES = Object.freeze({
   ACS: 'acs',
+  PHYSICIAN: 'physician',
+  NURSE: 'nurse',
   UNIT_ADMIN: 'unit_admin',
   ADMIN: 'admin'
 });
@@ -14,6 +16,9 @@ export const ACCESS_LEVELS = Object.freeze({
   VISITOR: 'visitor',
   ACS_PENDING: 'acs_pending',
   ACS_ACTIVE: 'acs_active',
+  CLINICAL_PENDING: 'clinical_pending',
+  PHYSICIAN_ACTIVE: 'physician_active',
+  NURSE_ACTIVE: 'nurse_active',
   UNIT_ADMIN_ACTIVE: 'unit_admin_active',
   MASTER_ACTIVE: 'master_active',
   SUSPENDED: 'suspended',
@@ -29,6 +34,7 @@ export const CAPABILITIES = Object.freeze({
   EDIT_REQUESTED_SCOPE: 'edit_requested_scope',
   ACCESS_INTERNAL: 'access_internal',
   USE_TEMPORARY_TOOLS: 'use_temporary_tools',
+  USE_EXTERNAL_PRESCRIPTIONS: 'use_external_prescriptions',
   EDIT_OWN_PROFILE_DATA: 'edit_own_profile_data',
   READ_UNIT_TERRITORY: 'read_unit_territory',
   CREATE_OWN_TERRITORY_POINT: 'create_own_territory_point',
@@ -76,7 +82,21 @@ const CAPABILITY_MATRIX = Object.freeze({
     CAPABILITIES.EDIT_REQUESTED_SCOPE,
     CAPABILITIES.SIGN_OUT
   ]),
+  [ACCESS_LEVELS.CLINICAL_PENDING]: Object.freeze([
+    CAPABILITIES.VIEW_ACCESS_GATE,
+    CAPABILITIES.READ_OWN_PROFILE,
+    CAPABILITIES.EDIT_REQUESTED_SCOPE,
+    CAPABILITIES.SIGN_OUT
+  ]),
   [ACCESS_LEVELS.ACS_ACTIVE]: Object.freeze([...BASE_ACTIVE]),
+  [ACCESS_LEVELS.PHYSICIAN_ACTIVE]: Object.freeze([
+    ...BASE_ACTIVE,
+    CAPABILITIES.USE_EXTERNAL_PRESCRIPTIONS
+  ]),
+  [ACCESS_LEVELS.NURSE_ACTIVE]: Object.freeze([
+    ...BASE_ACTIVE,
+    CAPABILITIES.USE_EXTERNAL_PRESCRIPTIONS
+  ]),
   [ACCESS_LEVELS.UNIT_ADMIN_ACTIVE]: Object.freeze([
     ...BASE_ACTIVE,
     CAPABILITIES.MANAGE_UNIT,
@@ -117,6 +137,9 @@ export function resolveAccessLevel(profile) {
   if (profile.access_status === ACCESS_STATES.SUSPENDED) return ACCESS_LEVELS.SUSPENDED;
   if (profile.role === ACCOUNT_ROLES.ACS && profile.access_status === ACCESS_STATES.PENDING) return ACCESS_LEVELS.ACS_PENDING;
   if (profile.role === ACCOUNT_ROLES.ACS && profile.access_status === ACCESS_STATES.ACTIVE) return ACCESS_LEVELS.ACS_ACTIVE;
+  if ([ACCOUNT_ROLES.PHYSICIAN, ACCOUNT_ROLES.NURSE].includes(profile.role) && profile.access_status === ACCESS_STATES.PENDING) return ACCESS_LEVELS.CLINICAL_PENDING;
+  if (profile.role === ACCOUNT_ROLES.PHYSICIAN && profile.access_status === ACCESS_STATES.ACTIVE) return ACCESS_LEVELS.PHYSICIAN_ACTIVE;
+  if (profile.role === ACCOUNT_ROLES.NURSE && profile.access_status === ACCESS_STATES.ACTIVE) return ACCESS_LEVELS.NURSE_ACTIVE;
   if (profile.role === ACCOUNT_ROLES.UNIT_ADMIN && profile.access_status === ACCESS_STATES.ACTIVE) return ACCESS_LEVELS.UNIT_ADMIN_ACTIVE;
   if (profile.role === ACCOUNT_ROLES.ADMIN && profile.access_status === ACCESS_STATES.ACTIVE) return ACCESS_LEVELS.MASTER_ACTIVE;
   return ACCESS_LEVELS.DENIED;
@@ -136,10 +159,10 @@ export function accessScope(profile) {
   if (level === ACCESS_LEVELS.UNIT_ADMIN_ACTIVE) {
     return Object.freeze({ kind: 'unit', municipalityCode: profile.municipality_code || null, unitCnes: profile.unit_cnes || null });
   }
-  if (level === ACCESS_LEVELS.ACS_ACTIVE) {
+  if ([ACCESS_LEVELS.ACS_ACTIVE, ACCESS_LEVELS.PHYSICIAN_ACTIVE, ACCESS_LEVELS.NURSE_ACTIVE].includes(level)) {
     return Object.freeze({ kind: 'professional', municipalityCode: profile.municipality_code || null, unitCnes: profile.unit_cnes || null, teamId: profile.team_id || null, microarea: profile.microarea || null });
   }
-  if (level === ACCESS_LEVELS.ACS_PENDING) {
+  if ([ACCESS_LEVELS.ACS_PENDING, ACCESS_LEVELS.CLINICAL_PENDING].includes(level)) {
     return Object.freeze({ kind: 'requested', municipalityCode: profile.municipality_code || null, unitCnes: profile.unit_cnes || null, teamId: profile.team_id || null, microarea: profile.microarea || null });
   }
   return Object.freeze({ kind: 'none' });

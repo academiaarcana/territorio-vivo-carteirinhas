@@ -1,14 +1,14 @@
-# Design QA — Território, Carteirinhas, 5 Minutos, Indicadores e Educação em Campo
+# Design QA — Território, Carteirinhas, 5 Minutos, Indicadores, Educação e Prescrições em Campo
 
 ## Evidências
 
 - Fonte visual: `/workspace/scratch/47bc8ece9b5f/generated_images/exec-86adee3b-15ca-4c3c-ac9f-6a057afe5359.png`
 - Fonte visual aberta: sim; referência “Painel de Campo”, 1488 × 1058 px.
-- Implementação: `src/pages/territory.js`, `src/styles/field-territory.css`, `src/pages/cards.js`, `src/styles/field-cards.css`, `src/pages/five.js`, `src/styles/field-five.css`, `src/pages/indicators.js`, `src/styles/field-indicators.css`, `src/pages/education.js` e `src/styles/field-education.css`.
+- Implementação: `src/pages/territory.js`, `src/styles/field-territory.css`, `src/pages/cards.js`, `src/styles/field-cards.css`, `src/pages/five.js`, `src/styles/field-five.css`, `src/pages/indicators.js`, `src/styles/field-indicators.css`, `src/pages/education.js`, `src/styles/field-education.css`, `src/pages/prescriptions.js` e `src/styles/field-prescriptions.css`.
 - Captura da implementação: indisponível.
 - Tentativa atual de captura: a prévia local respondeu na porta `4173`, mas o navegador em nuvem bloqueou o endereço antes da renderização com `ERR_BLOCKED_BY_CLIENT`.
 - Viewport-alvo: desktop 1440 × 1024 CSS px, densidade 1×; reflow previsto em 760 px.
-- Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos`, `#/app/indicadores` e `#/app/educacao` com um perfil autenticado e vínculo territorial válido.
+- Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos`, `#/app/indicadores`, `#/app/educacao` e `#/app/prescricoes` com um perfil autenticado e vínculo territorial válido; a última exige papel Médico ou Enfermeiro ativo.
 - Interações prioritárias: filtrar achados e rede, cadastrar e gerenciar achados conforme permissão; buscar e filtrar modelos, abrir o editor, preencher lote, ajustar acessibilidade e iniciar PDF/impressão; preencher a nota dos 5 minutos; selecionar escopo, informar indicadores, registrar a leitura contextual; abrir materiais educativos, imprimir, gerar PDF e acessar ferramentas externas identificadas; preservar os rascunhos durante a navegação e limpar quando aplicável.
 - Console do navegador: não verificado porque o navegador em nuvem bloqueou o endereço local nesta sessão com `ERR_BLOCKED_BY_CLIENT`; a ponte local anterior também havia recusado a prévia com `ERR_CONNECTION_REFUSED`.
 
@@ -34,6 +34,7 @@ Bloqueada. Não foi possível produzir uma composição conjunta contendo a refe
 - referência, grupos numéricos, reflexão territorial, opções de impressão e estados desktop e móvel dos Indicadores.
 - introdução, biblioteca interna e cartões de Educação em saúde;
 - ferramentas externas, detalhe do material, fontes, opções de impressão e estados desktop e móvel da Educação.
+- acesso externo a prescrições, fronteira de privacidade, orientação específica por papel e reflow móvel.
 
 ## Superfícies de fidelidade
 
@@ -41,7 +42,7 @@ Bloqueada. Não foi possível produzir uma composição conjunta contendo a refe
 - Espaçamento e ritmo: Território usa faixa introdutória, área de trabalho assimétrica e métricas leves; Carteirinhas usa biblioteca em três colunas e editor com formulário e prévia; 5 Minutos usa roteiro lateral e formulário sequencial; Indicadores usa faixa introdutória, ciclo em quatro movimentos e área assimétrica entre números e interpretação; Educação separa biblioteca interna, ferramentas externas e detalhe sequencial. As superfícies passam a uma coluna em telas menores. As proporções finais dependem de captura.
 - Cores e tokens: azul profundo, azul de ação, verde territorial e neutros reutilizam os tokens de `field-dashboard.css`; contraste renderizado ainda requer evidência visual.
 - Imagens e ícones: somente a biblioteca Flaticon já atribuída no projeto foi reutilizada. Não foram criados placeholders, ícones artesanais ou novos ativos.
-- Texto e conteúdo: a redação permanece não clínica, não pessoal e orientada à equipe; Carteirinhas, 5 Minutos e Indicadores mantêm declarações explícitas de dados temporários e não persistentes. Indicadores também explicita que campo vazio não equivale a zero. Educação identifica ferramentas externas, remove parâmetros de rastreamento e declara que elas não integram prontuários, contas ou dados do produto. Dados, cálculos e permissões não foram alterados.
+- Texto e conteúdo: a redação permanece não pessoal e orientada à equipe; Carteirinhas, 5 Minutos e Indicadores mantêm declarações explícitas de dados temporários e não persistentes. Indicadores também explicita que campo vazio não equivale a zero. Educação identifica ferramentas externas, remove parâmetros de rastreamento e declara que elas não integram prontuários, contas ou dados do produto. Prescrições restringe o acesso a Médico/Enfermeiro, não oferece campos clínicos e declara que receitas, pacientes, arquivos, assinaturas e credenciais não são recebidos pelo Território Vivo.
 
 ## Histórico de comparação
 
@@ -55,12 +56,13 @@ Não houve iteração visual válida porque não foi possível abrir a implement
 - Contrato “5 Minutos em Campo”: aprovado.
 - Contrato “Indicadores em Campo”: aprovado.
 - Contrato “Educação em Campo”: aprovado.
+- Contrato clínico Médico/Enfermeiro: aprovado.
 - Sintaxe JavaScript: aprovada.
 - Arquitetura, segurança, migrations, Auth, papéis, concorrência, coordenadas, impressão e PDF: aprovados.
-- Alterações de banco, RLS, migrations e contas: nenhuma.
+- Migration de papéis clínicos: versionada e pendente de aplicação; banco e contas de produção ainda não foram alterados.
 
 ## Bloqueador
 
-Obter capturas reais das rotas autenticadas Território, Carteirinhas, 5 Minutos, Indicadores e Educação em desktop e celular, verificar as interações e o console e comparar as implementações com a referência em uma composição conjunta.
+Obter capturas reais das rotas autenticadas Território, Carteirinhas, 5 Minutos, Indicadores, Educação e Prescrições em desktop e celular, verificar as interações e o console e comparar as implementações com a referência em uma composição conjunta.
 
 final result: blocked

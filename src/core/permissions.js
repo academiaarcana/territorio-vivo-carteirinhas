@@ -11,7 +11,7 @@ export function isActiveProfile(profile) {
 }
 
 export function isPendingProfile(profile) {
-  return resolveAccessLevel(profile) === ACCESS_LEVELS.ACS_PENDING;
+  return [ACCESS_LEVELS.ACS_PENDING, ACCESS_LEVELS.CLINICAL_PENDING].includes(resolveAccessLevel(profile));
 }
 
 export function isSuspendedProfile(profile) {
@@ -46,6 +46,8 @@ export function roleLabel(profileOrRole) {
   if (role === ROLES.ADMIN && profile?.is_master_account === true) return 'Master / Desenvolvimento';
   if (role === ROLES.ADMIN) return 'Gestor Municipal';
   if (role === ROLES.UNIT_ADMIN) return 'Administrador da UBS';
+  if (role === ROLES.PHYSICIAN) return 'Médica(o)';
+  if (role === ROLES.NURSE) return 'Enfermeira(o)';
   return 'Profissional / ACS';
 }
 
@@ -84,7 +86,7 @@ export function canChangeAccessStatus(actorProfile, targetProfile) {
   if (targetProfile.role === ROLES.ADMIN) return false;
   if (hasCapability(actorProfile, CAPABILITIES.CHANGE_NON_MASTER_ACCESS)) return true;
   return hasCapability(actorProfile, CAPABILITIES.APPROVE_UNIT_ACS)
-    && targetProfile.role === ROLES.ACS
+    && [ROLES.ACS, ROLES.PHYSICIAN, ROLES.NURSE].includes(targetProfile.role)
     && targetProfile.unit_cnes
     && targetProfile.unit_cnes === actorProfile.unit_cnes
     && targetProfile.id !== actorProfile.id;
