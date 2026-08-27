@@ -1,0 +1,199 @@
+/* Território e rede — continuação do Painel de Campo.
+   Restrita à tela para preservar impressão e PDF já homologados. */
+@media screen {
+  #app[data-route="/app/territorio"] .page-content {
+    padding-top: clamp(1.2rem, 2.8vw, 2.4rem);
+    padding-bottom: 2.5rem;
+    background: #f7f9fc;
+  }
+
+  #app[data-route="/app/territorio"] .territory-intro-panel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding: 1.35rem 1.5rem;
+    border: 0;
+    border-left: 4px solid var(--field-green);
+    border-radius: 0 10px 10px 0;
+    box-shadow: none;
+  }
+  .territory-intro-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #cfe0d7;
+    border-radius: 10px;
+    background: #f3faf6;
+  }
+  .territory-intro-icon img { width: 29px; height: 29px; object-fit: contain; }
+  .territory-intro-panel .eyebrow { margin-bottom: .3rem; color: var(--field-green); }
+  .territory-intro-panel h2 { margin-bottom: .35rem; color: var(--field-ink); font-size: clamp(1.35rem, 2.4vw, 1.9rem); }
+  .territory-intro-panel p:last-child { margin-bottom: 0; color: var(--field-muted); line-height: 1.55; }
+  .territory-intro-action { min-width: 165px; background: var(--field-blue); border-color: var(--field-blue); }
+
+  #app[data-route="/app/territorio"] .territory-workbench {
+    grid-template-columns: minmax(0, 1.45fr) minmax(310px, .55fr);
+    gap: 1.25rem;
+    align-items: start;
+    margin-bottom: 2.3rem;
+  }
+  .territory-findings-panel,
+  .territory-entry-panel {
+    padding: clamp(1.15rem, 2.4vw, 1.6rem);
+    border-color: var(--field-line);
+    box-shadow: none;
+  }
+  .territory-entry-panel {
+    position: sticky;
+    top: 1rem;
+    scroll-margin-top: 1rem;
+    border-top: 4px solid var(--field-blue);
+  }
+  .territory-entry-panel .eyebrow { color: var(--field-blue); }
+  .territory-entry-panel h2 { margin-bottom: .4rem; color: var(--field-ink); font-size: 1.35rem; }
+  .territory-form-intro { margin-bottom: 1.1rem; color: var(--field-muted); font-size: .9rem; line-height: 1.5; }
+  .territory-entry-panel .stack-form { gap: .85rem; }
+  .territory-entry-panel .clinical-disclaimer { margin: 1.15rem 0 0; font-size: .82rem; line-height: 1.48; }
+
+  .territory-section-heading { align-items: flex-start; }
+  .territory-section-heading .eyebrow { color: var(--field-green); }
+  .territory-section-heading h2,
+  .territory-network-toolbar h2 { margin-bottom: .35rem; color: var(--field-ink); }
+  .territory-section-heading p:last-child,
+  .territory-network-toolbar p:last-child { margin-bottom: 0; color: var(--field-muted); line-height: 1.5; }
+  .territory-filter-grid {
+    margin: 1.1rem 0;
+    padding: .9rem;
+    border: 1px solid var(--field-line);
+    border-radius: 10px;
+    background: #f8fbfe;
+  }
+
+  .territory-metric-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 1rem;
+    border-top: 1px solid var(--field-line);
+    border-bottom: 1px solid var(--field-line);
+  }
+  .territory-metric {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-width: 0;
+    padding: .8rem .75rem;
+    border-right: 1px solid var(--field-line);
+    background: #fff;
+  }
+  .territory-metric:last-child { border-right: 0; }
+  .territory-metric-icon { width: 25px; height: 25px; flex: 0 0 25px; object-fit: contain; }
+  .territory-metric span { display: flex; min-width: 0; flex-direction: column; gap: .12rem; }
+  .territory-metric small { overflow: hidden; color: var(--field-muted); font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+  .territory-metric strong { color: var(--field-ink); font-size: 1.25rem; line-height: 1; }
+
+  #app[data-route="/app/territorio"] .territory-point-list { gap: .65rem; }
+  #app[data-route="/app/territorio"] .territory-point-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .65rem 1rem;
+    overflow: hidden;
+    padding: 1rem 1rem 1rem 1.15rem;
+    border-color: var(--field-line);
+    border-radius: 9px;
+    box-shadow: none;
+  }
+  #app[data-route="/app/territorio"] .territory-point-card::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--field-green);
+    content: '';
+  }
+  #app[data-route="/app/territorio"] .territory-point-card[data-point-kind="risk"]::before,
+  #app[data-route="/app/territorio"] .territory-point-card[data-point-kind="critical_point"]::before,
+  #app[data-route="/app/territorio"] .territory-point-card[data-point-kind="access_barrier"]::before { background: #b35a42; }
+  #app[data-route="/app/territorio"] .territory-point-card[data-point-status="resolved"]::before { background: #8294a6; }
+  .territory-point-card header {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: .7rem;
+    align-items: start;
+  }
+  .territory-point-card header > div { min-width: 0; }
+  .territory-point-icon {
+    width: 28px;
+    height: 28px;
+    margin-top: .15rem;
+    object-fit: contain;
+  }
+  .territory-point-card h3 { margin: .38rem 0 .18rem; color: var(--field-ink); font-size: 1.02rem; }
+  .territory-point-body { grid-column: 1 / -1; padding-left: 2.65rem; color: var(--field-muted); font-size: .88rem; line-height: 1.48; }
+  .territory-point-body p { margin-bottom: .4rem; }
+  .territory-point-card > .actions { grid-column: 1 / -1; padding-left: 2.65rem; border-top: 1px solid #edf1f5; padding-top: .55rem; }
+  .territory-point-card .link-button { min-height: 36px; font-size: .82rem; }
+
+  #app[data-route="/app/territorio"] .territory-network-section {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    padding: clamp(1.2rem, 2.5vw, 1.7rem);
+    border: 1px solid var(--field-line);
+    border-radius: 10px;
+    background: #fff;
+  }
+  .territory-network-toolbar { align-items: flex-end; }
+  .territory-network-toolbar label { display: grid; min-width: min(320px, 100%); gap: .35rem; color: var(--field-ink); font-size: .8rem; font-weight: 750; }
+  .territory-network-toolbar input { width: 100%; padding: .68rem .75rem; border: 1px solid #c6d6e2; border-radius: 8px; }
+  .territory-unit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .territory-unit-card {
+    min-width: 0;
+    padding: 1rem;
+    border-color: var(--field-line);
+    box-shadow: none;
+  }
+  .territory-unit-card header { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: .7rem; align-items: start; }
+  .territory-unit-icon { width: 30px; height: 30px; object-fit: contain; }
+  .territory-unit-card h3 { margin: .4rem 0 .15rem; color: var(--field-ink); }
+  .territory-unit-card > p,
+  .territory-unit-card > div:not(.actions) p { color: var(--field-muted); font-size: .86rem; line-height: 1.45; }
+  .territory-unit-card.own-unit { box-shadow: inset 4px 0 0 var(--field-green); }
+
+  #app[data-route="/app/territorio"] .territory-map-note {
+    display: flex;
+    gap: .85rem;
+    align-items: flex-start;
+    margin-bottom: 0;
+    padding: 1rem 1.2rem;
+    border: 0;
+    border-left: 4px solid var(--field-green);
+    border-radius: 0 9px 9px 0;
+    background: #eef7f2;
+    box-shadow: none;
+  }
+  .territory-map-note-icon { width: 29px; height: 29px; flex: 0 0 29px; object-fit: contain; }
+  .territory-map-note h2 { margin-bottom: .25rem; color: var(--field-ink); font-size: 1rem; }
+  .territory-map-note p { margin-bottom: 0; color: var(--field-muted); font-size: .84rem; line-height: 1.5; }
+
+  @media (max-width: 1120px) {
+    #app[data-route="/app/territorio"] .territory-workbench { grid-template-columns: 1fr; }
+    .territory-entry-panel { position: static; }
+  }
+
+  @media (max-width: 760px) {
+    #app[data-route="/app/territorio"] .page-content { padding-top: 1rem; }
+    #app[data-route="/app/territorio"] .page-content > * { margin-right: 1rem; margin-left: 1rem; }
+    #app[data-route="/app/territorio"] .territory-intro-panel { grid-template-columns: auto minmax(0, 1fr); padding: 1rem; }
+    .territory-intro-action { grid-column: 1 / -1; width: 100%; }
+    .territory-metric-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .territory-metric:nth-child(2) { border-right: 0; }
+    .territory-metric:nth-child(-n+2) { border-bottom: 1px solid var(--field-line); }
+    #app[data-route="/app/territorio"] .territory-point-card { grid-template-columns: 1fr; }
+    .territory-point-body,
+    .territory-point-card > .actions { padding-left: 0; }
+    .territory-unit-grid { grid-template-columns: 1fr; }
+    .territory-network-toolbar label { width: 100%; min-width: 0; }
+  }
+}

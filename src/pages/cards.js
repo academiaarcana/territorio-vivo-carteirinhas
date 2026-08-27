@@ -4,7 +4,7 @@ import { readVolatileDraft, writeVolatileDraft } from '../core/volatile-drafts.j
 import { cardCategories, cardTemplates, getCardTemplate } from '../data/cards.js';
 import { escapeHtml, formatDateBr } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
-import { renderVisualSupports } from '../lib/visual-support.js';
+import { renderFlaticonIcon, renderVisualSupports } from '../lib/visual-support.js';
 import { printHtml, downloadPdf, repeatForSheet, cardsForSheet } from '../utils/print.js';
 
 const CARD_DRAFT_PREFIX = 'card-template:';
@@ -12,9 +12,16 @@ const CARDS_PAGE_DRAFT_KEY = 'cards-page';
 
 export function renderCardsPage() {
   const content = `
-    <section class="page-toolbar"><div><p class="eyebrow">Biblioteca</p><h2>Carteirinhas</h2><p>Os campos desta área são temporários e não são gravados no banco.</p></div><label>Buscar modelo<input id="card-search" type="search" placeholder="Ex.: agendamento, busca ativa, indicador"></label></section>
-    <div class="filter-row" aria-label="Categorias de carteirinhas">${cardCategories.map((category) => `<button type="button" class="filter-button ${category.id === 'all' ? 'active' : ''}" data-filter="${category.id}" ${category.id === 'all' ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${escapeHtml(category.label)}</button>`).join('')}</div>
-    <section id="card-library" class="card-library">${renderLibrary('all', '')}</section>
+    <section class="panel cards-intro-panel">
+      <div class="cards-intro-icon">${renderFlaticonIcon('document')}</div>
+      <div><p class="eyebrow">Comunicação do cuidado</p><h2>Escolha, preencha e imprima</h2><p>Crie materiais claros para situações recorrentes do território. Os campos desta área são temporários e não são gravados no banco.</p></div>
+      <div class="cards-intro-metrics" aria-label="Resumo da biblioteca"><span><strong>${cardTemplates.length}</strong><small>modelos</small></span><span><strong>2–12</strong><small>por A4</small></span></div>
+    </section>
+    <section class="cards-library-panel">
+      <div class="page-toolbar cards-library-toolbar"><div><p class="eyebrow">Biblioteca</p><h2>Encontre um modelo</h2><p id="card-library-summary" aria-live="polite">${cardTemplates.length} modelos disponíveis.</p></div><label>Buscar modelo<input id="card-search" type="search" placeholder="Ex.: agendamento, busca ativa, indicador"></label></div>
+      <div class="filter-row cards-filter-row" aria-label="Categorias de carteirinhas">${cardCategories.map((category) => `<button type="button" class="filter-button ${category.id === 'all' ? 'active' : ''}" data-filter="${category.id}" ${category.id === 'all' ? 'aria-pressed="true"' : 'aria-pressed="false"'}>${escapeHtml(category.label)}</button>`).join('')}</div>
+      <div id="card-library" class="card-library field-card-library">${renderLibrary('all', '')}</div>
+    </section>
     <dialog id="card-editor" class="editor-dialog" aria-labelledby="card-editor-title"><form method="dialog"><button class="dialog-close" value="cancel" aria-label="Fechar">×</button></form><div id="card-editor-body"></div></dialog>`;
   return appLayout({ title: 'Carteirinhas', subtitle: 'Modelos prontos para situações recorrentes do território.', activePath: '/app/carteirinhas', content });
 }
@@ -25,11 +32,14 @@ export function mountCardsPage({ root, state }) {
   const dialog = root.querySelector('#card-editor');
   const editorBody = root.querySelector('#card-editor-body');
   const search = root.querySelector('#card-search');
+  const summary = root.querySelector('#card-library-summary');
   const pageDraft = readVolatileDraft(CARDS_PAGE_DRAFT_KEY, {});
   let filter = 'all';
 
   function refreshLibrary() {
+    const rows = matchingTemplates(filter, search.value);
     library.innerHTML = renderLibrary(filter, search.value);
+    summary.textContent = `${rows.length} ${rows.length === 1 ? 'modelo disponível' : 'modelos disponíveis'}.`;
   }
 
   function rememberOpenTemplate(templateId) {
@@ -68,22 +78,27 @@ export function mountCardsPage({ root, state }) {
 }
 
 function renderLibrary(filter, query) {
+  const rows = matchingTemplates(filter, query);
+  if (!rows.length) return '<div class="empty-state"><h3>Nenhum modelo encontrado</h3><p>Altere a busca ou a categoria.</p></div>';
+  return rows.map((template) => `
+    <article class="template-card field-template-card" data-card-category="${escapeHtml(template.category)}"><header>${renderFlaticonIcon(cardCategoryIcon(template.category), { className: 'field-template-icon' })}<span class="category-label">${escapeHtml(categoryLabel(template.category))}</span></header><div><h3>${escapeHtml(template.title)}</h3><p>${escapeHtml(template.description)}</p></div><div class="template-meta"><small>${template.defaultCount}/A4 sugerido</small><button class="button" type="button" data-template="${escapeHtml(template.id)}">Criar</button></div></article>`).join('');
+}
+
+function matchingTemplates(filter, query) {
   const q = String(query || '').trim().toLowerCase();
-  const rows = cardTemplates.filter((template) => {
+  return cardTemplates.filter((template) => {
     if (filter !== 'all' && template.category !== filter) return false;
     if (!q) return true;
     return [template.title, template.description, categoryLabel(template.category), template.note].filter(Boolean).join(' ').toLowerCase().includes(q);
   });
-  if (!rows.length) return '<div class="empty-state"><h3>Nenhum modelo encontrado</h3><p>Altere a busca ou a categoria.</p></div>';
-  return rows.map((template) => `
-    <article class="template-card"><div><span class="category-label">${escapeHtml(categoryLabel(template.category))}</span><h3>${escapeHtml(template.title)}</h3><p>${escapeHtml(template.description)}</p></div><div class="template-meta"><small>${template.defaultCount}/A4 sugerido</small><button class="button" type="button" data-template="${escapeHtml(template.id)}">Abrir</button></div></article>`).join('');
 }
 
 function mountEditor(dialog, body, template, state, opener) {
   body.innerHTML = `
-    <header class="editor-header"><div><p class="eyebrow">${escapeHtml(categoryLabel(template.category))}</p><h2 id="card-editor-title">${escapeHtml(template.title)}</h2><p>${escapeHtml(template.description)}</p></div></header>
-    <div class="editor-grid">
-      <form id="card-form" class="panel stack-form" autocomplete="off">
+    <header class="editor-header field-card-editor-header"><div><p class="eyebrow">${escapeHtml(categoryLabel(template.category))}</p><h2 id="card-editor-title">${escapeHtml(template.title)}</h2><p>${escapeHtml(template.description)}</p></div><ol class="card-editor-steps" aria-label="Etapas para criar a carteirinha"><li><span>1</span>Preencha</li><li><span>2</span>Ajuste</li><li><span>3</span>Imprima</li></ol></header>
+    <div class="editor-grid field-card-editor-grid">
+      <form id="card-form" class="panel stack-form field-card-form" autocomplete="off">
+        <header><p class="eyebrow">Conteúdo</p><h3>Informações da carteirinha</h3></header>
         <div id="batch-editor" class="batch-editor" hidden>
           <div><strong id="batch-position">Carteirinha 1</strong><small>Preencha uma pessoa por vez. Os dados ficam somente nesta aba.</small></div>
           <div id="batch-slots" class="batch-slots" aria-label="Carteirinhas do lote"></div>
@@ -91,8 +106,9 @@ function mountEditor(dialog, body, template, state, opener) {
         ${template.fields.map(renderField).join('')}
         <button type="reset" class="button">Limpar esta carteirinha</button>
       </form>
-      <section class="panel preview-panel">
-        <div class="preview-controls">
+      <section class="panel preview-panel field-card-preview-panel">
+        <header class="field-card-preview-heading"><div><p class="eyebrow">Prévia em tempo real</p><h3>Revise antes de imprimir</h3></div></header>
+        <div class="preview-controls field-card-preview-controls" role="group" aria-label="Opções de impressão e acessibilidade">
           <label>Carteirinhas/A4<select id="sheet-count"><option value="2">2</option><option value="4">4</option><option value="8">8</option><option value="12">12 mini</option></select></label>
           <label class="check"><input id="batch-mode" type="checkbox"> Lote: conteúdos diferentes</label>
           <label class="check"><input id="easy-read" type="checkbox"> Leitura fácil</label>
@@ -103,7 +119,7 @@ function mountEditor(dialog, body, template, state, opener) {
         <p class="field-hint accessibility-hint">Apoio visual usa imagens específicas conforme o conteúdo — por exemplo vacina, dentista, exame, jejum, Cartão SUS, água ou acompanhante. Apoio visual e letra ampliada usam no máximo 4 carteirinhas por A4 para preservar compreensão e legibilidade.</p>
         <p id="preview-batch-label" class="field-hint" hidden></p>
         <div id="card-preview"></div>
-        <div class="actions"><button type="button" class="button" id="card-pdf">Baixar PDF</button><button type="button" class="button primary" id="card-print">Imprimir A4</button></div>
+        <div class="actions field-card-editor-actions"><button type="button" class="button" id="card-pdf">Baixar PDF</button><button type="button" class="button primary" id="card-print">Imprimir A4</button></div>
         <p id="card-action-status" class="form-status" aria-live="polite"></p>
         <p class="privacy-note">Nenhum campo digitado neste gerador é salvo no Supabase nem em armazenamento persistente do navegador. Ao navegar por outras telas, o rascunho continua apenas na memória desta aba; ele desaparece ao recarregar, fechar a aba ou sair da conta.</p>
       </section>
@@ -438,4 +454,8 @@ function options(body) {
 
 function categoryLabel(category) {
   return ({ family: 'Família', territory: 'Território', meeting: '5 minutos', indicator: 'Indicadores', management: 'Gestão' })[category] || category;
+}
+
+function cardCategoryIcon(category) {
+  return ({ family: 'family', territory: 'location', meeting: 'group', indicator: 'population', management: 'action' })[category] || 'document';
 }

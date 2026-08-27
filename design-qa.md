@@ -1,48 +1,68 @@
-# Design QA — Painel de Campo
+# Design QA — Território, Carteirinhas, 5 Minutos, Indicadores, Educação e Prescrições em Campo
 
 ## Evidências
 
 - Fonte visual: `/workspace/scratch/47bc8ece9b5f/generated_images/exec-86adee3b-15ca-4c3c-ac9f-6a057afe5359.png`
-- Implementação: `src/core/layout.js`, `src/pages/dashboard.js` e `src/styles/field-dashboard.css`
-- Captura da implementação: indisponível; a prévia local foi recusada pela ponte do navegador (`ERR_CONNECTION_REFUSED`).
-- Viewport-alvo: 1440 × 1024 CSS px, densidade 1×.
-- Fonte visual: 1488 × 1058 px.
-- Estado-alvo: tela inicial de ACS ativo, UBS Madre Tereza de Calcutá, Equipe 02, Microárea 08.
-- Navegador: Chrome em ambiente isolado.
-- Interações primárias no navegador: não executadas porque a página local não ficou acessível ao navegador.
-- Console do navegador: não verificado pelo mesmo bloqueio.
+- Fonte visual aberta: sim; referência “Painel de Campo”, 1488 × 1058 px.
+- Implementação: `src/pages/territory.js`, `src/styles/field-territory.css`, `src/pages/cards.js`, `src/styles/field-cards.css`, `src/pages/five.js`, `src/styles/field-five.css`, `src/pages/indicators.js`, `src/styles/field-indicators.css`, `src/pages/education.js`, `src/styles/field-education.css`, `src/pages/prescriptions.js` e `src/styles/field-prescriptions.css`.
+- Captura da implementação: indisponível.
+- Tentativa atual de captura: a prévia local respondeu na porta `4173`, mas o navegador em nuvem bloqueou o endereço antes da renderização com `ERR_BLOCKED_BY_CLIENT`.
+- Viewport-alvo: desktop 1440 × 1024 CSS px, densidade 1×; reflow previsto em 760 px.
+- Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos`, `#/app/indicadores`, `#/app/educacao` e `#/app/prescricoes` com um perfil autenticado e vínculo territorial válido; a última exige papel Médico ou Enfermeiro ativo.
+- Interações prioritárias: filtrar achados e rede, cadastrar e gerenciar achados conforme permissão; buscar e filtrar modelos, abrir o editor, preencher lote, ajustar acessibilidade e iniciar PDF/impressão; preencher a nota dos 5 minutos; selecionar escopo, informar indicadores, registrar a leitura contextual; abrir materiais educativos, imprimir, gerar PDF e acessar ferramentas externas identificadas; preservar os rascunhos durante a navegação e limpar quando aplicável.
+- Console do navegador: não verificado porque o navegador em nuvem bloqueou o endereço local nesta sessão com `ERR_BLOCKED_BY_CLIENT`; a ponte local anterior também havia recusado a prévia com `ERR_CONNECTION_REFUSED`.
 
 ## Comparação de tela inteira
 
-Bloqueada. A referência foi aberta e inspecionada, mas não foi possível obter uma captura renderizada da implementação no mesmo navegador e estado. Testes automatizados e inspeção de código não substituem essa evidência visual.
+Bloqueada. A referência aprovada define shell, cores, tipografia, densidade e hierarquia, mas representa a rota Início. As rotas Território, Carteirinhas, 5 Minutos, Indicadores e Educação estendem esse sistema sem telas-fonte específicas geradas pelo 12UI, cuja autenticação foi cancelada após bloqueio de segurança do Fortinet. Sem capturas reais da implementação, não é possível encerrar diferenças visuais P0/P1/P2.
 
 ## Comparação de regiões focadas
 
-Bloqueada pelo mesmo motivo. Não foi possível comparar navegação lateral, faixa territorial, jornada em três etapas e leitura territorial em uma composição conjunta de referência e implementação.
+Bloqueada. Não foi possível produzir uma composição conjunta contendo a referência e uma captura renderizada dos seguintes trechos:
+
+- introdução do território e ação principal;
+- filtros e métricas de achados;
+- cartões de achados e estados;
+- formulário de registro;
+- rede de unidades e breakpoint móvel;
+- biblioteca, filtros e cartões de modelos;
+- editor, opções de acessibilidade e prévia da carteirinha;
+- estados desktop e móvel das Carteirinhas.
+- introdução, duração e roteiro em quatro movimentos dos 5 Minutos;
+- formulário sequencial, opções de impressão e estados desktop e móvel da nota.
+- introdução e ciclo em quatro movimentos dos Indicadores;
+- referência, grupos numéricos, reflexão territorial, opções de impressão e estados desktop e móvel dos Indicadores.
+- introdução, biblioteca interna e cartões de Educação em saúde;
+- ferramentas externas, detalhe do material, fontes, opções de impressão e estados desktop e móvel da Educação.
+- acesso externo a prescrições, fronteira de privacidade, orientação específica por papel e reflow móvel.
 
 ## Superfícies de fidelidade
 
-- Tipografia: Montserrat e a escala escolhida foram preservadas no código, mas wrapping, peso óptico e rasterização não foram confirmados em navegador.
-- Espaçamento e ritmo: a grade, as larguras e os breakpoints foram implementados, mas não há captura válida para confirmar proporções.
-- Cores e tokens: azul profundo, azul SUS, verde territorial e neutros foram mapeados em tokens CSS; contraste visual final ainda requer captura.
-- Imagens e ícones: o símbolo existente e os ícones Flaticon já atribuídos foram reutilizados; nenhum ativo substituto foi criado. Qualidade de renderização ainda requer captura.
-- Texto: títulos, escopos, ações e mensagens do produto foram preservados e os testes contratuais passaram.
+- Tipografia: a família Inter e a escala do Painel de Campo foram preservadas no código; wrapping e peso óptico não foram confirmados em navegador.
+- Espaçamento e ritmo: Território usa faixa introdutória, área de trabalho assimétrica e métricas leves; Carteirinhas usa biblioteca em três colunas e editor com formulário e prévia; 5 Minutos usa roteiro lateral e formulário sequencial; Indicadores usa faixa introdutória, ciclo em quatro movimentos e área assimétrica entre números e interpretação; Educação separa biblioteca interna, ferramentas externas e detalhe sequencial. As superfícies passam a uma coluna em telas menores. As proporções finais dependem de captura.
+- Cores e tokens: azul profundo, azul de ação, verde territorial e neutros reutilizam os tokens de `field-dashboard.css`; contraste renderizado ainda requer evidência visual.
+- Imagens e ícones: somente a biblioteca Flaticon já atribuída no projeto foi reutilizada. Não foram criados placeholders, ícones artesanais ou novos ativos.
+- Texto e conteúdo: a redação permanece não pessoal e orientada à equipe; Carteirinhas, 5 Minutos e Indicadores mantêm declarações explícitas de dados temporários e não persistentes. Indicadores também explicita que campo vazio não equivale a zero. Educação identifica ferramentas externas, remove parâmetros de rastreamento e declara que elas não integram prontuários, contas ou dados do produto. Prescrições restringe o acesso a Médico/Enfermeiro, não oferece campos clínicos e declara que receitas, pacientes, arquivos, assinaturas e credenciais não são recebidos pelo Território Vivo.
 
 ## Histórico de comparação
 
-Não houve iteração visual válida, pois a primeira captura da implementação foi bloqueada antes de renderizar. Nenhum P0/P1/P2 visual pode ser encerrado sem essa evidência.
+Não houve iteração visual válida porque não foi possível abrir a implementação em navegador. A inspeção da referência e os testes automatizados não substituem a comparação visual exigida.
 
 ## Verificações concluídas
 
-- `npm run check` executado em modo offline: aprovado integralmente.
-- Novo contrato do Painel de Campo: aprovado.
-- Arquitetura, segurança, migrations, papéis, autenticação, impressão e PDF: aprovados.
+- `npm run check`: aprovado integralmente em modo offline.
+- Contrato “Território em Campo”: aprovado.
+- Contrato “Carteirinhas em Campo”: aprovado.
+- Contrato “5 Minutos em Campo”: aprovado.
+- Contrato “Indicadores em Campo”: aprovado.
+- Contrato “Educação em Campo”: aprovado.
+- Contrato clínico Médico/Enfermeiro: aprovado.
+- Sintaxe JavaScript: aprovada.
+- Arquitetura, segurança, migrations, Auth, papéis, concorrência, coordenadas, impressão e PDF: aprovados.
+- Migration de papéis clínicos: versionada e pendente de aplicação; banco e contas de produção ainda não foram alterados.
 
-## Pendência
+## Bloqueador
 
-- Abrir a implementação em uma prévia acessível ao navegador.
-- Capturar desktop 1440 × 1024 e um breakpoint móvel.
-- Testar as ações principais e verificar o console.
-- Comparar referência e implementação na mesma composição e corrigir diferenças P0/P1/P2.
+Obter capturas reais das rotas autenticadas Território, Carteirinhas, 5 Minutos, Indicadores, Educação e Prescrições em desktop e celular, verificar as interações e o console e comparar as implementações com a referência em uma composição conjunta.
 
 final result: blocked

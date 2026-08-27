@@ -214,19 +214,20 @@ export async function mountAdminPage({ root, state }) {
     const availableUnits = master ? data.units : data.units.filter((unit) => unit.cnes === state.profile?.unit_cnes);
     const profileUnit = availableUnits.find((unit) => unit.cnes === profile.unit_cnes);
     const adminOption = masterAccount ? `<option value="admin" ${profile.role === 'admin' ? 'selected' : ''}>Gestor Municipal</option>` : '';
+    const professionalOptions = `<option value="acs" ${profile.role === 'acs' ? 'selected' : ''}>Profissional / ACS</option><option value="physician" ${profile.role === 'physician' ? 'selected' : ''}>Médica(o)</option><option value="nurse" ${profile.role === 'nurse' ? 'selected' : ''}>Enfermeira(o)</option>`;
     const editorIntro = masterAccount
-      ? 'A conta Master / Desenvolvimento pode ajustar vínculo e definir ACS, Administrador da UBS ou Gestor Municipal.'
+      ? 'A conta Master / Desenvolvimento pode ajustar vínculo e definir ACS, Médico, Enfermeiro, Administrador da UBS ou Gestor Municipal.'
       : master
-        ? 'O Gestor Municipal pode administrar perfis não administrativos e definir administradores de UBS.'
-        : 'A gestão local pode atualizar somente profissionais/ACS da própria UBS.';
+        ? 'O Gestor Municipal pode administrar perfis profissionais e definir administradores de UBS.'
+        : 'A gestão local pode atualizar somente ACS, médicos e enfermeiros da própria UBS.';
     dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar perfil profissional</h2><p>${editorIntro}</p>
       <form id="admin-profile-form" class="stack-form">
         <label>Nome<input name="full_name" value="${escapeHtml(profile.full_name || '')}" required maxlength="160"></label>
-        <label>Microárea<input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40"></label>
+        <label>Microárea <span class="field-hint">(somente ACS)</span><input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40"></label>
         <label>Contato<input name="acs_phone" value="${escapeHtml(profile.acs_phone || '')}" maxlength="80"></label>
         ${master ? `<label>Unidade<select name="unit_cnes" id="admin-profile-unit"><option value="">—</option>${availableUnits.map((unit) => `<option value="${escapeHtml(unit.cnes)}" ${unit.cnes === profile.unit_cnes ? 'selected' : ''}>${escapeHtml(unit.short_name)}</option>`).join('')}</select></label>` : `<div class="readonly-field"><span>Unidade</span><strong>${escapeHtml(profileUnit?.short_name || profile.unit_name || '—')}</strong></div>`}
         <label>Equipe<select name="team_id" id="admin-profile-team"><option value="">—</option></select></label>
-        ${roleEditable ? `<label>Função de acesso<select name="role"><option value="acs" ${profile.role === 'acs' ? 'selected' : ''}>Profissional / ACS</option><option value="unit_admin" ${profile.role === 'unit_admin' ? 'selected' : ''}>Administrador da UBS</option>${adminOption}</select></label>` : `<div class="readonly-field"><span>Função</span><strong>${escapeHtml(roleLabel(profile))}</strong></div>`}
+        ${roleEditable ? `<label>Função de acesso<select name="role">${professionalOptions}<option value="unit_admin" ${profile.role === 'unit_admin' ? 'selected' : ''}>Administrador da UBS</option>${adminOption}</select></label>` : `<div class="readonly-field"><span>Função</span><strong>${escapeHtml(roleLabel(profile))}</strong></div>`}
         <button class="button primary" type="submit">Salvar</button>
       </form></section>`;
     const form = dialogBody.querySelector('#admin-profile-form');
@@ -245,6 +246,7 @@ export async function mountAdminPage({ root, state }) {
       const unit = data.units.find((row) => row.cnes === unitCnes);
       const team = data.teams.find((row) => row.id === values.team_id && row.unit_cnes === unitCnes);
       const requestedRole = roleEditable ? values.role : profile.role;
+      const acsScope = requestedRole === 'acs';
       const localStatus = ensureFormStatus(form);
       if (requestedRole !== 'admin' && !unitCnes) return setStatus(localStatus, 'Perfil profissional precisa estar vinculado a uma unidade.', 'error');
       await submitDialogForm(form, {
@@ -259,7 +261,7 @@ export async function mountAdminPage({ root, state }) {
           const managedTeam = gestorScope ? null : team;
           await adminUpdateProfile(id, {
             full_name: (values.full_name || '').trim(),
-            microarea: gestorScope ? '' : (values.microarea || '').trim(),
+            microarea: gestorScope || !acsScope ? '' : (values.microarea || '').trim(),
             acs_phone: (values.acs_phone || '').trim(),
             municipality_code: managedUnit?.municipality_code || (gestorScope ? null : profile.municipality_code || null),
             unit_cnes: gestorScope ? null : unitCnes,
@@ -407,7 +409,7 @@ function ensureFormStatus(form) {
 }
 
 function renderKpis(root, data, { master }) {
-  const pendingTeams = data.profiles.filter((p) => p.role === 'acs' && !p.team_id && p.team_name?.trim()).length;
+  const pendingTeams = data.profiles.filter((p) => ['acs', 'physician', 'nurse'].includes(p.role) && !p.team_id && p.team_name?.trim()).length;
   root.querySelector('#admin-kpis').innerHTML = [
     ['Perfis', data.profiles.length],
     [master ? 'Unidades ativas' : 'Minha unidade', master ? data.units.filter((u) => u.is_active).length : data.units.length],
@@ -426,7 +428,7 @@ function renderProfiles(data, query, { master, masterAccount, actor }) {
   return `<div class="section-actions"><div><h3>Perfis profissionais</h3><p class="field-hint">${hint}</p></div></div>
     ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Unidade</th><th>Equipe</th><th>Microárea</th><th>Função</th><th>Ações</th></tr></thead><tbody>${rows.map((p) => {
       const editable = canEditManagedProfile(actor, p);
-      const pendingTeam = editable && p.role === 'acs' && !p.team_id && p.team_name?.trim() && p.unit_cnes;
+      const pendingTeam = editable && ['acs', 'physician', 'nurse'].includes(p.role) && !p.team_id && p.team_name?.trim() && p.unit_cnes;
       return `<tr><td>${escapeHtml(p.full_name || '—')}</td><td>${escapeHtml(p.unit_name || '—')}</td><td>${escapeHtml(p.team_name || '—')}${!p.team_id && p.team_name?.trim() ? '<br><span class="status-badge warning">A confirmar</span>' : ''}</td><td>${escapeHtml(p.microarea || '—')}</td><td>${escapeHtml(roleLabel(p))}</td><td><div class="actions">${editable ? `<button class="link-button" type="button" data-edit-profile="${escapeHtml(p.id)}">Editar</button>` : '<span class="field-hint">Protegido</span>'}${pendingTeam ? `<button class="link-button" type="button" data-confirm-pending-team="${escapeHtml(p.id)}">Confirmar equipe</button>` : ''}</div></td></tr>`;
     }).join('')}</tbody></table></div>` : empty('Nenhum perfil encontrado')}`;
 }
@@ -454,7 +456,7 @@ function canEditManagedProfile(actor, target) {
   if (!target || target.is_master_account === true) return false;
   if (isMasterAccount(actor)) return true;
   if (isMaster(actor)) return target.role !== 'admin';
-  return isUnitAdmin(actor) && target.role === 'acs' && target.unit_cnes === actor.unit_cnes;
+  return isUnitAdmin(actor) && ['acs', 'physician', 'nurse'].includes(target.role) && target.unit_cnes === actor.unit_cnes;
 }
 
 function filterRows(rows, query, values) {

@@ -7,7 +7,7 @@
 - Supabase dedicado ao Território Vivo (`wknmlbiqbiissedzrato`).
 - Estrutura: município → unidade/ponto → equipe → microárea → profissional.
 - RLS ativo em `profiles`, `municipalities`, `health_units`, `teams` e `territory_points`.
-- Três papéis: `acs`, `unit_admin`, `admin`.
+- Cinco papéis: `acs`, `physician`, `nurse`, `unit_admin`, `admin`.
 - Ciclo de acesso: `pending`, `active`, `suspended`.
 - Novos profissionais não-master entram pendentes e só acessam áreas internas depois de aprovação da gestão.
 - Município, UBS, equipe e microárea formam o vínculo territorial protegido depois da aprovação.
@@ -104,6 +104,21 @@ Não deve:
 - mudar o próprio status;
 - mudar o próprio papel;
 - trocar município, UBS, equipe ou microárea depois da aprovação;
+
+### Médico e Enfermeiro ativos
+
+Devem conseguir:
+
+- entrar somente depois da aprovação;
+- ver o próprio papel e vínculo com UBS/equipe;
+- abrir **Prescrições e receitas** e, em nova aba, o Cuidado Para Todos;
+- acessar os demais módulos profissionais sem receber Gestão da UBS/rede.
+
+Não devem conseguir:
+
+- abrir **Prescrições e receitas** como ACS, administrador, gestor, Master, pendente ou suspenso;
+- alterar o próprio papel, status ou vínculo aprovado;
+- armazenar no Território Vivo paciente, diagnóstico, medicamento, dose, receita, arquivo, assinatura ou credencial externa.
 - editar perfil de terceiro;
 - criar ponto em outra UBS;
 - ler pontos de outra UBS;
@@ -115,8 +130,8 @@ Deve:
 
 - possuir acesso ativo;
 - abrir **Aprovações** e **Gestão da UBS**;
-- ver o próprio perfil e perfis profissionais/ACS da própria UBS;
-- aprovar/suspender somente perfis `acs` da própria UBS;
+- ver o próprio perfil e perfis ACS/Médico/Enfermeiro da própria UBS;
+- aprovar/suspender somente perfis `acs`, `physician` e `nurse` da própria UBS;
 - atualizar perfis profissionais permitidos da própria UBS;
 - administrar equipes da própria UBS;
 - atualizar dados operacionais permitidos da própria UBS;

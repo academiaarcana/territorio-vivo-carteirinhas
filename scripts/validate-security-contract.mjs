@@ -28,7 +28,8 @@ const mustExist = [
   'supabase/migrations/025_canonicalize_health_unit_municipality.sql',
   'supabase/migrations/026_protect_health_unit_identity.sql',
   'supabase/migrations/027_restrict_territory_point_kinds.sql',
-  'supabase/migrations/20260826135329_repair_reapplied_auth_objects.sql'
+  'supabase/migrations/20260826135329_repair_reapplied_auth_objects.sql',
+  'supabase/migrations/20260826234754_add_clinical_professional_roles.sql'
 ];
 
 for (const file of mustExist) {
@@ -166,6 +167,14 @@ expect(repairMigration, 'municipality_code, unit_cnes, team_id, unit_name, team_
 expect(repairMigration, 'drop policy if exists profiles_select_own_or_admin', 'policy antiga de leitura precisa ser removida');
 expect(repairMigration, 'drop policy if exists profiles_update_own_or_admin', 'policy antiga de atualização precisa ser removida');
 expect(repairMigration, 'revoke all on function public.handle_new_user() from public, anon, authenticated', 'função de cadastro não pode ser invocada diretamente pelo cliente');
+
+const clinicalMigration = read('supabase/migrations/20260826234754_add_clinical_professional_roles.sql');
+expect(clinicalMigration, "role in ('acs', 'physician', 'nurse', 'unit_admin', 'admin')", 'domínio final de papéis precisa incluir Médico e Enfermeiro explicitamente');
+expect(clinicalMigration, "old.role in ('acs', 'physician', 'nurse')", 'vínculo institucional aprovado de perfis clínicos precisa ser protegido');
+expect(clinicalMigration, "role in ('acs', 'physician', 'nurse')", 'gestão local precisa permanecer limitada aos profissionais da própria UBS');
+expect(clinicalMigration, 'to authenticated', 'policies clínicas precisam declarar o papel authenticated');
+expect(clinicalMigration, 'with check', 'policy de atualização de perfis clínicos precisa validar o estado resultante');
+expect(clinicalMigration, 'revoke all on function public.enforce_profile_scope_security() from public, anon, authenticated', 'trigger de escopo clínico não deve ser chamável pelo cliente');
 
 const index = read('index.html');
 if (/service[_-]?role/i.test(index)) errors.push('index.html não pode conter chave/função service role.');

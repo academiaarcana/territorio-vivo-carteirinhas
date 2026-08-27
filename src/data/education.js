@@ -35,6 +35,25 @@ export const educationTopics = [
   }
 ];
 
+export const educationResources = [
+  {
+    id: 'cuidado-para-todos',
+    category: 'Comunicação acessível',
+    title: 'Cuidado Para Todos',
+    summary: 'Plataforma externa para profissionais elaborarem prescrições com apoio visual e recursos de acessibilidade.',
+    url: 'https://www.cuidadoparatodos.com.br/',
+    icon: 'prescription'
+  },
+  {
+    id: 'ans-de-bolso',
+    category: 'Hanseníase',
+    title: 'ANS de Bolso',
+    summary: 'Ferramenta externa de apoio à Avaliação Neurológica Simplificada relacionada ao acompanhamento da hanseníase.',
+    url: 'https://storage.googleapis.com/aps-cuidado-para-todos/ans_de_bolso.html',
+    icon: 'exam'
+  }
+];
+
 export function getEducationTopic(id) {
   return educationTopics.find((topic) => topic.id === id) || null;
 }

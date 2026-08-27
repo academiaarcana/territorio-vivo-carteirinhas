@@ -84,7 +84,7 @@ supabase/migrations/
 3. Supabase Auth confirma a identidade por e-mail conforme a configuração do projeto.
 4. O trigger `handle_new_user()` cria todo perfil profissional comum como `role=acs`, `access_status=pending`, `is_master_account=false`. A conta técnica Master já provisionada é protegida exclusivamente pelo banco e não pelo formulário público.
 5. Perfil pendente entra somente na rota de espera/onboarding e pode revisar o vínculo solicitado.
-6. Administrador da UBS pode aprovar/suspender apenas perfis `acs` da própria unidade.
+6. Administrador da UBS pode aprovar/suspender apenas perfis profissionais (`acs`, `physician`, `nurse`) da própria unidade.
 7. Gestor Municipal pode administrar perfis não-admin da rede e definir/revogar `unit_admin`.
 8. Somente a conta Master/Desenvolvimento pode promover outro perfil a `role=admin` ou administrar outra conta `admin`.
 9. Depois de aprovado (`access_status=active`), o vínculo institucional do ACS deixa de ser autoeditável e passa a ser gerido administrativamente.
@@ -92,7 +92,7 @@ supabase/migrations/
 
 ## Papéis e conta técnica
 
-Os papéis persistidos continuam exatamente três: `acs`, `unit_admin` e `admin`.
+Os papéis persistidos são cinco: `acs`, `physician`, `nurse`, `unit_admin` e `admin`.
 
 ### `acs`
 
@@ -102,11 +102,19 @@ Os papéis persistidos continuam exatamente três: `acs`, `unit_admin` e `admin`
 - não altera papel ou status de acesso;
 - após aprovação, não troca sozinho município/UBS/equipe/microárea.
 
+### `physician` e `nurse`
+
+- exigem `access_status=active` para abrir a aplicação interna;
+- mantêm vínculo profissional com município, UBS e equipe, sem microárea;
+- recebem a capacidade exclusiva de abrir **Prescrições e receitas**, que direciona ao Cuidado Para Todos;
+- não recebem poderes administrativos;
+- a rota não persiste receita, paciente, medicamento, diagnóstico, arquivo, assinatura ou credencial e não implementa SSO com o serviço externo.
+
 ### `unit_admin`
 
 - exige `access_status=active`;
-- administra perfis profissionais (`acs`) da própria UBS;
-- aprova/suspende ACS da própria UBS;
+- administra perfis profissionais (`acs`, `physician`, `nurse`) da própria UBS;
+- aprova/suspende ACS, médicos e enfermeiros da própria UBS;
 - administra equipes da própria UBS;
 - atualiza campos institucionais operacionais permitidos da própria unidade;
 - não muda a própria UBS de gestão;
@@ -140,6 +148,7 @@ A migration `031_enforce_management_scope_shape.sql` define:
 
 - ACS: vínculo territorial profissional completo conforme aprovação;
 - `unit_admin`: município/UBS, sem equipe e microárea no perfil administrativo;
+- `physician`/`nurse`: município/UBS/equipe, sem microárea;
 - `admin` (Gestor ou Master): escopo global `network`, sem município/UBS/equipe/microárea no próprio perfil.
 
 Essa forma também foi aplicada aos perfis existentes durante a migration, evitando herança de campos de um papel anterior.
@@ -214,6 +223,7 @@ Protegidas e ativas:
 - `#/app/5-minutos`;
 - `#/app/indicadores`;
 - `#/app/educacao`;
+- `#/app/prescricoes` — somente `physician` ou `nurse` ativos; abre serviço externo sem persistência local;
 - `#/app/perfil`.
 
 Gestão ativa:

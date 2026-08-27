@@ -2,6 +2,7 @@ import { appLayout, mountAppLayout } from '../core/layout.js';
 import { openAccessibleDialog } from '../core/a11y.js';
 import { escapeHtml, formatDateBr, formToObject, setStatus } from '../lib/dom.js';
 import { setButtonBusy } from '../lib/forms.js';
+import { renderFlaticonIcon } from '../lib/visual-support.js';
 import { isMaster, canManageTerritoryPoint } from '../core/permissions.js';
 import {
   listMunicipalities, listUnits, listTeams, listTerritoryPoints,
@@ -39,21 +40,25 @@ export function renderTerritoryPage({ state }) {
     <input name="team_id" type="hidden" value="${escapeHtml(profile.team_id || '')}">`;
 
   const content = `
-    <section class="panel"><p class="eyebrow">${master ? 'Rede cadastrada' : 'Meu território'}</p><h2>${escapeHtml(master ? 'Visão geral da rede' : own)}</h2><p>Esta área organiza referências territoriais <strong>não pessoais</strong>. Não registre nomes de pacientes, famílias, diagnósticos, condições clínicas ou informações identificáveis.</p></section>
+    <section class="panel territory-intro-panel">
+      <div class="territory-intro-icon">${renderFlaticonIcon('location')}</div>
+      <div><p class="eyebrow">${master ? 'Rede cadastrada' : 'Meu território'}</p><h2>${escapeHtml(master ? 'Visão geral da rede' : own)}</h2><p>Organize recursos, barreiras e mudanças do território sem registrar nomes, diagnósticos ou outras informações pessoais.</p></div>
+      ${canCreate ? '<button class="button primary territory-intro-action" type="button" data-scroll-to-point-form>Registrar achado</button>' : ''}
+    </section>
 
-    <section class="two-column wide-left">
-      <article class="panel">
-        <div class="page-toolbar"><div><p class="eyebrow">Camadas do mapa inteligente</p><h2>Achados territoriais</h2><p>Recursos, potencialidades, parceiros, riscos ambientais/estruturais, pontos críticos e barreiras de acesso.</p></div></div>
-        <div class="filter-grid" aria-label="Filtros de achados territoriais">
+    <section class="two-column wide-left territory-workbench">
+      <article class="panel territory-findings-panel">
+        <div class="page-toolbar territory-section-heading"><div><p class="eyebrow">Leitura do território</p><h2>Achados territoriais</h2><p>Recursos, potencialidades, parceiros, riscos ambientais, pontos críticos e barreiras de acesso.</p></div></div>
+        <div class="filter-grid territory-filter-grid" aria-label="Filtros de achados territoriais">
           <label>Buscar<input id="point-search" type="search" placeholder="Nome, endereço ou descrição"></label>
           <label>Tipo<select id="point-kind-filter"><option value="">Todos</option>${pointKinds.map(([value,label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('')}</select></label>
           <label>Status<select id="point-status-filter"><option value="">Todos</option>${pointStatuses.map(([value,label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('')}</select></label>
         </div>
-        <div id="point-kpis" class="kpi-grid" aria-live="polite"></div>
+        <div id="point-kpis" class="territory-metric-strip" aria-live="polite"></div>
         <div id="territory-points" class="territory-point-list"><p>Carregando achados…</p></div>
       </article>
 
-      <article class="panel"><p class="eyebrow">Novo ponto</p><h2>Registrar achado territorial</h2>${canCreate ? `
+      <article class="panel territory-entry-panel" id="point-form-section"><p class="eyebrow">Novo ponto</p><h2>Registrar achado territorial</h2><p class="territory-form-intro">Registre algo que a equipe precise reconhecer, discutir ou acompanhar.</p>${canCreate ? `
         <form id="territory-point-form" class="stack-form">
           ${scopeFields}
           <label>Classificação<select name="kind" required>${pointKinds.map(([value,label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join('')}</select></label>
@@ -69,13 +74,15 @@ export function renderTerritoryPage({ state }) {
       </article>
     </section>
 
-    <section class="page-toolbar"><div><p class="eyebrow">Rede institucional</p><h2>Unidades e equipes</h2><p>Filtre a rede para revisar fontes, pontos de atenção e equipes cadastradas.</p></div><label>Filtrar<input id="network-search" type="search" placeholder="Unidade, bairro, CNES ou equipe"></label></section>
-    <div id="territory-kpis" class="kpi-grid"></div>
-    <section id="territory-network" class="unit-grid"><p>Carregando rede…</p></section>
-    <section class="panel"><h2>Localização sem custo de API</h2><p>Quando houver endereço ou coordenadas, o Território Vivo oferece um atalho para abrir a referência no Google Maps. O link não usa chave de API, não exige faturamento e não envia dados pessoais.</p></section>
+    <section class="territory-network-section">
+      <div class="page-toolbar territory-network-toolbar"><div><p class="eyebrow">Rede institucional</p><h2>Unidades e equipes</h2><p>Consulte a rede cadastrada e as fontes territoriais disponíveis.</p></div><label>Filtrar rede<input id="network-search" type="search" placeholder="Unidade, bairro, CNES ou equipe"></label></div>
+      <div id="territory-kpis" class="territory-metric-strip"></div>
+      <div id="territory-network" class="unit-grid territory-unit-grid"><p>Carregando rede…</p></div>
+    </section>
+    <section class="panel territory-map-note">${renderFlaticonIcon('location', { className: 'territory-map-note-icon' })}<div><h2>Abrir localização</h2><p>Quando houver endereço ou coordenadas, use o atalho para abrir a referência no Google Maps. Nenhuma chave de API ou informação pessoal é enviada pelo Território Vivo.</p></div></section>
 
     <dialog id="point-dialog" class="editor-dialog" aria-labelledby="point-dialog-title"><form method="dialog"><button class="dialog-close" value="cancel" aria-label="Fechar">×</button></form><div id="point-dialog-body"></div></dialog>`;
-  return appLayout({ title: 'Território e rede', subtitle: 'Base institucional e achados não pessoais para o mapa inteligente.', activePath: '/app/territorio', content });
+  return appLayout({ title: 'Território e rede', subtitle: 'Base institucional e achados não pessoais para leitura territorial.', activePath: '/app/territorio', content });
 }
 
 export async function mountTerritoryPage({ root, state }) {
@@ -91,6 +98,7 @@ export async function mountTerritoryPage({ root, state }) {
   const pointStatus = root.querySelector('#point-status');
   const dialog = root.querySelector('#point-dialog');
   const dialogBody = root.querySelector('#point-dialog-body');
+  const pointFormSection = root.querySelector('#point-form-section');
   let networkRows = [];
   let points = [];
   let municipalities = [];
@@ -103,18 +111,24 @@ export async function mountTerritoryPage({ root, state }) {
     [municipalities, units, teams] = await Promise.all([listMunicipalities(), listUnits(), listTeams()]);
     networkRows = units.map((unit) => ({ ...unit, teams: teams.filter((team) => team.unit_cnes === unit.cnes && team.active) }));
     renderNetwork(networkRows);
-    root.querySelector('#territory-kpis').innerHTML = [
-      ['Unidades/pontos', units.length],
-      ['Equipes cadastradas', teams.filter((team) => team.active).length],
-      ['Confirmadas localmente', units.filter((unit) => unit.data_status === 'team_confirmed').length],
-      ['A revisar', units.filter((unit) => unit.data_status === 'needs_review').length]
-    ].map(([label,value]) => `<article class="kpi"><small>${label}</small><strong>${value}</strong></article>`).join('');
+    root.querySelector('#territory-kpis').innerHTML = renderTerritoryMetrics([
+      ['clinic', 'Unidades/pontos', units.length],
+      ['group', 'Equipes cadastradas', teams.filter((team) => team.active).length],
+      ['partner', 'Confirmadas localmente', units.filter((unit) => unit.data_status === 'team_confirmed').length],
+      ['warning', 'A revisar', units.filter((unit) => unit.data_status === 'needs_review').length]
+    ]);
   } catch (error) {
     console.error(error);
     target.innerHTML = '<div class="empty-state"><h3>Rede indisponível</h3><p>Não foi possível carregar as unidades agora.</p></div>';
   }
 
   if (master && pointForm) setupMasterScopeSelectors(pointForm, municipalities, units, teams);
+
+  root.querySelector('[data-scroll-to-point-form]')?.addEventListener('click', () => {
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    pointFormSection?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    pointForm?.querySelector('select, input, textarea')?.focus({ preventScroll: true });
+  });
 
   async function refreshPoints() {
     if (refreshPromise) return refreshPromise;
@@ -283,8 +297,8 @@ export async function mountTerritoryPage({ root, state }) {
       const mapAddress = [unit.address, unit.neighborhood, unit.municipality, unit.state].filter(Boolean).join(', ');
       const mapLink = googleMapsLink({ address: mapAddress });
       return `
-      <article class="unit-card ${unit.cnes === state.profile?.unit_cnes ? 'own-unit' : ''}">
-        <div><span class="status-badge">${unit.data_status === 'team_confirmed' ? 'Confirmado' : unit.data_status === 'needs_review' ? 'Revisar' : 'Fonte pública'}</span><h3>${escapeHtml(unit.short_name)}</h3><small>CNES ${escapeHtml(unit.cnes)}</small></div>
+      <article class="unit-card territory-unit-card ${unit.cnes === state.profile?.unit_cnes ? 'own-unit' : ''}">
+        <header>${renderFlaticonIcon('clinic', { className: 'territory-unit-icon' })}<div><span class="status-badge">${unit.data_status === 'team_confirmed' ? 'Confirmado' : unit.data_status === 'needs_review' ? 'Revisar' : 'Fonte pública'}</span><h3>${escapeHtml(unit.short_name)}</h3><small>CNES ${escapeHtml(unit.cnes)}</small></div></header>
         <p>${escapeHtml([unit.address,unit.neighborhood].filter(Boolean).join(' — ') || 'Localização a confirmar')}</p>
         <p>${escapeHtml(unit.phone || 'Telefone a confirmar')}</p>
         <div><strong>Equipes</strong><p>${unit.teams.length ? unit.teams.map((team) => `${escapeHtml(team.name)}${team.ine ? ` • INE ${escapeHtml(team.ine)}` : ''}`).join('<br>') : 'Nenhuma equipe cadastrada'}</p></div>
@@ -302,7 +316,7 @@ export async function mountTerritoryPage({ root, state }) {
       const unit = units.find((item) => item.cnes === point.unit_cnes);
       const team = teams.find((item) => item.id === point.team_id);
       const scope = master ? `<p><strong>Escopo:</strong> ${escapeHtml(unit?.short_name || point.unit_cnes || 'Sem UBS')}${team ? ` • ${escapeHtml(team.name)}` : ''}</p>` : '';
-      return `<article class="territory-point-card"><div><span class="status-badge">${escapeHtml(kindLabel(point.kind))}</span><h3>${escapeHtml(point.name)}</h3><small>${formatDateBr(point.observed_on)} • ${statusLabel(point.status)}</small></div>${scope}${point.description ? `<p>${escapeHtml(point.description)}</p>` : ''}${point.address ? `<p><strong>Referência:</strong> ${escapeHtml(point.address)}</p>` : ''}${coordinates}<div class="actions">${mapLink}${canManage ? `<button class="link-button" type="button" data-edit-point="${escapeHtml(point.id)}">Editar</button>` : ''}${canManage && point.status !== 'resolved' ? `<button class="link-button" type="button" data-resolve-point="${escapeHtml(point.id)}">Marcar resolvido</button>` : ''}${canManage ? `<button class="link-button danger-link" type="button" data-delete-point="${escapeHtml(point.id)}">Excluir</button>` : ''}</div></article>`;
+      return `<article class="territory-point-card" data-point-kind="${escapeHtml(point.kind)}" data-point-status="${escapeHtml(point.status)}"><header>${renderFlaticonIcon(kindIcon(point.kind), { className: 'territory-point-icon' })}<div><span class="status-badge">${escapeHtml(kindLabel(point.kind))}</span><h3>${escapeHtml(point.name)}</h3><small>${formatDateBr(point.observed_on)} • ${statusLabel(point.status)}</small></div></header><div class="territory-point-body">${scope}${point.description ? `<p>${escapeHtml(point.description)}</p>` : ''}${point.address ? `<p><strong>Referência:</strong> ${escapeHtml(point.address)}</p>` : ''}${coordinates}</div><div class="actions">${mapLink}${canManage ? `<button class="link-button" type="button" data-edit-point="${escapeHtml(point.id)}">Editar</button>` : ''}${canManage && point.status !== 'resolved' ? `<button class="link-button" type="button" data-resolve-point="${escapeHtml(point.id)}">Marcar resolvido</button>` : ''}${canManage ? `<button class="link-button danger-link" type="button" data-delete-point="${escapeHtml(point.id)}">Excluir</button>` : ''}</div></article>`;
     }).join('') : '<div class="empty-state"><h3>Nenhum achado territorial</h3><p>Não há registros para os filtros selecionados.</p></div>';
   }
 
@@ -366,12 +380,23 @@ function resetPointForm(form, { master, state }) {
 
 function renderPointKpis(root, points) {
   const target = root.querySelector('#point-kpis');
-  target.innerHTML = [
-    ['Achados', points.length],
-    ['Ativos', points.filter((p) => p.status === 'active').length],
-    ['Recursos/parceiros', points.filter((p) => ['resource','potentiality','partner'].includes(p.kind)).length],
-    ['Riscos/barreiras', points.filter((p) => ['risk','critical_point','access_barrier'].includes(p.kind) && p.status !== 'resolved').length]
-  ].map(([label,value]) => `<article class="kpi"><small>${label}</small><strong>${value}</strong></article>`).join('');
+  target.innerHTML = renderTerritoryMetrics([
+    ['location', 'Achados', points.length],
+    ['action', 'Ativos', points.filter((p) => p.status === 'active').length],
+    ['partner', 'Recursos/parceiros', points.filter((p) => ['resource','potentiality','partner'].includes(p.kind)).length],
+    ['barrier', 'Riscos/barreiras', points.filter((p) => ['risk','critical_point','access_barrier'].includes(p.kind) && p.status !== 'resolved').length]
+  ]);
+}
+
+function renderTerritoryMetrics(items) {
+  return items.map(([icon, label, value]) => `<article class="territory-metric">${renderFlaticonIcon(icon, { className: 'territory-metric-icon' })}<span><small>${escapeHtml(label)}</small><strong>${value}</strong></span></article>`).join('');
+}
+
+function kindIcon(kind) {
+  if (['resource', 'potentiality'].includes(kind)) return 'location';
+  if (kind === 'partner') return 'partner';
+  if (kind === 'access_barrier') return 'barrier';
+  return 'warning';
 }
 
 function territoryMutationErrorMessage(error, fallback) {

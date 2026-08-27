@@ -4,6 +4,7 @@ import { renderFlaticonAttribution, renderFlaticonIcon } from '../lib/visual-sup
 import { navigate } from './router.js';
 import { getState } from './store.js';
 import { signOut } from '../services/auth.js';
+import { CAPABILITIES, hasCapability } from './access-control.js';
 import { accessStatusLabel, isManagement, isMaster, isMasterAccount, roleLabel } from './permissions.js';
 
 const navItems = [
@@ -22,10 +23,13 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
   const management = isManagement(profile);
   const networkAdmin = isMaster(profile);
   const masterAccount = isMasterAccount(profile);
+  const prescriptionItems = hasCapability(profile, CAPABILITIES.USE_EXTERNAL_PRESCRIPTIONS)
+    ? [['/app/prescricoes', 'Prescrições e receitas', 'prescription']]
+    : [];
   const managementItems = management
     ? [['/app/aprovacoes', 'Aprovações', 'action'], ['/app/gestao', networkAdmin ? 'Gestão da rede' : 'Gestão da UBS', 'partner']]
     : [];
-  const items = [...navItems, ...managementItems];
+  const items = [...navItems.slice(0, 6), ...prescriptionItems, ...navItems.slice(6), ...managementItems];
   const contextLabel = masterAccount
     ? 'Master / Desenvolvimento • Administração técnica'
     : networkAdmin
@@ -76,7 +80,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
         : [
             ['clinic', 'UBS', context?.unit?.short_name || profile?.unit_name || 'Unidade não informada'],
             ['group', 'Equipe', context?.team?.name || profile?.team_name || 'Equipe não informada'],
-            ['location', 'Microárea', profile?.microarea || 'Não informada']
+            [profile?.role === 'acs' ? 'location' : 'person', profile?.role === 'acs' ? 'Microárea' : 'Papel', profile?.role === 'acs' ? (profile?.microarea || 'Não informada') : roleLabel(profile)]
           ];
   const scopeBand = `<section class="workspace-scope-band" aria-label="Escopo de acesso atual">
     ${scopeItems.map(([icon, label, value]) => `<div class="workspace-scope-item">${renderFlaticonIcon(icon, { className: 'workspace-scope-icon' })}<span><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></span></div>`).join('')}

@@ -1,0 +1,206 @@
+/* Educação em Campo — materiais revisáveis e ferramentas externas identificadas.
+   Restrita à tela para preservar impressão e captura de PDF. */
+@media screen {
+  #app[data-route="/app/educacao"] .page-content {
+    padding-top: clamp(1.2rem, 2.8vw, 2.4rem);
+    padding-bottom: 2.5rem;
+    background: #f7f9fc;
+  }
+
+  #app[data-route="/app/educacao"] .education-intro-panel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding: 1.35rem 1.5rem;
+    border: 0;
+    border-left: 4px solid var(--field-green);
+    border-radius: 0 10px 10px 0;
+    box-shadow: none;
+  }
+  .education-intro-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #cfe0d7;
+    border-radius: 10px;
+    background: #f3faf6;
+  }
+  .education-intro-icon img { width: 29px; height: 29px; object-fit: contain; }
+  .education-intro-panel .eyebrow { margin-bottom: .3rem; color: var(--field-green); }
+  .education-intro-panel h2 { margin-bottom: .35rem; color: var(--field-ink); font-size: clamp(1.35rem, 2.4vw, 1.9rem); }
+  .education-intro-panel p:last-child { margin-bottom: 0; color: var(--field-muted); line-height: 1.55; }
+  .education-intro-metrics { display: flex; gap: .6rem; }
+  .education-intro-metrics span {
+    display: grid;
+    min-width: 94px;
+    gap: .12rem;
+    padding: .65rem .75rem;
+    border-left: 1px solid var(--field-line);
+  }
+  .education-intro-metrics strong { color: var(--field-ink); font-size: 1.25rem; }
+  .education-intro-metrics small { color: var(--field-muted); font-size: .72rem; line-height: 1.25; }
+
+  #app[data-route="/app/educacao"] .education-library-panel,
+  #app[data-route="/app/educacao"] .education-resources-panel {
+    padding: clamp(1.15rem, 2.4vw, 1.6rem);
+    border-color: var(--field-line);
+    border-radius: 10px;
+    box-shadow: none;
+  }
+  #app[data-route="/app/educacao"] .education-library-panel { margin-bottom: 1.25rem; border-top: 4px solid var(--field-green); }
+  #app[data-route="/app/educacao"] .education-resources-panel { border-top: 4px solid var(--field-blue); }
+  .education-section-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 1rem;
+    padding-bottom: .9rem;
+    border-bottom: 1px solid var(--field-line);
+  }
+  .education-section-heading .eyebrow { margin-bottom: .3rem; color: var(--field-green); }
+  .education-resources-panel .education-section-heading .eyebrow { color: var(--field-blue); }
+  .education-section-heading h2 { margin-bottom: .35rem; color: var(--field-ink); font-size: 1.4rem; }
+  .education-section-heading p:last-child { margin-bottom: 0; color: var(--field-muted); font-size: .86rem; line-height: 1.5; }
+  .education-external-badge {
+    flex: 0 0 auto;
+    padding: .42rem .68rem;
+    border: 1px solid #c9dcef;
+    border-radius: 999px;
+    color: var(--field-blue);
+    background: #f4f8fd;
+    font-size: .72rem;
+    font-weight: 800;
+  }
+
+  #app[data-route="/app/educacao"] .field-education-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem;
+  }
+  #app[data-route="/app/educacao"] .field-education-card {
+    position: relative;
+    min-height: 230px;
+    overflow: hidden;
+    padding: 1.1rem;
+    border-color: var(--field-line);
+    border-radius: 9px;
+    box-shadow: none;
+  }
+  #app[data-route="/app/educacao"] .field-education-card::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--field-green);
+    content: '';
+  }
+  #app[data-route="/app/educacao"] .field-education-card[data-education-topic="insulin"]::before { background: #a95d35; }
+  .field-education-card > header { display: flex; gap: .55rem; align-items: center; }
+  .education-card-icon { width: 28px; height: 28px; object-fit: contain; }
+  .field-education-card .category-label { color: var(--field-green); font-size: .68rem; }
+  .field-education-card h3 { margin-bottom: .35rem; color: var(--field-ink); font-size: 1.05rem; }
+  .field-education-card p { margin-bottom: 0; color: var(--field-muted); font-size: .86rem; line-height: 1.5; }
+  .education-card-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: .7rem;
+    align-items: center;
+    padding-top: .75rem;
+    border-top: 1px solid #edf1f5;
+  }
+  .education-card-meta small { color: var(--field-muted); font-size: .72rem; }
+  .education-card-meta .button { min-height: 38px; padding: .48rem .75rem; border-color: #b9cfe4; color: var(--field-blue); }
+
+  .education-resource-list { display: grid; gap: .7rem; }
+  .education-resource-card {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--field-line);
+    border-radius: 9px;
+    background: #fff;
+  }
+  .education-resource-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #c9dcef;
+    border-radius: 9px;
+    background: #f4f8fd;
+  }
+  .education-resource-icon img { width: 29px; height: 29px; object-fit: contain; }
+  .education-resource-card .category-label { color: var(--field-blue); font-size: .68rem; }
+  .education-resource-card h3 { margin: .2rem 0 .28rem; color: var(--field-ink); font-size: 1rem; }
+  .education-resource-card p { margin: 0; color: var(--field-muted); font-size: .84rem; line-height: 1.48; }
+  .education-resource-link { white-space: nowrap; border-color: var(--field-blue); color: var(--field-blue); text-decoration: none; }
+  .education-resource-link:hover { background: #f4f8fd; }
+  .education-external-note {
+    margin: 1rem 0 0;
+    padding: .8rem .9rem;
+    border-left: 4px solid var(--field-blue);
+    background: #eef5fc;
+    line-height: 1.45;
+  }
+
+  #app[data-route="/app/educacao"] .editor-dialog { width: min(980px, 94vw); border-top: 4px solid var(--field-green); }
+  .field-education-detail { color: var(--field-ink); }
+  .education-detail-heading { padding: 0 3rem 1rem 0; border-bottom: 1px solid var(--field-line); }
+  .education-detail-heading .eyebrow { margin-bottom: .3rem; color: var(--field-green); }
+  .education-detail-heading h2 { margin-bottom: .35rem; }
+  .education-detail-heading p { margin-bottom: .4rem; color: var(--field-muted); line-height: 1.5; }
+  .education-detail-heading small { color: var(--field-muted); }
+  .education-detail-blocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; margin: 1rem 0; }
+  .education-detail-blocks section { padding: 1rem; border: 1px solid var(--field-line); border-radius: 9px; }
+  .education-detail-blocks section > header { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: .6rem; align-items: center; }
+  .education-detail-blocks section > header span {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--field-green);
+    font-size: .7rem;
+    font-weight: 850;
+  }
+  .education-detail-blocks h3 { margin: 0; font-size: .95rem; }
+  .education-detail-blocks ul { margin-bottom: 0; padding-left: 1.2rem; color: var(--field-muted); font-size: .84rem; line-height: 1.55; }
+  .education-sources { padding: 1rem; border: 1px solid var(--field-line); border-radius: 9px; background: #fbfcfd; }
+  .education-sources h3 { margin-bottom: .6rem; }
+  .education-sources ul { margin-bottom: 0; }
+  .education-output-section { margin-top: 1rem; padding: 1rem; border: 1px solid var(--field-line); border-radius: 9px; background: #f8fbfe; }
+  .education-output-section > header { margin-bottom: .7rem; }
+  .education-output-section .eyebrow { margin-bottom: .25rem; color: var(--field-green); }
+  .education-output-section h3 { margin-bottom: 0; }
+  .education-output-section .print-accessibility-options { background: #fff; }
+  .education-output-actions { justify-content: flex-end; padding-top: .85rem; border-top: 1px solid var(--field-line); }
+  .education-output-actions .button { min-width: 140px; }
+  .education-output-actions .button.primary { background: var(--field-blue); border-color: var(--field-blue); }
+
+  @media (max-width: 900px) {
+    .education-resource-card { grid-template-columns: 48px minmax(0, 1fr); }
+    .education-resource-link { grid-column: 2; justify-self: start; }
+  }
+
+  @media (max-width: 760px) {
+    #app[data-route="/app/educacao"] .page-content { padding-top: 1rem; }
+    #app[data-route="/app/educacao"] .page-content > * { margin-right: 1rem; margin-left: 1rem; }
+    #app[data-route="/app/educacao"] .education-intro-panel { grid-template-columns: auto minmax(0, 1fr); padding: 1rem; }
+    .education-intro-metrics { grid-column: 1 / -1; width: 100%; }
+    .education-intro-metrics span { flex: 1; }
+    .education-section-heading { align-items: start; flex-direction: column; }
+    #app[data-route="/app/educacao"] .field-education-grid { grid-template-columns: 1fr; }
+    .education-card-meta { align-items: flex-start; flex-direction: column; }
+    .education-resource-card { grid-template-columns: 42px minmax(0, 1fr); align-items: start; }
+    .education-resource-icon { width: 42px; height: 42px; }
+    .education-resource-link { grid-column: 1 / -1; width: 100%; text-align: center; }
+    .education-detail-blocks { grid-template-columns: 1fr; }
+    .education-output-actions { align-items: stretch; }
+    .education-output-actions .button { width: 100%; }
+  }
+}

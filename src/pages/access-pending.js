@@ -2,7 +2,7 @@ import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
 import { canSubmitForm, setButtonBusy, setSelectError, setSelectLoading, setSelectReady } from '../lib/forms.js';
 import { navigate } from '../core/router.js';
 import { setState } from '../core/store.js';
-import { isPendingProfile, isSuspendedProfile, accessStatusLabel } from '../core/permissions.js';
+import { isPendingProfile, isSuspendedProfile, accessStatusLabel, roleLabel, ROLES } from '../core/permissions.js';
 import { signOut } from '../services/auth.js';
 import { getProfile, listMunicipalities, listUnits, listTeams, updateProfile, buildContext } from '../services/repository.js';
 
@@ -10,6 +10,7 @@ export function renderAccessPendingPage({ state }) {
   const profile = state.profile || {};
   const pending = isPendingProfile(profile);
   const suspended = isSuspendedProfile(profile);
+  const acsProfile = profile.role === ROLES.ACS;
   const title = suspended ? 'Acesso temporariamente suspenso' : 'Cadastro aguardando aprovação';
   const intro = suspended
     ? 'Seu perfil continua cadastrado, mas o acesso às áreas internas está suspenso. Procure a administração da sua UBS ou a gestão municipal.'
@@ -24,9 +25,10 @@ export function renderAccessPendingPage({ state }) {
         <p>${escapeHtml(intro)}</p>
         <dl class="summary-list">
           <div><dt>Profissional</dt><dd data-pending-summary="full_name">${escapeHtml(profile.full_name || '—')}</dd></div>
+          <div><dt>Função</dt><dd data-pending-summary="role">${escapeHtml(roleLabel(profile))}</dd></div>
           <div><dt>Unidade</dt><dd data-pending-summary="unit_name">${escapeHtml(profile.unit_name || 'Não informada')}</dd></div>
           <div><dt>Equipe</dt><dd data-pending-summary="team_name">${escapeHtml(profile.team_name || 'A confirmar')}</dd></div>
-          <div><dt>Microárea</dt><dd data-pending-summary="microarea">${escapeHtml(profile.microarea || 'Não informada')}</dd></div>
+          ${acsProfile ? `<div><dt>Microárea</dt><dd data-pending-summary="microarea">${escapeHtml(profile.microarea || 'Não informada')}</dd></div>` : ''}
         </dl>
         <div class="actions">
           <button class="button primary" type="button" id="check-access">Verificar aprovação</button>
@@ -46,7 +48,7 @@ export function renderAccessPendingPage({ state }) {
           <label>Unidade<select name="unit_cnes" id="pending-unit" required><option value="">Selecione o município</option></select></label>
           <label>Equipe<select name="team_id" id="pending-team"><option value="">Selecione a unidade</option></select></label>
           <label id="pending-custom-team-wrap" hidden>Nome da equipe para confirmação<input name="team_name_custom" maxlength="120"></label>
-          <label>Microárea<input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40" required></label>
+          ${acsProfile ? `<label>Microárea<input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40" required></label>` : ''}
           <button class="button primary" type="submit">Salvar solicitação</button>
         </form>
       </section>` : ''}
@@ -61,6 +63,7 @@ export async function mountAccessPendingPage({ root, state }) {
   function syncPendingSummary(profile = {}) {
     const summary = {
       full_name: profile.full_name || '—',
+      role: roleLabel(profile),
       unit_name: profile.unit_name || 'Não informada',
       team_name: profile.team_name || 'A confirmar',
       microarea: profile.microarea || 'Não informada'
@@ -254,7 +257,7 @@ export async function mountAccessPendingPage({ root, state }) {
     setStatus(status, 'Salvando solicitação…', 'info');
     try {
       const profile = await updateProfile(state.user.id, {
-        full_name: values.full_name.trim(), acs_phone: values.acs_phone.trim(), microarea: values.microarea.trim(),
+        full_name: values.full_name.trim(), acs_phone: values.acs_phone.trim(), microarea: (values.microarea || '').trim(),
         municipality_code: values.municipality_code, unit_cnes: values.unit_cnes, team_id: teamId,
         unit_name: selectedUnit?.name || '', team_name: teamName
       });

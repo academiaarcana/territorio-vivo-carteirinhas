@@ -6,7 +6,7 @@ O nível de uma conta é determinado pela combinação de cinco elementos:
 
 1. **Identidade autenticada** — sessão válida do Supabase Auth.
 2. **Estado de acesso** — `profiles.access_status`: `pending`, `active` ou `suspended`.
-3. **Papel administrativo** — `profiles.role`: `acs`, `unit_admin` ou `admin`.
+3. **Papel profissional/administrativo** — `profiles.role`: `acs`, `physician`, `nurse`, `unit_admin` ou `admin`.
 4. **Conta técnica superior** — `profiles.is_master_account`, usada somente para distinguir o Master/Desenvolvimento de um Gestor Municipal comum.
 5. **Escopo territorial** — município, UBS, equipe e microárea conforme o papel.
 
@@ -21,6 +21,8 @@ Qualquer combinação não reconhecida é **negada por padrão**.
 | Visitante | Sem perfil autenticado | Conteúdo e catálogo públicos |
 | ACS pendente | `role=acs` + `access_status=pending` | Apenas o próprio pedido de vínculo |
 | ACS ativo | `role=acs` + `access_status=active` | Própria UBS/equipe/microárea |
+| Médico ativo | `role=physician` + `access_status=active` | Própria UBS/equipe |
+| Enfermeiro ativo | `role=nurse` + `access_status=active` | Própria UBS/equipe |
 | Administrador da UBS | `role=unit_admin` + `access_status=active` | Própria UBS |
 | Gestor Municipal | `role=admin` + `access_status=active` + `is_master_account=false` | Toda a rede cadastrada |
 | Master / Desenvolvimento | `role=admin` + `access_status=active` + `is_master_account=true` | Toda a rede + administração de contas `admin` |
@@ -31,26 +33,27 @@ Qualquer combinação não reconhecida é **negada por padrão**.
 
 ## Matriz funcional
 
-| Capacidade | Visitante | ACS pendente | ACS ativo | Admin. UBS | Gestor Municipal | Master técnico | Suspenso |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Ver apresentação e catálogo público | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Criar conta profissional | ✓ | — | — | — | — | — | — |
-| Ler o próprio perfil | — | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Corrigir vínculo solicitado | — | ✓ | — | — | — | — | — |
-| Abrir módulos internos | — | — | ✓ | ✓ | ✓ | ✓ | — |
-| Usar ferramentas temporárias | — | — | ✓ | ✓ | ✓ | ✓ | — |
-| Ler território não pessoal | — | — | Própria UBS | Própria UBS | Toda a rede | Toda a rede | — |
-| Criar/editar/excluir ponto territorial | — | — | Apenas ponto próprio no escopo | Pontos da própria UBS | Todos os escopos | Todos os escopos | — |
-| Aprovar/suspender ACS | — | — | — | Própria UBS | Toda a rede | Toda a rede | — |
-| Administrar equipes | — | — | — | Própria UBS | Toda a rede | Toda a rede | — |
-| Atualizar dados operacionais da UBS | — | — | — | Própria UBS | Toda a rede | Toda a rede | — |
-| Alterar identidade/estrutura oficial da UBS | — | — | — | — | ✓ | ✓ | — |
-| Administrar municípios e unidades | — | — | — | — | ✓ | ✓ | — |
-| Promover/revogar `unit_admin` | — | — | — | — | ✓ | ✓ | — |
-| Alterar status de perfil não-admin | — | — | — | ACS da própria UBS | ✓ | ✓ | — |
-| Promover perfil para Gestor Municipal (`role=admin`) | — | — | — | — | — | ✓ | — |
-| Alterar outra conta `admin` | — | — | — | — | — | ✓ | — |
-| Alterar a conta Master | — | — | — | — | — | Protegida pelo banco | — |
+| Capacidade | Visitante | Pendente | ACS ativo | Médico/Enfermeiro | Admin. UBS | Gestor | Master | Suspenso |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Ver apresentação e catálogo público | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Criar conta profissional | ✓ | — | — | — | — | — | — | — |
+| Ler o próprio perfil | — | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Corrigir vínculo solicitado | — | ✓ | — | — | — | — | — | — |
+| Abrir módulos internos | — | — | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| Usar ferramentas temporárias | — | — | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| Abrir Cuidado Para Todos | — | — | — | ✓ | — | — | — | — |
+| Ler território não pessoal | — | — | Própria UBS | Própria UBS | Própria UBS | Toda a rede | Toda a rede | — |
+| Criar/editar/excluir ponto territorial | — | — | Ponto próprio | Ponto próprio | Pontos da UBS | Todos | Todos | — |
+| Aprovar/suspender profissionais | — | — | — | — | Própria UBS | Toda a rede | Toda a rede | — |
+| Administrar equipes | — | — | — | — | Própria UBS | Toda a rede | Toda a rede | — |
+| Atualizar dados operacionais da UBS | — | — | — | — | Própria UBS | Toda a rede | Toda a rede | — |
+| Alterar identidade/estrutura oficial da UBS | — | — | — | — | — | ✓ | ✓ | — |
+| Administrar municípios e unidades | — | — | — | — | — | ✓ | ✓ | — |
+| Promover/revogar `unit_admin` | — | — | — | — | — | ✓ | ✓ | — |
+| Alterar status de perfil não-admin | — | — | — | — | Própria UBS | ✓ | ✓ | — |
+| Promover perfil para Gestor Municipal (`role=admin`) | — | — | — | — | — | — | ✓ | — |
+| Alterar outra conta `admin` | — | — | — | — | — | — | ✓ | — |
+| Alterar a conta Master | — | — | — | — | — | — | Protegida | — |
 
 ## O que determina cada liberação
 
@@ -64,6 +67,8 @@ Qualquer combinação não reconhecida é **negada por padrão**.
 ### Papel e flag Master
 
 - `acs`: trabalho profissional e territorial no próprio escopo.
+- `physician`: trabalho profissional na própria UBS/equipe e acesso externo a prescrições, sem gestão.
+- `nurse`: trabalho profissional na própria UBS/equipe e acesso externo a prescrições, sem gestão.
 - `unit_admin`: gestão local de ACS, equipes, operação e território da própria UBS.
 - `admin` + `is_master_account=false`: **Gestor Municipal**, com gestão da rede e sem poder administrativo lateral sobre outro `admin`.
 - `admin` + `is_master_account=true`: **Master / Desenvolvimento**, única conta com poder para promover outro perfil a `admin` e administrar outra conta `admin`.
@@ -73,6 +78,7 @@ Qualquer combinação não reconhecida é **negada por padrão**.
 A migration `031_enforce_management_scope_shape.sql` canonicaliza a forma do perfil por papel:
 
 - ACS ativo: `municipality_code`, `unit_cnes`, `team_id` e `microarea` conforme o vínculo aprovado;
+- Médico/Enfermeiro ativo: município, UBS e equipe conforme o vínculo aprovado; microárea vazia;
 - Administrador da UBS: mantém município/UBS; `team_id`, `team_name` e `microarea` ficam vazios;
 - Gestor Municipal e Master técnico: operam em escopo `network`; município, UBS, equipe e microárea do próprio perfil ficam vazios.
 
@@ -98,7 +104,8 @@ O frontend pode esconder uma ação por usabilidade, mas nunca substitui essas r
 - Nenhum cliente comum pode marcar a si próprio como Master.
 - O usuário comum não altera o próprio papel ou status.
 - ACS ativo não troca sozinho o vínculo institucional aprovado.
-- Administrador local não administra outro administrador nem contas `admin`.
+- Administrador local administra somente ACS, médicos e enfermeiros da própria UBS; não administra outro administrador nem contas `admin`.
+- O acesso a prescrições não cria SSO, não transfere credenciais e não persiste receita ou dado clínico no Território Vivo.
 - Gestor Municipal pode administrar a rede e perfis não-admin, mas não outro Gestor nem a conta Master.
 - Somente o Master técnico pode promover um perfil para `role=admin` ou administrar outra conta `admin`.
 - A conta Master técnica permanece protegida como `admin/active` pelo banco.

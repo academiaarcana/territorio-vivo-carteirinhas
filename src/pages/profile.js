@@ -1,7 +1,7 @@
 import { appLayout, mountAppLayout } from '../core/layout.js';
 import { escapeHtml, formToObject, setStatus } from '../lib/dom.js';
 import { canSubmitForm, setButtonBusy, setSelectError, setSelectLoading, setSelectReady } from '../lib/forms.js';
-import { isMaster, isMasterAccount, isUnitAdmin, roleLabel } from '../core/permissions.js';
+import { isMaster, isMasterAccount, isUnitAdmin, roleLabel, ROLES } from '../core/permissions.js';
 import { listMunicipalities, listUnits, listTeams, updateProfile, buildContext } from '../services/repository.js';
 import { setState } from '../core/store.js';
 
@@ -10,6 +10,7 @@ export function renderProfilePage({ state }) {
   const networkAdmin = isMaster(p);
   const masterAccount = isMasterAccount(p);
   const unitAdmin = isUnitAdmin(p);
+  const acsProfile = p.role === ROLES.ACS;
   const scopeLocked = !networkAdmin;
   const superiorTitle = masterAccount ? 'Master / Desenvolvimento' : 'Gestor Municipal';
   const superiorIntro = masterAccount
@@ -19,7 +20,7 @@ export function renderProfilePage({ state }) {
     ? `<span>${masterAccount ? 'Administração técnica' : 'Gestão municipal'} com escopo de rede. O banco mantém esse papel sem vínculo territorial fixo para evitar que uma preferência de material seja confundida com autorização.</span>`
     : unitAdmin
       ? '<span>Município e UBS formam o escopo aprovado desta conta. Equipe e microárea não se aplicam ao papel de Administrador da UBS.</span>'
-      : '<span>Município, UBS, equipe e microárea foram validados pela gestão. Para corrigir o vínculo, solicite a atualização à administração.</span>';
+      : `<span>Município, UBS${acsProfile ? ', equipe e microárea' : ' e equipe'} foram validados pela gestão. Para corrigir o vínculo, solicite a atualização à administração.</span>`;
   const territorySection = networkAdmin
     ? `<fieldset><legend>Escopo da conta</legend><div class="readonly-field"><span>Acesso territorial</span><strong>Toda a rede cadastrada</strong></div><p class="field-hint">Gestor Municipal e Master / Desenvolvimento não usam município, UBS, equipe ou microárea como escopo do próprio perfil. O contexto dos materiais deve vir do fluxo em uso, não de um vínculo administrativo fictício.</p></fieldset>`
     : `<fieldset><legend>Território</legend><div class="form-grid"><label>Município<select name="municipality_code" id="profile-municipality" disabled aria-disabled="true"></select></label><label>Unidade<select name="unit_cnes" id="profile-unit" disabled aria-disabled="true"></select></label>${unitAdmin ? '' : '<label>Equipe<select name="team_id" id="profile-team" disabled aria-disabled="true"></select></label>'}</div><div id="profile-source" class="source-note"></div></fieldset>`;
@@ -27,7 +28,7 @@ export function renderProfilePage({ state }) {
     <section class="panel"><p class="eyebrow">${masterAccount ? 'Master / Desenvolvimento' : networkAdmin ? 'Gestão municipal' : unitAdmin ? 'Administração da UBS' : 'Perfil reutilizável'}</p><h2>${networkAdmin ? superiorTitle : unitAdmin ? 'Meu perfil e minha UBS' : 'Meu perfil e meu território'}</h2><p>${networkAdmin ? superiorIntro : 'Estes dados profissionais são salvos no Supabase e reaproveitados nos módulos. Informações de famílias não entram aqui.'}</p>
       <div class="role-notice"><strong>${escapeHtml(roleLabel(p))}</strong>${scopeNotice}</div>
       <form id="profile-form" class="profile-sections">
-        <fieldset><legend>${networkAdmin ? 'Responsável pela conta' : 'Profissional'}</legend><div class="form-grid"><label>Nome completo<input name="full_name" value="${escapeHtml(p.full_name || '')}" required maxlength="160"></label>${!networkAdmin && !unitAdmin ? `<label>Microárea<input name="microarea" value="${escapeHtml(p.microarea || '')}" maxlength="40" placeholder="Ex.: 08" disabled aria-disabled="true"></label>` : ''}<label>Telefone / contato institucional<input name="acs_phone" value="${escapeHtml(p.acs_phone || '')}" maxlength="80"></label></div>${!networkAdmin && !unitAdmin ? '<p class="field-hint">Microárea faz parte do vínculo territorial aprovado e só pode ser alterada pela gestão.</p>' : ''}</fieldset>
+        <fieldset><legend>${networkAdmin ? 'Responsável pela conta' : 'Profissional'}</legend><div class="form-grid"><label>Nome completo<input name="full_name" value="${escapeHtml(p.full_name || '')}" required maxlength="160"></label>${acsProfile ? `<label>Microárea<input name="microarea" value="${escapeHtml(p.microarea || '')}" maxlength="40" placeholder="Ex.: 08" disabled aria-disabled="true"></label>` : ''}<label>Telefone / contato institucional<input name="acs_phone" value="${escapeHtml(p.acs_phone || '')}" maxlength="80"></label></div>${acsProfile ? '<p class="field-hint">Microárea faz parte do vínculo territorial aprovado e só pode ser alterada pela gestão.</p>' : ''}</fieldset>
         ${territorySection}
         <fieldset><legend>${networkAdmin ? 'Preferências institucionais para materiais' : 'Dados institucionais usados nas carteirinhas'}</legend>${networkAdmin ? '<p class="field-hint">Estes campos são apenas preferências de conteúdo para materiais e não criam vínculo com uma UBS nem alteram seu escopo de rede.</p>' : ''}<div class="form-grid"><label>Telefone da unidade<input name="unit_phone" value="${escapeHtml(p.unit_phone || '')}" maxlength="80"></label><label>Horário<input name="unit_hours" value="${escapeHtml(p.unit_hours || '')}" maxlength="160"></label><label class="full">Endereço<input name="unit_address" value="${escapeHtml(p.unit_address || '')}" maxlength="240"></label></div></fieldset>
         <fieldset><legend>Profissionais de referência</legend><div class="form-grid"><label>Médica(o)<input name="doctor_name" value="${escapeHtml(p.doctor_name || '')}" maxlength="160"></label><label>Enfermeira(o)<input name="nurse_name" value="${escapeHtml(p.nurse_name || '')}" maxlength="160"></label><label>Técnica(o) de enfermagem<input name="tech_name" value="${escapeHtml(p.tech_name || '')}" maxlength="160"></label></div></fieldset>
