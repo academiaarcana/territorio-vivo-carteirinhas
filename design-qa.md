@@ -25,6 +25,12 @@ Foram capturadas, salvas e inspecionadas as seguintes rotas publicadas:
 
 As oito capturas mostraram conteúdo estável, sem tela em branco, carregamento interrompido, parede de login, modal indevido ou erro de renderização.
 
+## Tratamentos ilustrados
+
+A rota `#/app/tratamentos` adiciona onze orientações de leitura fácil para ACS, Médica(o) e Enfermeira(o), com busca, filtros, leitura em voz alta, confirmação por demonstração e personalização clínica temporária. As ilustrações autorais de espaçador, bombinha sem espaçador, spray nasal, creme vaginal, NPH, Regular, glargina, pomada oftálmica e tratamento da água foram revisadas. No guia do espaçador, a bombinha está conectada, não há mão duplicada e as setas apontam da bombinha para a boca; os dois caminhos de tratamento da água aparecem separados; o frasco de hipoclorito segue o formato frequentemente entregue pela UBS, sem logotipo institucional.
+
+Essa rota ainda não está publicada e, portanto, não faz parte das oito evidências autenticadas acima. Sua QA permanece pendente em desktop e celular; contratos automatizados não substituem essa inspeção visual.
+
 ## Evidência complementar de PDF
 
 O modelo **Minha ACS e Minha Equipe** foi gerado no site público em uma sessão autenticada de Enfermeira(o), sem nome de cidadão, receita, diagnóstico ou outro dado clínico. A primeira inspeção real identificou que a instrução interna do editor aparecia indevidamente nas quatro posições da folha. A separação entre prévia vazia e conteúdo imprimível foi corrigida no PR #15.
@@ -74,7 +80,27 @@ O navegador autenticado disponível para esta auditoria não oferece alteração
 - rolagem horizontal involuntária;
 - legibilidade e alvos de toque;
 - editor e prévia de Carteirinhas;
-- formulários de 5 Minutos, Indicadores e Prescrições;
+- formulários de 5 Minutos, Indicadores, Prescrições e Tratamentos ilustrados;
 - Guia de Cadastro e aba Microáreas da gestão.
 
-final result: desktop approved; simple PDF approved; complex pictogram PDF pending; mobile pending
+## Revisão atual — biblioteca visual e tratamentos
+
+- A escolha separada de via foi removida do formulário de prescrições.
+- `Via de uso` passou a integrar a mesma faixa de abas de `Combinados`, `Motivo do uso`, `Horários` e demais categorias, mantendo seleção única, roving tabindex e rolagem horizontal.
+- O contrato automatizado confirma que existe somente um ponto de escolha da via e que o valor continua disponível para prévia, impressão e PDF.
+- Os seis novos painéis complementares foram inspecionados como arquivos individuais, sem corte, sobreposição ou texto clínico gerado automaticamente.
+- A suíte completa do repositório passou em 28/08/2026.
+
+A comparação visual bloqueante entre a captura de referência e a implementação renderizada não foi concluída: o navegador em nuvem recusou a URL local de QA pela política de segurança. Não foi usado outro navegador nem uma captura simulada como substituto. A conferência visual real em computador e celular permanece pendente antes de publicar esta etapa.
+
+final result: blocked
+
+## Complemento — refeições e espaçadores detalhados
+
+- As 16 cenas de relação com refeições foram inspecionadas como arquivos individuais: antes e depois do café da manhã, almoço e jantar, com alimento e em jejum, nos conjuntos geral e indígena.
+- A biblioteca foi ampliada de 72 px para 106 px por imagem e passou a usar três colunas no computador e duas no celular.
+- As imagens de espaçador para uso contínuo e crise foram inspecionadas individualmente. Ambas comunicam um jato por vez e dez respirações após o jato; a imagem de crise mantém repetição condicionada à receita, intervalo de 20 minutos e procura do Hospital e Maternidade Ana Neta.
+- Os quatro alertas individuais foram inspecionados sem corte nos arquivos de origem.
+- Essas verificações confirmam os ativos isolados, não a página renderizada. A validação real de reflow, foco, rolagem e legibilidade em computador e celular continua pendente.
+
+final result: blocked

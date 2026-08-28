@@ -14,6 +14,7 @@ const navItems = [
   ['/app/5-minutos', '5 minutos', 'clock'],
   ['/app/indicadores', 'Indicadores', 'population'],
   ['/app/educacao', 'Educação em saúde', 'group'],
+  ['/app/tratamentos', 'Tratamentos ilustrados', 'medicine'],
   ['/app/tutorial', 'Objetivo e tutorial', 'action'],
   ['/app/perfil', 'Meu perfil', 'person']
 ];
@@ -29,7 +30,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
   const managementItems = management
     ? [['/app/aprovacoes', 'Aprovações', 'action'], ['/app/gestao', networkAdmin ? 'Gestão da rede' : 'Gestão da UBS', 'partner']]
     : [];
-  const items = [...navItems.slice(0, 6), ...prescriptionItems, ...navItems.slice(6), ...managementItems];
+  const items = [...navItems.slice(0, 7), ...prescriptionItems, ...navItems.slice(7), ...managementItems];
   const contextLabel = masterAccount
     ? 'Master / Desenvolvimento • Administração técnica'
     : networkAdmin

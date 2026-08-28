@@ -51,13 +51,13 @@ export function renderPrescriptionsPage({ state }) {
             <label>Medicamento ou orientação<input name="medication" maxlength="180" required placeholder="Ex.: medicamento conforme a receita"></label>
             <label>Dose / quantidade<input name="dose" maxlength="120" required placeholder="Ex.: 1 comprimido ou 5 gotas"></label>
           </div>
-          ${renderChoiceGroup('route', '2 · Escolha a via de uso', prescriptionRoutes)}
+          <input type="hidden" name="route" value="oral">
+          <input type="hidden" name="support_ids" value="">
+          ${renderSupportLibraryShell()}
           ${renderChoiceGroup('schedule', '3 · Escolha o período', prescriptionSchedules)}
           <label>Horário, intervalo ou observação
             <input name="observation" maxlength="220" placeholder="Ex.: a cada 8 horas, por 7 dias, 30 min antes do almoço">
           </label>
-          <input type="hidden" name="support_ids" value="">
-          ${renderSupportLibraryShell()}
           <div class="actions prescription-form-actions"><button class="button primary" type="submit">Adicionar orientação</button><button class="button" type="button" data-clear-fields>Limpar campos</button></div>
         </form>
       </article>
@@ -251,7 +251,7 @@ export function mountPrescriptionsPage({ root, state }) {
 
 function renderSupportLibraryShell() {
   return `<section class="prescription-support-library" aria-labelledby="prescription-library-heading">
-    <header><div><p class="eyebrow">4 · Biblioteca visual</p><h3 id="prescription-library-heading">Acrescente imagens de apoio</h3><p>Escolha até ${MAX_OPTIONAL_SUPPORTS} apoios. Via, dose, horário, intervalo e duração continuam escritos e conferidos pela(o) profissional.</p></div><label>Buscar na biblioteca<input type="search" data-support-search maxlength="80" placeholder="Ex.: dor, água, criança, 8 horas"></label></header>
+    <header><div><p class="eyebrow">2 · Biblioteca visual</p><h3 id="prescription-library-heading">Escolha a via de uso e as imagens de apoio</h3><p>Use as categorias abaixo como na receita original. Escolha até ${MAX_OPTIONAL_SUPPORTS} apoios adicionais; dose, horário, intervalo e duração continuam escritos e conferidos pela(o) profissional.</p></div><label>Buscar na biblioteca<input type="search" data-support-search maxlength="80" placeholder="Ex.: via oral, dor, água, criança, 8 horas"></label></header>
     <div class="prescription-support-tabs" role="tablist" aria-label="Categorias da biblioteca" data-support-tabs>${prescriptionSupportCategories.map((category, index) => `<button id="prescription-tab-${escapeHtml(category.id)}" type="button" role="tab" aria-controls="prescription-support-panel" aria-selected="${index === 0 ? 'true' : 'false'}" tabindex="${index === 0 ? '0' : '-1'}" data-support-category="${escapeHtml(category.id)}">${escapeHtml(category.label)}</button>`).join('')}</div>
     <p class="prescription-support-description" data-support-description></p>
     <div id="prescription-support-panel" class="prescription-support-grid" role="tabpanel" aria-labelledby="prescription-tab-combined" data-support-library></div>

@@ -1,0 +1,129 @@
+/* Tratamentos ilustrados — leitura fácil para ACS, médica(o), enfermeira(o) e gestão. */
+@media screen {
+  #app[data-route="/app/tratamentos"] .page-content { padding-top: clamp(1.2rem, 2.8vw, 2.4rem); padding-bottom: 2.5rem; background: #f7f9fc; }
+  #app[data-route="/app/tratamentos"] .panel { box-shadow: none; }
+  .treatment-hero { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 1.1rem; align-items: start; margin-bottom: 1rem; padding: clamp(1.25rem, 3vw, 2rem); border: 0; border-left: 5px solid var(--field-blue); border-radius: 0 12px 12px 0; }
+  .treatment-hero-icon, .treatment-safety-band > img { display: grid; place-items: center; width: 64px; height: 64px; object-fit: contain; }
+  .treatment-hero-icon { padding: .7rem; border: 1px solid #c9dcef; border-radius: 12px; background: #f4f8fd; }
+  .treatment-hero-icon img { width: 42px; height: 42px; object-fit: contain; }
+  .treatment-hero h2 { margin: 0 0 .45rem; color: var(--field-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); }
+  .treatment-hero p:not(.eyebrow) { max-width: 850px; margin: 0; color: var(--field-muted); font-size: 1rem; line-height: 1.65; }
+  .treatment-role-badge { display: inline-flex; min-height: 34px; align-items: center; padding: .38rem .7rem; border-radius: 999px; color: #154f71; background: #e4f2fb; font-size: .8rem; font-weight: 850; white-space: nowrap; }
+
+  .treatment-safety-band { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; align-items: center; margin-bottom: 1rem; padding: 1rem 1.2rem; border-left: 5px solid #b87916; background: #fff8e8; }
+  .treatment-safety-band > img { width: 42px; height: 42px; }
+  .treatment-safety-band h2 { margin: 0 0 .25rem; color: #4c3d15; font-size: 1.2rem; }
+  .treatment-safety-band p:last-child { margin: 0; color: #675729; line-height: 1.55; }
+
+  .treatment-browser { padding: clamp(1rem, 2.4vw, 1.5rem); }
+  .treatment-browser-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, .36fr); gap: 1rem; align-items: end; }
+  .treatment-browser-heading h2 { margin: 0 0 .25rem; color: var(--field-ink); font-size: 1.45rem; }
+  .treatment-browser-heading p:last-child { margin: 0; color: var(--field-muted); }
+  .treatment-browser-heading label { display: grid; gap: .35rem; color: var(--field-ink); font-size: .8rem; font-weight: 850; }
+  .treatment-browser-heading input { width: 100%; min-height: 46px; border: 1px solid #bfcfd1; border-radius: 10px; padding: .7rem .8rem; background: #fff; color: var(--text); font-size: 1rem; }
+
+  .treatment-category-tabs { display: flex; gap: .45rem; margin: 1rem 0; padding-bottom: .5rem; overflow-x: auto; }
+  .treatment-category-tabs button { flex: 0 0 auto; min-height: 44px; padding: .58rem .78rem; border: 1px solid #c4d3d5; border-radius: 9px; background: #fff; color: #40575e; font-size: .82rem; font-weight: 850; }
+  .treatment-category-tabs button[aria-selected="true"] { border-color: var(--field-blue); background: var(--field-blue); color: #fff; }
+  .treatment-category-tabs button:focus-visible, .treatment-guide-card:focus-visible { outline: 3px solid #efb93f; outline-offset: 2px; }
+
+  .treatment-workbench { display: grid; grid-template-columns: minmax(250px, .34fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  .treatment-guide-list { display: grid; gap: .55rem; max-height: 1040px; padding-right: .25rem; overflow-y: auto; }
+  .treatment-guide-card { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: .7rem; align-items: center; min-width: 0; padding: .65rem; border: 1px solid #cfdbdd; border-radius: 11px; background: #fff; color: var(--field-ink); text-align: left; cursor: pointer; }
+  .treatment-guide-card:hover { border-color: #83aaba; background: #f7fbfd; }
+  .treatment-guide-card[aria-pressed="true"] { border-color: var(--field-blue); box-shadow: inset 4px 0 0 var(--field-blue); background: #eef6fc; }
+  .treatment-guide-card-visual { display: grid; place-items: center; width: 78px; height: 78px; overflow: hidden; border-radius: 9px; background: #f6fafc; }
+  .treatment-guide-card-visual img { width: 100%; height: 100%; object-fit: cover; }
+  .treatment-guide-card > span:nth-child(2) { display: grid; gap: .25rem; min-width: 0; }
+  .treatment-guide-card strong { font-size: .9rem; line-height: 1.25; }
+  .treatment-guide-card small { display: -webkit-box; overflow: hidden; color: var(--field-muted); font-size: .74rem; line-height: 1.35; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+  .treatment-open-label { grid-column: 2; color: var(--field-blue); font-size: .7rem; font-weight: 850; text-transform: uppercase; letter-spacing: .03em; }
+  .treatment-no-results { margin: 0; padding: 1.5rem; color: var(--field-muted); text-align: center; }
+
+  .treatment-guide-detail { min-width: 0; padding: clamp(1rem, 2.5vw, 1.6rem); border-left: 1px solid #dce5e6; }
+  .treatment-detail-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: start; margin-bottom: 1rem; }
+  .treatment-detail-heading h2 { margin: 0 0 .35rem; color: var(--field-ink); font-size: clamp(1.45rem, 2.6vw, 2rem); }
+  .treatment-detail-heading p:last-child { max-width: 720px; margin: 0; color: var(--field-muted); font-size: .95rem; line-height: 1.55; }
+  .treatment-detail-heading > span { flex: 0 0 auto; padding: .35rem .62rem; border-radius: 999px; background: #e6f4ec; color: #176a43; font-size: .76rem; font-weight: 850; }
+  .treatment-detail-visual { max-width: 680px; margin: 0 auto 1.25rem; overflow: hidden; border: 1px solid #d5e0e2; border-radius: 14px; background: #fff; }
+  .treatment-detail-visual img { display: block; width: 100%; max-height: 560px; object-fit: contain; }
+
+  .treatment-steps { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; counter-reset: treatment-step; }
+  .treatment-steps li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .8rem; align-items: start; padding: 1rem 0; border-bottom: 1px solid #dce5e6; }
+  .treatment-step-number { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; background: var(--field-blue); font-size: 1.2rem; font-weight: 900; }
+  .treatment-steps strong { display: block; margin-bottom: .2rem; color: var(--field-ink); font-size: 1.08rem; }
+  .treatment-steps p { margin: 0; color: #445962; font-size: 1rem; line-height: 1.58; }
+
+  .treatment-alerts { margin-top: 1rem; padding: 1rem 1.1rem; border-left: 5px solid #c0392b; background: #fff3f1; }
+  .treatment-alerts h3 { display: flex; gap: .5rem; align-items: center; margin: 0 0 .5rem; color: #7f241a; }
+  .treatment-alerts h3 img { width: 28px; height: 28px; object-fit: contain; }
+  .treatment-alerts ul { display: grid; gap: .45rem; margin: 0; padding-left: 1.25rem; color: #6d3029; line-height: 1.5; }
+
+  .treatment-professional-box, .treatment-readonly-box, .treatment-understanding { margin-top: 1rem; padding: 1rem 1.1rem; border-radius: 11px; }
+  .treatment-professional-box { border: 1px solid #bfd4e5; background: #f3f8fc; }
+  .treatment-professional-box > header { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
+  .treatment-professional-box h3 { margin: 0; color: var(--field-ink); }
+  .treatment-professional-box header > span { padding: .32rem .55rem; border-radius: 999px; color: #154f71; background: #dfeef8; font-size: .72rem; font-weight: 850; }
+  .treatment-professional-box > p { color: var(--field-muted); font-size: .85rem; line-height: 1.5; }
+  .treatment-professional-form { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .treatment-professional-form label { display: grid; gap: .35rem; color: var(--field-ink); font-size: .8rem; font-weight: 800; }
+  .treatment-professional-form input, .treatment-professional-form textarea { width: 100%; border: 1px solid #bcced3; border-radius: 9px; padding: .7rem .75rem; background: #fff; color: var(--text); font: inherit; }
+  .treatment-notes-field { grid-column: 1 / -1; }
+  .treatment-readonly-box { border-left: 5px solid var(--field-green); background: #eef8f2; }
+  .treatment-readonly-box strong { color: #176a43; }
+  .treatment-readonly-box p { margin: .35rem 0 0; color: #3d6451; line-height: 1.55; }
+  .treatment-understanding { border: 1px dashed #9eb4b8; background: #fafcfc; }
+  .treatment-understanding h3 { margin: 0 0 .35rem; color: var(--field-ink); }
+  .treatment-understanding p { margin: 0; color: var(--field-muted); line-height: 1.55; }
+  .treatment-actions { margin-top: 1rem; }
+  .treatment-source { margin: 1rem 0 0; color: var(--field-muted); font-size: .78rem; line-height: 1.5; }
+  .treatment-source a { color: var(--field-blue); }
+
+  .treatment-privacy { margin-top: 1rem; border-top: 4px solid var(--field-green); }
+  .treatment-privacy > div { display: flex; gap: .7rem; align-items: center; }
+  .treatment-privacy > div img { width: 36px; height: 36px; object-fit: contain; }
+  .treatment-privacy h2 { margin: 0; color: var(--field-ink); font-size: 1.25rem; }
+  .treatment-privacy > p { color: var(--field-muted); line-height: 1.58; }
+
+  @media (max-width: 1050px) {
+    .treatment-workbench { grid-template-columns: 1fr; }
+    .treatment-guide-list { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
+    .treatment-guide-detail { border-top: 1px solid #dce5e6; border-left: 0; }
+  }
+  @media (max-width: 760px) {
+    #app[data-route="/app/tratamentos"] .page-content > * { margin-right: 1rem; margin-left: 1rem; }
+    .treatment-hero { grid-template-columns: auto 1fr; padding: 1rem; }
+    .treatment-role-badge { grid-column: 1 / -1; justify-self: start; }
+    .treatment-browser-heading, .treatment-professional-form { grid-template-columns: 1fr; }
+    .treatment-guide-list { grid-template-columns: 1fr; }
+    .treatment-detail-heading { flex-direction: column; }
+    .treatment-guide-detail { padding: 1rem 0 0; }
+    .treatment-notes-field { grid-column: 1; }
+    .treatment-actions .button { width: 100%; text-align: center; }
+    .treatment-step-number { width: 40px; height: 40px; }
+  }
+}
+
+.treatment-print-sheet { font-family: Arial, sans-serif; color: #111; }
+.treatment-print-sheet > header { display: flex; justify-content: space-between; gap: 5mm; padding-bottom: 3mm; border-bottom: 2px solid #111; font-size: 9pt; }
+.treatment-print-sheet h1 { margin: 5mm 0 2mm; font-size: 19pt; }
+.treatment-print-summary { margin: 0 0 4mm; font-size: 11pt; line-height: 1.45; }
+.treatment-print-image { display: block; max-width: 130mm; max-height: 100mm; margin: 0 auto 5mm; object-fit: contain; }
+.treatment-print-values { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 5mm; margin: 0 0 5mm; padding: 4mm; border: 1px solid #555; }
+.treatment-print-values div { break-inside: avoid; }
+.treatment-print-values dt { font-size: 8pt; font-weight: 700; text-transform: uppercase; }
+.treatment-print-values dd { margin: 1mm 0 0; font-size: 11pt; font-weight: 700; }
+.treatment-print-generic { padding: 3mm; border-left: 3px solid #111; background: #f3f3f3; font-size: 10pt; }
+.treatment-print-steps { display: grid; gap: 2mm; margin: 0; padding: 0; list-style: none; }
+.treatment-print-steps li { display: grid; grid-template-columns: 10mm minmax(0, 1fr); gap: 3mm; break-inside: avoid; padding: 3mm 0; border-bottom: 1px solid #aaa; }
+.treatment-print-steps li > span { display: grid; place-items: center; width: 9mm; height: 9mm; border: 1px solid #111; border-radius: 50%; font-weight: 800; }
+.treatment-print-steps strong { font-size: 12pt; }
+.treatment-print-steps p { margin: 1mm 0 0; font-size: 10pt; line-height: 1.4; }
+.treatment-print-alerts { break-inside: avoid; margin-top: 4mm; padding: 3mm; border: 2px solid #111; }
+.treatment-print-alerts h2 { margin: 0 0 2mm; font-size: 13pt; }
+.treatment-print-alerts ul { margin: 0; padding-left: 5mm; font-size: 10pt; line-height: 1.4; }
+.treatment-print-sheet > footer { margin-top: 5mm; padding-top: 3mm; border-top: 1px solid #777; font-size: 9pt; line-height: 1.4; }
+
+@media print {
+  .treatment-print-sheet, .treatment-print-sheet section, .treatment-print-sheet li { break-inside: avoid; page-break-inside: avoid; }
+}
