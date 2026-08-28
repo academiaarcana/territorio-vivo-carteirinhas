@@ -47,13 +47,17 @@ for (const category of ['Modelos prontos', 'Combinados Povos Indígenas', 'Via d
 for (const template of ['combined-oral-morning', 'combined-drops-morning', 'combined-eye-morning', 'combined-nasal-morning', 'combined-inhalation-morning', 'combined-topical-night']) {
   assert.match(support, new RegExp(template), `Catálogo deve incluir o modelo frequente ${template}.`);
 }
+for (const schedule of ['Antes da refeição', 'Depois da refeição', 'Em jejum']) {
+  assert.match(support, new RegExp(schedule), `Períodos precisam incluir ${schedule}.`);
+}
+assert.match(page, /quanto tempo antes ou depois e se pode beber água/, 'Opções ligadas à refeição precisam lembrar a conferência profissional.');
 assert.match(support, /prescriptionQuickTemplates/, 'Modelos frequentes precisam ter uma coleção própria.');
 assert.match(page, /Escolha um modelo frequente/, 'A tela precisa destacar modelos antes do preenchimento manual.');
 assert.match(page, /Modelo aplicado\. Agora informe medicamento e dose/, 'Aplicar um modelo deve lembrar os campos clínicos obrigatórios.');
 assert.match(page, /applyPrescriptionTemplate/, 'Modelos rápidos e biblioteca precisam usar a mesma aplicação segura.');
 
 for (const file of [
-  'morning.png', 'lunch.png', 'evening.png', 'bedtime.png', 'oral.png', 'injection.png', 'topical.png', 'drops.png',
+  'morning.png', 'lunch.png', 'evening.png', 'bedtime.png', 'before-meal.png', 'after-meal.png', 'fasting.png', 'oral.png', 'injection.png', 'topical.png', 'drops.png',
   'inhalation.png', 'eye-drops.png', 'ear-drops.png', 'nasal-spray.png', 'pain.png', 'fever.png', 'cough.png',
   'stomach-discomfort.png', 'avoid-alcohol.png', 'gradual-reduction.png', 'indigenous-morning.png', 'indigenous-night.png'
 ]) {

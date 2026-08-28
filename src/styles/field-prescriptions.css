@@ -37,6 +37,7 @@
   .prescription-choice small { color: var(--field-muted); font-size: .7rem; line-height: 1.25; }
   .prescription-choice > input:checked + span { border-color: var(--field-blue); outline: 2px solid rgba(24, 104, 164, .18); background: #f3f8fd; }
   .prescription-choice > input:focus-visible + span { outline: 3px solid #efb93f; outline-offset: 2px; }
+  .prescription-choice-help { margin: .65rem 0 0; padding: .7rem .8rem; border-left: 4px solid #b87916; background: #fff8e8; color: #594717; font-size: .78rem; line-height: 1.45; }
   .prescription-form-actions { margin-top: .2rem; }
 
   .prescription-quick-templates { display: grid; gap: .8rem; padding: 1rem; border: 1px solid #bdd5c7; border-left: 4px solid var(--field-green); border-radius: 0 12px 12px 0; background: #f2faf5; }

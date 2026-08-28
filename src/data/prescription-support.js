@@ -18,7 +18,10 @@ export const prescriptionSchedules = Object.freeze([
   { id: 'morning', label: 'Manhã', hint: 'No começo do dia', ...localVisual('morning.png') },
   { id: 'lunch', label: 'Almoço', hint: 'Próximo ao almoço', ...localVisual('lunch.png') },
   { id: 'evening', label: 'Noite', hint: 'No período da noite', ...localVisual('evening.png') },
-  { id: 'bedtime', label: 'Antes de dormir', hint: 'Na hora de deitar', ...localVisual('bedtime.png') }
+  { id: 'bedtime', label: 'Antes de dormir', hint: 'Na hora de deitar', ...localVisual('bedtime.png') },
+  { id: 'before-meal', label: 'Antes da refeição', hint: 'Antes de comer', ...localVisual('before-meal.png') },
+  { id: 'after-meal', label: 'Depois da refeição', hint: 'Depois de comer', ...localVisual('after-meal.png') },
+  { id: 'fasting', label: 'Em jejum', hint: 'Sem comer antes', ...localVisual('fasting.png') }
 ]);
 
 export const prescriptionSupportCategories = Object.freeze([
@@ -39,8 +42,9 @@ const combined = [
   ['combined-oral-lunch', 'Remédio pela boca — almoço', 'Via oral + almoço', 'oral', 'lunch', '', true],
   ['combined-oral-evening', 'Remédio pela boca — noite', 'Via oral + noite', 'oral', 'evening', '', true],
   ['combined-oral-bedtime', 'Remédio pela boca — ao deitar', 'Via oral + antes de dormir', 'oral', 'bedtime', '', true],
-  ['combined-before-meal', 'Antes da refeição', 'Somente quando estiver escrito na receita', 'oral', 'lunch', 'antes da refeição', false],
-  ['combined-after-meal', 'Depois da refeição', 'Somente quando estiver escrito na receita', 'oral', 'lunch', 'depois da refeição', false],
+  ['combined-before-meal', 'Antes da refeição', 'Somente quando estiver escrito na receita', 'oral', 'before-meal', '', false],
+  ['combined-after-meal', 'Depois da refeição', 'Somente quando estiver escrito na receita', 'oral', 'after-meal', '', false],
+  ['combined-fasting', 'Em jejum', 'Somente quando estiver escrito na receita', 'oral', 'fasting', '', false],
   ['combined-with-food', 'Junto com alimento', 'Somente quando estiver escrito na receita', 'oral', 'lunch', 'tomar junto com alimento', false],
   ['combined-drops-morning', 'Gotas — manhã', 'Gotas + manhã', 'drops', 'morning', '', true],
   ['combined-drops-lunch', 'Gotas — almoço', 'Gotas + almoço', 'drops', 'lunch', '', false],
