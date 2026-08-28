@@ -342,7 +342,7 @@ function applyPrescriptionTemplate(form, template) {
 
 function renderChoiceGroup(name, legend, options) {
   const mealHelp = name === 'schedule'
-    ? '<p class="prescription-choice-help"><strong>Se for perto da refeição ou em jejum:</strong> escreva na observação quanto tempo antes ou depois e se pode beber água.</p>'
+    ? '<p class="prescription-choice-help"><strong>Se for antes ou depois do café da manhã, almoço, jantar ou em jejum:</strong> escreva na observação quanto tempo antes ou depois e se pode beber água.</p>'
     : '';
   return `<fieldset class="prescription-choice-group"><legend>${escapeHtml(legend)}</legend><div>${options.map((option, index) => `<label class="prescription-choice"><input type="radio" name="${name}" value="${escapeHtml(option.id)}" ${index === 0 ? 'checked' : ''}><span><img src="${escapeHtml(option.image)}" alt="" aria-hidden="true"><strong>${escapeHtml(option.label)}</strong><small>${escapeHtml(option.hint)}</small></span></label>`).join('')}</div>${mealHelp}</fieldset>`;
 }
