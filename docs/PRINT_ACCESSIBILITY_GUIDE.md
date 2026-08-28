@@ -23,19 +23,21 @@ Toda impressão deve considerar os mesmos quatro recursos:
 
 Prioridade de apoio visual: **muito alta**.
 
-Checklist:
+Checklist técnico — `[x]` indica implementação e contrato automatizado; a inspeção humana do PDF continua registrada separadamente:
 
-- [ ] Nome/referência: pessoa ou família quando isso ajudar a identificação.
-- [ ] Data: calendário como reforço; a data numérica continua obrigatória.
-- [ ] Hora: relógio como reforço; a hora numérica continua obrigatória.
-- [ ] Local: imagem concreta da UBS, casa, escola ou outro local reconhecível quando o conteúdo permitir.
-- [ ] Serviço: imagem específica para consulta, vacina, dentista, exame/coleta, pré-natal, curativo ou medicamento.
-- [ ] Preparo: imagens específicas para jejum, água, documento, Cartão SUS, exames/resultados, medicamento, acompanhante e chegada antecipada.
-- [ ] Avisos: risco/barreira apenas quando o texto realmente tratar de risco ou acesso.
-- [ ] Lote: cada posição mantém conteúdo independente e temporário.
-- [ ] Letra ampliada e apoio visual não devem ser comprimidos em miniaturas ilegíveis.
+- [x] Nome/referência: pessoa ou família quando isso ajudar a identificação.
+- [x] Data: calendário como reforço; a data numérica continua obrigatória.
+- [x] Hora: relógio como reforço; a hora numérica continua obrigatória.
+- [x] Local: imagem concreta da UBS, casa, escola ou outro local reconhecível quando o conteúdo permitir.
+- [x] Serviço: imagem específica para consulta, vacina, dentista, exame/coleta, pré-natal, curativo ou medicamento.
+- [x] Preparo: imagens específicas para jejum, água, documento, Cartão SUS, exames/resultados, medicamento, acompanhante e chegada antecipada.
+- [x] Avisos: risco/barreira apenas quando o texto realmente tratar de risco ou acesso.
+- [x] Lote: cada posição mantém conteúdo independente e temporário.
+- [x] Letra ampliada e apoio visual não devem ser comprimidos em miniaturas ilegíveis.
 
 Validação prática: em **Meu Próximo Atendimento**, a pessoa deve conseguir reconhecer visualmente o motivo da ida e os preparos principais antes de ler os detalhes.
+
+- [ ] Inspeção humana do PDF preenchido com data, hora, local, serviço e preparos, sem cortes ou pictogramas ambíguos.
 
 ### 2. 5 minutos do território
 
@@ -43,12 +45,12 @@ Prioridade de apoio visual: **média** — é material de equipe, não comunica�
 
 Checklist:
 
-- [ ] Quem/onde: pessoa, família, local ou referência quando reconhecível.
-- [ ] Achado/mudança: risco, barreira, parceiro, visita ou outro significado concreto quando detectável.
-- [ ] Decisão: pictograma de ação/próximo passo.
-- [ ] Responsável/retorno: pessoa/equipe como reforço, sem substituir o nome.
-- [ ] Revisar: calendário.
-- [ ] Evitar excesso de figuras; o objetivo é leitura rápida da equipe.
+- [x] Quem/onde: pessoa, família, local ou referência quando reconhecível.
+- [x] Achado/mudança: risco, barreira, parceiro, visita ou outro significado concreto quando detectável.
+- [x] Decisão: pictograma de ação/próximo passo.
+- [x] Responsável/retorno: pessoa/equipe como reforço, sem substituir o nome.
+- [x] Revisar: calendário.
+- [x] Evitar excesso de figuras; o objetivo é leitura rápida da equipe.
 
 ### 3. Indicadores
 
@@ -56,14 +58,14 @@ Prioridade de apoio visual: **baixa a média** — apoio à leitura, nunca subst
 
 Checklist:
 
-- [ ] População/pessoas: grupo de pessoas.
-- [ ] Pessoas idosas: pessoa idosa.
-- [ ] Gestantes: gestante.
-- [ ] Hipertensão: símbolo específico de pressão arterial.
-- [ ] Diabetes: símbolo específico de glicemia/diabetes.
-- [ ] Próxima ação: ação/encaminhamento.
-- [ ] Números permanecem grandes e explícitos; pictograma não representa quantidade.
-- [ ] Não transformar indicadores em ranking ou sinalização moral de desempenho.
+- [x] População/pessoas: grupo de pessoas.
+- [x] Pessoas idosas: pessoa idosa.
+- [x] Gestantes: gestante.
+- [x] Hipertensão: símbolo específico de pressão arterial.
+- [x] Diabetes: símbolo específico de glicemia/diabetes.
+- [x] Próxima ação: ação/encaminhamento.
+- [x] Números permanecem grandes e explícitos; pictograma não representa quantidade.
+- [x] Não transformar indicadores em ranking ou sinalização moral de desempenho.
 
 ### 4. Educação em saúde
 
@@ -71,13 +73,13 @@ Prioridade de apoio visual: **muito alta**.
 
 Checklist:
 
-- [ ] Cada orientação importante deve ter uma imagem relacionada à ação concreta, quando houver pictograma adequado.
-- [ ] Sequências devem seguir a ordem em que a pessoa executa os passos.
-- [ ] Evitar símbolo genérico de saúde quando existe uma imagem específica.
-- [ ] Preparos e cuidados devem usar imagens concretas: mãos, água, medicamento, aplicação, descarte etc.
-- [ ] Informações que dependem de valor exato, dose, data, hora ou medida continuam escritas.
-- [ ] Apoio visual não deve alterar prescrição, dose, diagnóstico ou orientação clínica individual.
-- [ ] Fontes e avisos técnicos continuam disponíveis no impresso.
+- [x] Cada orientação importante deve ter uma imagem relacionada à ação concreta, quando houver pictograma adequado.
+- [x] Sequências devem seguir a ordem em que a pessoa executa os passos.
+- [x] Evitar símbolo genérico de saúde quando existe uma imagem específica.
+- [x] Preparos e cuidados devem usar imagens concretas: mãos, água, medicamento, aplicação, descarte etc.
+- [x] Informações que dependem de valor exato, dose, data, hora ou medida continuam escritas.
+- [x] Apoio visual não deve alterar prescrição, dose, diagnóstico ou orientação clínica individual.
+- [x] Fontes e avisos técnicos continuam disponíveis no impresso.
 
 ## Biblioteca visual inicial
 
