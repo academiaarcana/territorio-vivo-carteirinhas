@@ -37,6 +37,8 @@ Os campos nunca incluem nome, CPF ou diagnóstico. O rascunho usa somente o arma
 - Conservação da glargina, NPH e Regular depende da apresentação, do fabricante e da bula.
 - Dose, intervalo, duração e relação com refeições permanecem campos profissionais.
 - Os caminhos de tratamento da água com hipoclorito e com fervura aparecem em guias separados para evitar mistura das técnicas.
+- NPH, Regular e glargina usam sequências próprias: aparência e mistura da NPH, relação da Regular com a refeição conforme prescrição e preparo da caneta de glargina.
+- O hipoclorito é ilustrado como o frasco pequeno âmbar com tampa branca frequentemente entregue pela UBS, sem reproduzir logotipo institucional. A embalagem pode variar; o rótulo precisa informar `Hipoclorito de sódio 2,5%` e uso para tratamento da água.
 
 ## Fontes de referência
 
@@ -54,4 +56,4 @@ Os guias de spray nasal e creme vaginal exigem conferência da bula do produto e
 
 ## Imagens
 
-As ilustrações específicas de espaçador, bombinha sem espaçador, spray nasal, creme vaginal, insulina, pomada oftálmica e tratamento da água são originais e ficam em `src/assets/treatment-guides/`, otimizadas em WebP para carregamento no computador e no celular. Cada sequência usa uma ação principal por quadro e reduz dependência de texto. As capturas enviadas foram usadas apenas como referência de temas e problemas de comunicação. Nenhum desenho, logotipo, código ou ativo do site externo foi incorporado.
+As ilustrações específicas de espaçador, bombinha sem espaçador, spray nasal, creme vaginal, NPH, Regular, glargina, pomada oftálmica e tratamento da água são originais e ficam em `src/assets/treatment-guides/`, otimizadas em WebP para carregamento no computador e no celular. Cada sequência usa uma ação principal por quadro e reduz dependência de texto. As capturas enviadas foram usadas apenas como referência de temas e problemas de comunicação. Nenhum desenho, logotipo, código ou ativo do site externo foi incorporado.

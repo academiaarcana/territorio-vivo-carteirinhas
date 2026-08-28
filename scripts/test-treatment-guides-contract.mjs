@@ -41,7 +41,8 @@ for (const safety of [
 
 for (const file of [
   'inhaler-spacer-steps.webp', 'inhaler-no-spacer-steps.webp', 'nasal-spray-steps.webp',
-  'vaginal-cream-steps.webp', 'insulin-steps.webp', 'eye-ointment-steps.webp',
+  'vaginal-cream-steps.webp', 'insulin-nph-steps.webp', 'insulin-regular-steps.webp',
+  'insulin-glargine-pen-steps.webp', 'eye-ointment-steps.webp',
   'safe-water-drops-steps.webp', 'safe-water-boil-steps.webp'
 ]) {
   assert.match(data, new RegExp(file.replace('.', '\\.')), `Catálogo deve referenciar ${file}.`);
@@ -49,6 +50,7 @@ for (const file of [
 }
 
 assert.match(data, /2 gotas em cada 1 litro/, 'Método com hipoclorito deve proteger a proporção oficial.');
+assert.match(data, /Hipoclorito de sódio 2,5%/, 'Guia deve ajudar a reconhecer o frasco correto sem depender da marca.');
 assert.match(data, /mantenha a fervura por 5 minutos/, 'Método por fervura deve proteger o tempo oficial.');
 assert.match(data, /Não misture os dois métodos/, 'Os dois caminhos de tratamento da água devem permanecer separados.');
 

@@ -140,7 +140,7 @@ export const treatmentGuides = Object.freeze([
     title: 'Insulina NPH — frasco, seringa ou caneta',
     shortTitle: 'Insulina NPH',
     summary: 'A NPH é uma suspensão. O preparo, a seringa e a conservação dependem do produto fornecido.',
-    image: assetUrl('treatment-guides/insulin-steps.webp'),
+    image: assetUrl('treatment-guides/insulin-nph-steps.webp'),
     steps: [
       { title: 'Confira se é NPH', detail: 'Leia o rótulo. Confirme laboratório, apresentação, concentração e dose.' },
       { title: 'Misture com suavidade', detail: 'Homogeneíze como ensinado e como informa a bula. Não sacuda com força.' },
@@ -156,7 +156,7 @@ export const treatmentGuides = Object.freeze([
     title: 'Insulina Regular — frasco, seringa ou caneta',
     shortTitle: 'Insulina Regular',
     summary: 'A equipe deve escrever a dose e a relação com a refeição. Não use um horário genérico sem conferir a receita.',
-    image: assetUrl('treatment-guides/insulin-steps.webp'),
+    image: assetUrl('treatment-guides/insulin-regular-steps.webp'),
     steps: [
       { title: 'Confira se é Regular', detail: 'Leia o rótulo. Confirme laboratório, apresentação, concentração e dose.' },
       { title: 'Olhe a aparência', detail: 'A insulina Regular normalmente é transparente. Se estiver diferente da bula, não aplique antes de consultar a equipe.' },
@@ -173,7 +173,7 @@ export const treatmentGuides = Object.freeze([
     title: 'Insulina glargina — caneta',
     shortTitle: 'Insulina glargina',
     summary: 'A marca, a concentração e a conservação precisam ser conferidas no produto recebido.',
-    image: assetUrl('treatment-guides/insulin-steps.webp'),
+    image: assetUrl('treatment-guides/insulin-glargine-pen-steps.webp'),
     steps: [
       { title: 'Confira a caneta', detail: 'Leia nome, laboratório, concentração e dose. Existem apresentações diferentes.' },
       { title: 'Olhe a insulina', detail: 'Confira a aparência descrita na bula antes de aplicar.' },
@@ -194,12 +194,12 @@ export const treatmentGuides = Object.freeze([
     image: assetUrl('treatment-guides/safe-water-drops-steps.webp'),
     steps: [
       { title: 'Coe ou filtre', detail: 'Use filtro doméstico, coador de papel ou pano limpo.' },
-      { title: 'Veja a concentração', detail: 'Use somente hipoclorito de sódio próprio para tratamento de água e confira se a concentração é 2,5%.' },
+      { title: 'Reconheça o frasco', detail: 'O frasco entregue pela UBS costuma ser pequeno, âmbar e com tampa branca. A embalagem pode variar: leia no rótulo “Hipoclorito de sódio 2,5%” e confirme que é próprio para tratar água.' },
       { title: 'Pingue na medida certa', detail: 'Para hipoclorito a 2,5%, use 2 gotas em cada 1 litro de água filtrada.' },
       { title: 'Misture e espere', detail: 'Misture bem e espere 30 minutos antes de beber ou preparar alimentos.' },
       { title: 'Guarde tampada', detail: 'Mantenha a água tratada em recipiente limpo e tampado. Consuma em até 24 horas.' }
     ],
-    alerts: ['Não use produto perfumado, com corante ou concentração diferente.', 'Se não houver hipoclorito a 2,5%, abra o guia separado “Água por fervura”.'],
+    alerts: ['Prefira o frasco orientado ou entregue pela UBS. Não use produto perfumado, com corante ou concentração diferente.', 'Se não houver hipoclorito a 2,5%, abra o guia separado “Água por fervura”.'],
     sourceLabel: 'Cuidados com a água — Ministério da Saúde',
     sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/e/enchentes/cuidados-com-a-agua'
   },
