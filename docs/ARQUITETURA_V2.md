@@ -326,9 +326,9 @@ O workflow também testa com a publishable key que o catálogo público é acess
 
 Mudança DDL nova deve ser sempre uma nova migration numerada, aplicada ao mesmo projeto Supabase e seguida de Security/Performance Advisor.
 
-## Critério antes do redesign
+## Critérios usados na transição para o design system
 
-A V2 só avança para design system quando:
+A transição da V2 para o design system exigiu:
 
 1. migrations Git e Supabase estiverem sincronizadas;
 2. Security/Performance Advisors revisados;
@@ -339,4 +339,4 @@ A V2 só avança para design system quando:
 7. não houver dependência do código legado nem de plataforma de deploy paralela;
 8. as fronteiras de privacidade e autorização permanecerem comprovadas.
 
-O PR de homologação permanece Draft e não deve ser mesclado na `main` antes desses critérios.
+Esses critérios foram atendidos para a entrega publicada. O Painel de Campo e as superfícies funcionais foram integrados à `main` com CI aprovado. A QA visual autenticada em desktop está registrada em `design-qa.md`; a evidência em celular continua pendente e não deve ser presumida a partir de recorte ou redução de captura desktop.
