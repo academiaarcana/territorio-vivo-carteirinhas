@@ -155,6 +155,8 @@ A V2 está publicada na `main` e no GitHub Pages. A arquitetura modular, o Paine
 | Painel de Campo no desktop | Aprovado em navegador autenticado |
 | Guia de Cadastro Inclusivo | Publicado |
 | Prescrições e receitas | Publicado; rascunho temporário, sem prontuário paralelo |
+| Carteirinhas e PDF | Modelo simples validado em A4 real; modelo com pictogramas complexos aguarda inspeção humana |
+| Correspondência dos pictogramas | Contratos cobrem plurais, serviços, preparos, 5 Minutos e Indicadores |
 | Microáreas | Estrutura publicada; totais oficiais aguardam fonte e data de referência |
 | Reflow em celular | Pendente de evidência em dispositivo real |
 | Senhas vazadas do Supabase | Recurso posterior, dependente de plano Pro |
