@@ -3,7 +3,8 @@
 ## Estado da validação
 
 - Data: 28/08/2026.
-- Site auditado: versão publicada no GitHub Pages, commit `f9b1cc6fd0fc2afdcf8486f578f64a324022b7a2`.
+- Base das oito capturas autenticadas: versão publicada no GitHub Pages, commit `f9b1cc6fd0fc2afdcf8486f578f64a324022b7a2`.
+- Versão pública atual após as correções de PDF e pictogramas: commit `374828d9c47abb0e85aa10aff823d8f90449dbea`.
 - Sessão: perfil Enfermeira(o) ativo, vinculado à UBS Madre Tereza de Calcutá e à Equipe 02.
 - Viewport real: 1348 × 926 px, densidade 1×.
 - Dados clínicos: nenhum formulário foi preenchido; nenhuma receita, identificação pessoal ou diagnóstico foi inserido.
@@ -24,6 +25,22 @@ Foram capturadas, salvas e inspecionadas as seguintes rotas publicadas:
 
 As oito capturas mostraram conteúdo estável, sem tela em branco, carregamento interrompido, parede de login, modal indevido ou erro de renderização.
 
+## Evidência complementar de PDF
+
+O modelo **Minha ACS e Minha Equipe** foi gerado no site público em uma sessão autenticada de Enfermeira(o), sem nome de cidadão, receita, diagnóstico ou outro dado clínico. A primeira inspeção real identificou que a instrução interna do editor aparecia indevidamente nas quatro posições da folha. A separação entre prévia vazia e conteúdo imprimível foi corrigida no PR #15.
+
+Depois da publicação do commit `0c07302ac0ba54ea5bd9aeac23618ef28559a299`, o mesmo PDF foi baixado, renderizado em PNG e inspecionado novamente:
+
+- formato A4 e uma única página;
+- grade 2 × 2 com quatro carteirinhas;
+- nenhuma instrução interna do editor no material final;
+- nenhum corte, sobreposição ou estouro da folha;
+- título, UBS, equipe, referência profissional e rodapé legíveis.
+
+O PR #16 ampliou a correspondência automatizada dos pictogramas e corrigiu os termos reais no plural usados pelo produto: **Famílias**, **Pessoas idosas**, **Gestantes** e **Equipe**. O contrato também cobre data, hora, UBS, serviços, preparos, avisos, 5 Minutos e Indicadores.
+
+A inspeção humana do modelo **Meu Próximo Atendimento** preenchido com data, hora, serviço e preparos continua pendente. A sessão autenticada expirou antes dessa prova e nenhuma senha foi solicitada ou manipulada. Contrato automatizado aprovado não deve ser apresentado como substituto dessa inspeção visual.
+
 ## Resultado visual desktop
 
 - **P0:** nenhum problema bloqueador observado.
@@ -41,7 +58,7 @@ Pelas capturas, há contraste visual consistente, indicação clara do item ativ
 
 ## Verificações técnicas já concluídas
 
-- `npm run check --offline`: aprovado integralmente na entrega publicada.
+- `npm run check --offline`: aprovado integralmente no commit público `374828d9c47abb0e85aa10aff823d8f90449dbea`.
 - Contratos de Território, Carteirinhas, 5 Minutos, Indicadores, Educação e papéis clínicos: aprovados.
 - Sintaxe, arquitetura, segurança, migrations, Auth, papéis, concorrência, coordenadas, impressão e PDF: aprovados.
 - Migration de papéis clínicos: `20260827001020 — add_clinical_professional_roles`.
@@ -60,4 +77,4 @@ O navegador autenticado disponível para esta auditoria não oferece alteração
 - formulários de 5 Minutos, Indicadores e Prescrições;
 - Guia de Cadastro e aba Microáreas da gestão.
 
-final result: desktop approved; mobile pending
+final result: desktop approved; simple PDF approved; complex pictogram PDF pending; mobile pending
