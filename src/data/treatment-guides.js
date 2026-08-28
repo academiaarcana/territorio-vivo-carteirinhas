@@ -13,7 +13,8 @@ export const treatmentGuideCategories = Object.freeze([
   { id: 'respiratory', label: 'Respiração' },
   { id: 'diabetes', label: 'Insulinas' },
   { id: 'eyes-skin', label: 'Olhos e aplicação local' },
-  { id: 'home-care', label: 'Cuidados em casa' }
+  { id: 'home-care', label: 'Cuidados em casa' },
+  { id: 'safety', label: 'Quando pedir ajuda' }
 ]);
 
 export const treatmentGuides = Object.freeze([
@@ -59,6 +60,23 @@ export const treatmentGuides = Object.freeze([
     sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/pcdt/d/doenca-pulmonar-obstrutiva-cronica'
   },
   {
+    id: 'inhaled-steroid-mouth-care',
+    category: 'respiratory',
+    title: 'Depois da bombinha com corticoide',
+    shortTitle: 'Enxaguar a boca',
+    summary: 'Quando o medicamento tiver corticoide inalatório, enxágue, gargareje e cuspa depois do último jato.',
+    image: assetUrl('treatment-guides/inhaled-steroid-mouth-care.webp'),
+    steps: [
+      { title: 'Termine os jatos prescritos', detail: 'Use a bombinha exatamente como a equipe ensinou.' },
+      { title: 'Pegue água limpa', detail: 'Coloque água limpa em um copo. Não acrescente medicamento.' },
+      { title: 'Enxágue e gargareje', detail: 'Passe a água por toda a boca e gargareje.' },
+      { title: 'Cuspa na pia', detail: 'Não engula a água usada para enxaguar a boca.' }
+    ],
+    alerts: ['Este cuidado é para medicamentos com corticoide inalatório. Confirme com a equipe se a sua bombinha contém corticoide.'],
+    sourceLabel: 'Técnica inalatória — Ministério da Saúde',
+    sourceUrl: 'https://linhasdecuidado.saude.gov.br/portal/asma/tecnica-inalatoria/'
+  },
+  {
     id: 'inhaler-without-spacer',
     category: 'respiratory',
     title: 'Bombinha sem espaçador',
@@ -97,6 +115,23 @@ export const treatmentGuides = Object.freeze([
     sourceUrl: 'https://leaflets.ekhuft.nhs.uk/how-to-use-a-nasal-spray/html/'
   },
   {
+    id: 'nasal-spray-hygiene',
+    category: 'respiratory',
+    title: 'Spray nasal — higiene e cuidado',
+    shortTitle: 'Cuidar do spray nasal',
+    summary: 'Mãos limpas, direção correta, bico limpo e frasco de uso individual.',
+    image: assetUrl('treatment-guides/nasal-spray-hygiene.webp'),
+    steps: [
+      { title: 'Lave as mãos', detail: 'Lave com água e sabão antes de tocar no frasco.' },
+      { title: 'Aponte para o lado', detail: 'Mantenha a cabeça um pouco para frente e aponte o bico para a parede externa da narina, em direção à orelha.' },
+      { title: 'Limpe e tampe', detail: 'Depois do uso, passe um lenço limpo no bico e recoloque a tampa.' },
+      { title: 'Não compartilhe', detail: 'Cada pessoa deve usar o próprio frasco para evitar contaminação.' }
+    ],
+    alerts: ['Não enfie objetos no bico. Para desentupir ou lavar peças, siga a bula do produto específico.'],
+    sourceLabel: 'Como usar spray nasal — NHS',
+    sourceUrl: 'https://www.nhs.uk/medicines/fluticasone-nasal-spray-and-drops/how-and-when-to-use-fluticasone-nasal-spray-and-drops/'
+  },
+  {
     id: 'eye-ointment',
     category: 'eyes-skin',
     title: 'Pomada para os olhos',
@@ -114,6 +149,23 @@ export const treatmentGuides = Object.freeze([
     alerts: ['A quantidade, o olho, a frequência e a duração precisam estar escritos na receita.'],
     sourceLabel: 'Orientação para pomada oftálmica — NHS',
     sourceUrl: 'https://www.buckshealthcare.nhs.uk/pifs/how-to-use-your-eye-ointment/'
+  },
+  {
+    id: 'eye-ointment-hygiene',
+    category: 'eyes-skin',
+    title: 'Pomada para os olhos — evitar contaminação',
+    shortTitle: 'Cuidar da pomada ocular',
+    summary: 'A ponta do tubo não pode tocar o olho, os cílios, a pele ou os dedos.',
+    image: assetUrl('treatment-guides/eye-ointment-hygiene.webp'),
+    steps: [
+      { title: 'Lave e seque as mãos', detail: 'Faça isso antes e depois de usar a pomada.' },
+      { title: 'Use um espelho', detail: 'Puxe delicadamente a pálpebra inferior e veja a bolsinha formada.' },
+      { title: 'Mantenha a ponta afastada', detail: 'Aplique direto do tubo sem tocar o olho, os cílios, a pálpebra, a pele ou os dedos.' },
+      { title: 'Tampe e não compartilhe', detail: 'Feche logo depois de usar e mantenha o tubo para uma pessoa só.' }
+    ],
+    alerts: ['Se a ponta encostar ou parecer contaminada, não limpe com os dedos: peça orientação à farmácia ou à equipe.'],
+    sourceLabel: 'Uso seguro de pomada ocular — NHS',
+    sourceUrl: 'https://www.nhs.uk/medicines/chloramphenicol/how-and-when-to-use-chloramphenicol/'
   },
   {
     id: 'vaginal-cream',
@@ -186,6 +238,24 @@ export const treatmentGuides = Object.freeze([
     sourceUrl: 'https://linhasdecuidado.saude.gov.br/portal/diabetes-mellitus-tipo-2-%28DM2%29-no-adulto/cuidados-com-insulinoterapia'
   },
   {
+    id: 'insulin-storage-disposal',
+    category: 'diabetes',
+    title: 'Insulina — guardar, transportar e descartar',
+    shortTitle: 'Cuidar da insulina',
+    summary: 'A apresentação lacrada e a que já está em uso podem ter regras diferentes. Confira sempre o fabricante.',
+    image: assetUrl('treatment-guides/insulin-storage-disposal.webp'),
+    steps: [
+      { title: 'Veja se está lacrada ou em uso', detail: 'Leia a embalagem e a bula. Anote no rótulo a data em que abriu.' },
+      { title: 'Não congele', detail: 'Quando a bula mandar refrigerar, guarde na prateleira do meio ou de baixo, longe do congelador, das paredes e da porta.' },
+      { title: 'Proteja no transporte', detail: 'Leve na bagagem de mão, longe do sol e do calor. Em bolsa térmica, não deixe a insulina encostar no gelo.' },
+      { title: 'Use recipiente rígido', detail: 'Coloque agulhas e seringas usadas em recipiente rígido, resistente à perfuração, com abertura larga e tampa.' },
+      { title: 'Entregue na UBS', detail: 'Leve o recipiente fechado para a unidade de saúde fazer o descarte correto.' }
+    ],
+    alerts: ['Não use garrafa PET para perfurocortantes. Não jogue agulhas ou seringas no lixo comum.', 'Caneta, frasco e refil podem ter conservação e validade diferentes. Siga a bula e a orientação da equipe.'],
+    sourceLabel: 'Cuidados com insulinoterapia — Ministério da Saúde',
+    sourceUrl: 'https://linhasdecuidado.saude.gov.br/portal/diabetes-mellitus-tipo-2-%28DM2%29-no-adulto/cuidados-com-insulinoterapia'
+  },
+  {
     id: 'safe-water',
     category: 'home-care',
     title: 'Água segura para beber — hipoclorito',
@@ -200,6 +270,24 @@ export const treatmentGuides = Object.freeze([
       { title: 'Guarde tampada', detail: 'Mantenha a água tratada em recipiente limpo e tampado. Consuma em até 24 horas.' }
     ],
     alerts: ['Prefira o frasco orientado ou entregue pela UBS. Não use produto perfumado, com corante ou concentração diferente.', 'Se não houver hipoclorito a 2,5%, abra o guia separado “Água por fervura”.'],
+    sourceLabel: 'Cuidados com a água — Ministério da Saúde',
+    sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/e/enchentes/cuidados-com-a-agua'
+  },
+  {
+    id: 'safe-water-product-check',
+    category: 'home-care',
+    title: 'Hipoclorito — qual produto pode usar?',
+    shortTitle: 'Conferir o hipoclorito',
+    summary: 'Reconheça o frasco da UBS, confira a concentração e rejeite produtos com perfume, corante ou outros aditivos.',
+    image: assetUrl('treatment-guides/safe-water-product-check.webp'),
+    steps: [
+      { title: 'Prefira o frasco da UBS', detail: 'O frasco distribuído costuma ser pequeno, âmbar, com tampa branca e rótulo “Hipoclorito de sódio 2,5%”. A embalagem pode variar.' },
+      { title: 'Leia a concentração', detail: 'Para o guia principal, use hipoclorito de sódio a 2,5% próprio para tratar água.' },
+      { title: 'Veja se há aditivos', detail: 'O Ministério admite água sanitária com 2,0% a 2,5% de cloro ativo somente quando não tem alvejante, desinfetante, essência, perfume ou outro aditivo.' },
+      { title: 'Não use produto colorido ou perfumado', detail: 'Desinfetante, água sanitária perfumada e produto com concentração desconhecida não servem para tratar água de beber.' },
+      { title: 'Na dúvida, leve à UBS', detail: 'Peça para a equipe conferir o rótulo antes de colocar o produto na água.' }
+    ],
+    alerts: ['Mantenha o produto fora do alcance de crianças e não transfira para garrafa de bebida.', 'Depois de conferir o produto, volte ao guia “Água com hipoclorito” para ver as gotas e o tempo de espera.'],
     sourceLabel: 'Cuidados com a água — Ministério da Saúde',
     sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/e/enchentes/cuidados-com-a-agua'
   },
@@ -220,6 +308,23 @@ export const treatmentGuides = Object.freeze([
     alerts: ['Este é o caminho para quando não há hipoclorito a 2,5%. Não misture os dois métodos na mesma água.', 'Tenha cuidado com fogo, vapor e panela quente.'],
     sourceLabel: 'Cuidados com a água — Ministério da Saúde',
     sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/e/enchentes/cuidados-com-a-agua'
+  },
+  {
+    id: 'urgent-warning-signs',
+    category: 'safety',
+    title: 'Sinais de alerta — procure ajuda sem demora',
+    shortTitle: 'Quando pedir ajuda',
+    summary: 'Falta de ar grave, desmaio ou convulsão e perda súbita da visão precisam de atendimento urgente.',
+    image: assetUrl('treatment-guides/urgent-warning-signs.webp'),
+    steps: [
+      { title: 'Respiração muito difícil', detail: 'Procure ajuda se a pessoa não consegue falar, fica muito sonolenta, desmaia ou apresenta lábios arroxeados.' },
+      { title: 'Hipoglicemia grave', detail: 'Confusão intensa, convulsão ou perda de consciência precisam de atendimento imediato.' },
+      { title: 'Problema grave no olho', detail: 'Perda súbita da visão, dor intensa, trauma ou produto químico no olho são sinais de urgência.' },
+      { title: 'Ligue 192 ou vá à urgência', detail: 'Acione o SAMU 192 quando houver risco imediato ou siga o fluxo de urgência orientado no seu município.' }
+    ],
+    alerts: ['Pessoa inconsciente ou convulsionando: não dê comida, bebida ou medicamento pela boca.', 'Este guia ajuda a reconhecer perigo; ele não substitui avaliação profissional.'],
+    sourceLabel: 'Protocolos públicos de urgência — SUS',
+    sourceUrl: 'https://www.saude.df.gov.br/documents/37101/0/Protocolos%2Bde%2BRegula%C3%A7%C3%A3o%2BM%C3%A9dica%2Bde%2BUrg%C3%AAncia%2Bdo%2BSAMU-%2BDF%2B192%2Be%2BCrit%C3%A9rios%2BM%C3%A9dicos%2Bde%2BDespacho%2Bde%2BViaturas%2BCM.pdf/10e76074-d445-7a0a-a6d8-2a7f65d4d91f?t=1717432207776'
   }
 ]);
 

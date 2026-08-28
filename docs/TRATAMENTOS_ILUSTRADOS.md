@@ -26,6 +26,19 @@ Os campos nunca incluem nome, CPF ou diagnóstico. O rascunho usa somente o arma
 10. Água segura para beber com hipoclorito a 2,5%.
 11. Água segura por filtração e fervura.
 
+## Complementos de leitura fácil
+
+Seis cartões complementares mantêm uma ação principal por quadro e evitam sobrecarregar os guias principais:
+
+- hipoclorito: reconhecer o frasco da UBS, conferir concentração e rejeitar perfume, corante ou outros aditivos;
+- insulina: armazenamento, transporte sem contato direto com gelo e entrega de perfurocortantes à UBS;
+- corticoide inalatório: enxaguar, gargarejar e cuspir após o último jato;
+- spray nasal: mãos limpas, direção externa, limpeza do bico e uso individual;
+- pomada ocular: higiene das mãos, uso de espelho, ponta afastada e não compartilhamento;
+- sinais de urgência: dificuldade respiratória grave, hipoglicemia grave, perda súbita da visão e acionamento do SAMU 192.
+
+O catálogo passa a ter 17 guias: 11 principais e 6 complementares.
+
 ## Correções de segurança aplicadas
 
 - O teste de flutuação do frasco metálico da bombinha foi excluído.
@@ -39,15 +52,21 @@ Os campos nunca incluem nome, CPF ou diagnóstico. O rascunho usa somente o arma
 - Os caminhos de tratamento da água com hipoclorito e com fervura aparecem em guias separados para evitar mistura das técnicas.
 - NPH, Regular e glargina usam sequências próprias: aparência e mistura da NPH, relação da Regular com a refeição conforme prescrição e preparo da caneta de glargina.
 - O hipoclorito é ilustrado como o frasco pequeno âmbar com tampa branca frequentemente entregue pela UBS, sem reproduzir logotipo institucional. A embalagem pode variar; o rótulo precisa informar `Hipoclorito de sódio 2,5%` e uso para tratamento da água.
+- A alternativa com água sanitária só aparece quando o rótulo informa de 2,0% a 2,5% de cloro ativo e ausência de perfume, essência, desinfetante ou outro aditivo, conforme o Ministério da Saúde.
+- Insulina em transporte não encosta diretamente no gelo; agulhas e seringas vão para recipiente rígido resistente à perfuração e depois para a UBS.
+- Pessoa inconsciente ou convulsionando não recebe comida, bebida ou medicamento pela boca.
 
 ## Fontes de referência
 
 - Ministério da Saúde — [Cuidados com a água](https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/e/enchentes/cuidados-com-a-agua).
 - Ministério da Saúde — [PCDT de Doença Pulmonar Obstrutiva Crônica](https://www.gov.br/saude/pt-br/assuntos/pcdt/d/doenca-pulmonar-obstrutiva-cronica).
+- Ministério da Saúde — [Técnica inalatória](https://linhasdecuidado.saude.gov.br/portal/asma/tecnica-inalatoria/).
 - Ministério da Saúde — [Cuidados com a insulinoterapia](https://linhasdecuidado.saude.gov.br/portal/diabetes-mellitus-tipo-2-%28DM2%29-no-adulto/cuidados-com-insulinoterapia).
 - Sociedade Brasileira de Diabetes — [Práticas seguras para preparo e aplicação de insulina](https://diretriz.diabetes.org.br/praticas-seguras-para-preparo-e-aplicacao-de-insulina/).
 - Sociedade Brasileira de Diabetes — [Técnicas de aplicação de insulina](https://diretriz.diabetes.org.br/tecnicas-de-aplicacao-de-insulina/).
 - NHS — [Como usar pomada oftálmica](https://www.buckshealthcare.nhs.uk/pifs/how-to-use-your-eye-ointment/).
+- NHS — [Higiene e uso de pomada oftálmica](https://www.nhs.uk/medicines/chloramphenicol/how-and-when-to-use-chloramphenicol/).
+- NHS — [Higiene e uso de spray nasal](https://www.nhs.uk/medicines/fluticasone-nasal-spray-and-drops/how-and-when-to-use-fluticasone-nasal-spray-and-drops/).
 - Kent Community Health NHS — [Técnica do inalador dosimetrado](https://www.kentcht.nhs.uk/leaflet/good-inhaler-technique/).
 - East Kent Hospitals NHS — [Técnica de spray nasal](https://leaflets.ekhuft.nhs.uk/how-to-use-a-nasal-spray/html/).
 - NHS — [Uso de creme vaginal com aplicador](https://www.nhs.uk/medicines/hormone-replacement-therapy-hrt/vaginal-oestrogen/how-and-when-to-use-vaginal-oestrogen/).
@@ -56,4 +75,15 @@ Os guias de spray nasal e creme vaginal exigem conferência da bula do produto e
 
 ## Imagens
 
-As ilustrações específicas de espaçador, bombinha sem espaçador, spray nasal, creme vaginal, NPH, Regular, glargina, pomada oftálmica e tratamento da água são originais e ficam em `src/assets/treatment-guides/`, otimizadas em WebP para carregamento no computador e no celular. Cada sequência usa uma ação principal por quadro e reduz dependência de texto. As capturas enviadas foram usadas apenas como referência de temas e problemas de comunicação. Nenhum desenho, logotipo, código ou ativo do site externo foi incorporado.
+As ilustrações específicas de espaçador, bombinha sem espaçador, spray nasal, creme vaginal, NPH, Regular, glargina, pomada oftálmica, tratamento da água e os seis complementos são originais e ficam em `src/assets/treatment-guides/`, otimizadas em WebP para carregamento no computador e no celular. Cada sequência usa uma ação principal por quadro e reduz dependência de texto. As capturas enviadas foram usadas apenas como referência de temas e problemas de comunicação. Nenhum desenho, logotipo, código ou ativo do site externo foi incorporado.
+
+### Prompt-base dos seis complementos autorais
+
+As seis imagens foram geradas em modo de criação, sem editar nem copiar ativos externos. O conjunto usou o mesmo prompt-base: `painel educativo quadrado 2 × 2 para Atenção Primária, pessoas adultas brasileiras diversas, fundo branco, contorno azul-escuro, poucos elementos, uma ação por quadro, setas grandes, símbolos verde de correto e vermelho de proibido, sem logotipos, sem marca comercial e sem prescrever dose`. A cena específica de cada painel foi:
+
+1. conferir frasco de hipoclorito 2,5% ou água sanitária 2,0–2,5% sem perfume, corante ou aditivo;
+2. guardar insulina na prateleira interna, transportar sem contato direto com gelo e devolver perfurocortantes à UBS;
+3. após corticoide inalatório, enxaguar, gargarejar, cuspir e não engolir;
+4. usar spray nasal com mãos limpas, apontar para fora, limpar o bico e não compartilhar;
+5. usar pomada oftálmica com mãos limpas, espelho e ponta afastada do olho, sem compartilhar;
+6. reconhecer dificuldade respiratória grave, hipoglicemia grave, perda súbita da visão e acionar o SAMU 192.

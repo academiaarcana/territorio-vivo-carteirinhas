@@ -31,6 +31,9 @@ assert.match(page, /Validação cultural necessária/, 'Conteúdo para povos ind
 assert.match(page, /Retirada de corticoide:[\s\S]*dose, datas e duração/, 'Retirada gradual precisa manter o esquema exato em texto.');
 assert.match(page, /MAX_OPTIONAL_SUPPORTS = 4/, 'A quantidade de apoios adicionais precisa ser limitada.');
 assert.match(page, /prescriptionSupportItemsFor/, 'A biblioteca precisa ter busca e categorias navegáveis.');
+assert.match(page, /2 · Biblioteca visual/, 'Via de uso e biblioteca visual precisam formar uma única etapa.');
+assert.match(page, /type="hidden" name="route" value="oral"/, 'A via padrão deve continuar disponível sem repetir o seletor visual.');
+assert.doesNotMatch(page, /renderChoiceGroup\('route'/, 'Via de uso não deve aparecer duplicada fora da biblioteca visual.');
 assert.match(page, /\['ArrowLeft', 'ArrowRight', 'Home', 'End'\]/, 'Abas da biblioteca precisam de navegação por teclado.');
 assert.match(page, /role="tabpanel"/, 'Categorias precisam controlar um painel semântico.');
 assert.match(page, /readVolatileDraft/, 'Rascunho deve usar somente o armazenamento volátil compartilhado.');
@@ -64,5 +67,6 @@ assert.match(css, /@media screen/, 'Camada visual clínica deve ficar restrita �
 assert.match(css, /#app\[data-route="\/app\/prescricoes"\]/, 'Estilos devem ficar limitados à rota clínica.');
 assert.match(css, /@media print/, 'Orientações locais precisam de contrato de impressão.');
 assert.match(css, /prescription-print-sheet/, 'Impressão deve ter folha própria.');
+assert.match(css, /prescription-support-tabs button[^}]*white-space: nowrap/, 'Abas devem permanecer em uma linha como na referência visual.');
 
 console.log('Contrato clínico OK: Médico/Enfermeiro, menor privilégio, pictogramas autorais e rascunho local sem persistência.');

@@ -83,4 +83,14 @@ O navegador autenticado disponível para esta auditoria não oferece alteração
 - formulários de 5 Minutos, Indicadores, Prescrições e Tratamentos ilustrados;
 - Guia de Cadastro e aba Microáreas da gestão.
 
-final result: desktop approved for published routes; simple PDF approved; complex pictogram PDF pending; treatments visual QA pending; mobile pending
+## Revisão atual — biblioteca visual e tratamentos
+
+- A escolha separada de via foi removida do formulário de prescrições.
+- `Via de uso` passou a integrar a mesma faixa de abas de `Combinados`, `Motivo do uso`, `Horários` e demais categorias, mantendo seleção única, roving tabindex e rolagem horizontal.
+- O contrato automatizado confirma que existe somente um ponto de escolha da via e que o valor continua disponível para prévia, impressão e PDF.
+- Os seis novos painéis complementares foram inspecionados como arquivos individuais, sem corte, sobreposição ou texto clínico gerado automaticamente.
+- A suíte completa do repositório passou em 28/08/2026.
+
+A comparação visual bloqueante entre a captura de referência e a implementação renderizada não foi concluída: o navegador em nuvem recusou a URL local de QA pela política de segurança. Não foi usado outro navegador nem uma captura simulada como substituto. A conferência visual real em computador e celular permanece pendente antes de publicar esta etapa.
+
+final result: blocked

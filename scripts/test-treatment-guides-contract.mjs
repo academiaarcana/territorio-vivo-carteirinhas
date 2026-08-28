@@ -31,7 +31,10 @@ for (const guide of [
   'Bombinha com espaçador — plano para crise', 'Bombinha de controle — uso contínuo', 'Bombinha sem espaçador',
   'Spray ou jato nasal', 'Pomada para os olhos', 'Creme vaginal com aplicador', 'Insulina NPH',
   'Insulina Regular', 'Insulina glargina', 'Água segura para beber — hipoclorito',
-  'Água segura para beber — filtrar e ferver'
+  'Água segura para beber — filtrar e ferver', 'Depois da bombinha com corticoide',
+  'Spray nasal — higiene e cuidado', 'Pomada para os olhos — evitar contaminação',
+  'Insulina — guardar, transportar e descartar', 'Hipoclorito — qual produto pode usar?',
+  'Sinais de alerta — procure ajuda sem demora'
 ]) assert.match(data, new RegExp(guide), `Catálogo deve incluir ${guide}.`);
 
 for (const safety of [
@@ -43,7 +46,10 @@ for (const file of [
   'inhaler-spacer-steps.webp', 'inhaler-no-spacer-steps.webp', 'nasal-spray-steps.webp',
   'vaginal-cream-steps.webp', 'insulin-nph-steps.webp', 'insulin-regular-steps.webp',
   'insulin-glargine-pen-steps.webp', 'eye-ointment-steps.webp',
-  'safe-water-drops-steps.webp', 'safe-water-boil-steps.webp'
+  'safe-water-drops-steps.webp', 'safe-water-boil-steps.webp',
+  'inhaled-steroid-mouth-care.webp', 'nasal-spray-hygiene.webp',
+  'eye-ointment-hygiene.webp', 'insulin-storage-disposal.webp',
+  'safe-water-product-check.webp', 'urgent-warning-signs.webp'
 ]) {
   assert.match(data, new RegExp(file.replace('.', '\\.')), `Catálogo deve referenciar ${file}.`);
   assert.ok(fs.statSync(`src/assets/treatment-guides/${file}`).size > 20_000, `${file} precisa ser um ativo visual real.`);
@@ -53,6 +59,14 @@ assert.match(data, /2 gotas em cada 1 litro/, 'Método com hipoclorito deve prot
 assert.match(data, /Hipoclorito de sódio 2,5%/, 'Guia deve ajudar a reconhecer o frasco correto sem depender da marca.');
 assert.match(data, /mantenha a fervura por 5 minutos/, 'Método por fervura deve proteger o tempo oficial.');
 assert.match(data, /Não misture os dois métodos/, 'Os dois caminhos de tratamento da água devem permanecer separados.');
+assert.match(data, /2,0% a 2,5% de cloro ativo/, 'Complemento do hipoclorito deve explicar a alternativa sem aditivos.');
+assert.match(data, /não deixe a insulina encostar no gelo/i, 'Transporte não pode permitir contato direto da insulina com gelo.');
+assert.match(data, /Não use garrafa PET/, 'Descarte de perfurocortante precisa excluir recipiente frágil.');
+assert.match(data, /Não engula a água usada para enxaguar/, 'Corticoide inalatório precisa orientar enxaguar, gargarejar e cuspir.');
+assert.match(data, /Cada pessoa deve usar o próprio frasco/, 'Spray nasal não pode ser compartilhado.');
+assert.match(data, /não pode tocar o olho, os cílios, a pele ou os dedos/i, 'Pomada ocular precisa evitar contaminação da ponta.');
+assert.match(data, /não dê comida, bebida ou medicamento pela boca/i, 'Alerta de inconsciência precisa impedir administração oral insegura.');
+assert.match(data, /SAMU 192/, 'Guia de sinais de alerta precisa orientar busca imediata de ajuda.');
 
 assert.match(css, /#app\[data-route="\/app\/tratamentos"\]/, 'Estilos precisam ficar limitados à rota.');
 assert.match(css, /@media print/, 'Guias precisam ter contrato de impressão.');

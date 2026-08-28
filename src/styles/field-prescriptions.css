@@ -46,7 +46,7 @@
   .prescription-support-library header label { display: grid; gap: .35rem; color: var(--field-ink); font-size: .78rem; font-weight: 800; }
   .prescription-support-library input[type="search"] { width: 100%; min-height: 42px; border: 1px solid #bfcfd1; border-radius: 9px; padding: .62rem .72rem; background: #fff; color: var(--text); }
   .prescription-support-tabs { display: flex; gap: .4rem; padding: .2rem 0 .45rem; overflow-x: auto; scrollbar-width: thin; }
-  .prescription-support-tabs button { flex: 0 0 auto; min-height: 38px; padding: .5rem .68rem; border: 1px solid #c4d3d5; border-radius: 8px; background: #fff; color: #40575e; font-size: .74rem; font-weight: 800; }
+  .prescription-support-tabs button { flex: 0 0 auto; min-height: 38px; padding: .5rem .68rem; border: 1px solid #c4d3d5; border-radius: 8px; background: #fff; color: #40575e; font-size: .74rem; font-weight: 800; white-space: nowrap; }
   .prescription-support-tabs button[aria-selected="true"] { border-color: var(--field-blue); background: var(--field-blue); color: #fff; }
   .prescription-support-tabs button:focus-visible, .prescription-support-card:focus-visible { outline: 3px solid #efb93f; outline-offset: 2px; }
   .prescription-support-description { margin: -.15rem 0 0; color: var(--field-muted); font-size: .8rem; line-height: 1.45; }

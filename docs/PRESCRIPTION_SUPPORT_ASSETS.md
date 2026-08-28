@@ -15,6 +15,12 @@ Os arquivos em `src/assets/prescription-support/` são ilustrações originais g
 - Outros.
 - Utilitários.
 
+## Navegação unificada
+
+A etapa separada **Escolha a via de uso** foi incorporada à **Biblioteca visual**. A interface usa uma única faixa horizontal de abas — Combinados, Povos Indígenas, Via de uso, Motivo do uso, Horários e demais categorias — com estado ativo azul, rolagem horizontal no celular e navegação por setas, Home e End no teclado.
+
+A via continua sendo um campo obrigatório do rascunho temporário. Ao abrir a categoria **Via de uso**, a opção atual aparece selecionada e pode ser trocada sem criar um segundo seletor visual.
+
 O conjunto autoral local inclui manhã, almoço, noite, antes de dormir, via oral, injeção, pele, gotas, inalação, gotas nos olhos, gotas no ouvido, uso nasal, dor, febre, tosse, desconforto abdominal, evitar álcool, redução gradual e duas cenas de contexto cotidiano para povos indígenas. Personagens e utilitários complementares reutilizam a biblioteca Flaticon já atribuída no produto.
 
 ## Direção de geração
