@@ -6,6 +6,7 @@ import {
   getPrescriptionSupportItem,
   prescriptionRoutes,
   prescriptionSchedules,
+  prescriptionQuickTemplates,
   prescriptionSupportCategories,
   prescriptionSupportItemsFor
 } from '../data/prescription-support.js';
@@ -43,6 +44,7 @@ export function renderPrescriptionsPage({ state }) {
       <article class="panel prescription-builder-panel">
         <header class="prescription-section-heading"><div><p class="eyebrow">1 · Texto clínico</p><h2>Monte uma orientação por vez</h2><p>O sistema não interpreta nem corrige a prescrição. Confira a linha original e preencha os campos manualmente.</p></div></header>
         <form id="prescription-builder-form" class="stack-form prescription-builder-form" autocomplete="off">
+          ${renderQuickTemplates()}
           <label class="prescription-source-field">Cole o texto da receita do PEC (opcional)
             <textarea name="source_text" rows="4" maxlength="3000" placeholder="Cole somente as linhas necessárias, sem nome ou CPF do paciente"></textarea>
             <small>Use o texto apenas como referência de conferência. Nenhuma informação é interpretada automaticamente.</small>
@@ -108,6 +110,17 @@ export function mountPrescriptionsPage({ root, state }) {
 
   form.addEventListener('input', () => { persist(); refresh(); });
   form.addEventListener('change', () => { persist(); refresh(); });
+  root.querySelector('[data-prescription-quick-templates]').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-prescription-template]');
+    if (!button) return;
+    const template = getPrescriptionSupportItem(button.dataset.prescriptionTemplate);
+    if (!template || template.action !== 'preset') return;
+    applyPrescriptionTemplate(form, template);
+    persist();
+    refresh();
+    setStatus(status, 'Modelo aplicado. Agora informe medicamento e dose e confira todos os campos.', 'success');
+    form.elements.medication.focus();
+  });
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const values = readNamedFormValues(form);
@@ -218,10 +231,8 @@ export function mountPrescriptionsPage({ root, state }) {
     if (!item) return;
 
     if (item.action === 'preset') {
-      form.elements.route.value = item.route;
-      form.elements.schedule.value = item.schedule;
-      if (item.observation) form.elements.observation.value = appendObservation(form.elements.observation.value, item.observation);
-      setStatus(status, 'Combinado aplicado. Confira todos os campos antes de adicionar.', 'success');
+      applyPrescriptionTemplate(form, item);
+      setStatus(status, 'Modelo aplicado. Informe medicamento e dose e confira todos os campos.', 'success');
     } else if (item.action === 'route') {
       form.elements.route.value = item.id;
       setStatus(status, 'Via de uso selecionada. Confira com a prescrição original.', 'success');
@@ -247,6 +258,14 @@ export function mountPrescriptionsPage({ root, state }) {
   });
 
   refresh();
+}
+
+function renderQuickTemplates() {
+  return `<section class="prescription-quick-templates" aria-labelledby="prescription-templates-heading">
+    <header><div><p class="eyebrow">Começo rápido</p><h3 id="prescription-templates-heading">Escolha um modelo frequente</h3></div><p>O modelo não escolhe medicamento, dose nem duração. Ele somente marca a via e o período para você completar e conferir.</p></header>
+    <div data-prescription-quick-templates>${prescriptionQuickTemplates.map((template) => `<button type="button" data-prescription-template="${escapeHtml(template.id)}"><span>${renderSupportVisual(template)}</span><strong>${escapeHtml(template.label)}</strong><small>${escapeHtml(template.hint)}</small></button>`).join('')}</div>
+    <p><strong>Precisa de outro?</strong> Veja todos os ${prescriptionSupportItemsFor('combined').length} modelos na categoria “Modelos prontos” da biblioteca visual.</p>
+  </section>`;
 }
 
 function renderSupportLibraryShell() {
@@ -313,6 +332,12 @@ function appendObservation(current, addition) {
   const cleanAddition = String(addition || '').trim();
   if (!cleanAddition || cleanCurrent.toLocaleLowerCase('pt-BR').includes(cleanAddition.toLocaleLowerCase('pt-BR'))) return cleanCurrent;
   return [cleanCurrent, cleanAddition].filter(Boolean).join('; ').slice(0, 220);
+}
+
+function applyPrescriptionTemplate(form, template) {
+  form.elements.route.value = template.route;
+  form.elements.schedule.value = template.schedule;
+  if (template.observation) form.elements.observation.value = appendObservation(form.elements.observation.value, template.observation);
 }
 
 function renderChoiceGroup(name, legend, options) {
