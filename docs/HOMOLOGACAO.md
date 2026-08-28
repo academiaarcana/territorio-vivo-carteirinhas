@@ -321,3 +321,14 @@ A programação estrutural só é considerada totalmente homologada quando:
 Depois disso começa a fase de design system, identidade visual, mapa cartográfico visual, componentes e imagens.
 
 O objetivo da homologação é avaliar a ferramenta e suas regras, não o trabalhador.
+
+### Estado atual — 28/08/2026
+
+- fluxos de visitante, ACS, Administrador da UBS, Gestor Municipal, Médico, Enfermeiro e Master foram homologados com contas legítimas;
+- confirmação de e-mail, aprovação, acesso territorial e menor privilégio foram verificados;
+- migrations, RLS, Security/Performance Advisors e CI foram revisados;
+- Painel de Campo, Guia de Cadastro Inclusivo, prescrições visuais e microáreas estão publicados;
+- QA visual autenticada em desktop está aprovada e documentada em `design-qa.md`;
+- QA em celular continua pendente de dispositivo real;
+- totais populacionais por microárea continuam “Não informado” até recebimento de fonte oficial e data de referência;
+- proteção contra senhas vazadas permanece como melhoria posterior dependente do plano Pro do Supabase.
