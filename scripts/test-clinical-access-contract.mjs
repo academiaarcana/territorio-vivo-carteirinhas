@@ -40,9 +40,17 @@ assert.doesNotMatch(page, /name="(patient|patient_name|cpf|diagnosis)"/, 'V1 nã
 assert.doesNotMatch(page, /from ['"][^'"]*(supabase|repository)\.js['"]/, 'Área clínica externa não pode importar persistência.');
 for (const forbidden of ['localStorage', 'sessionStorage', 'indexedDB']) assert.doesNotMatch(page, new RegExp(forbidden), `Área clínica não pode usar ${forbidden}.`);
 
-for (const category of ['Combinados', 'Combinados Povos Indígenas', 'Via de uso', 'Motivo do uso', 'Horários', 'Personagens', 'Associações', 'Retirada de corticoide(s)', 'Outros', 'Utilitários']) {
+for (const category of ['Modelos prontos', 'Combinados Povos Indígenas', 'Via de uso', 'Motivo do uso', 'Horários', 'Personagens', 'Associações', 'Retirada de corticoide(s)', 'Outros', 'Utilitários']) {
   assert.match(support, new RegExp(category.replace(/[()]/g, '\\$&'), 'u'), `Catálogo deve incluir a categoria ${category}.`);
 }
+
+for (const template of ['combined-oral-morning', 'combined-drops-morning', 'combined-eye-morning', 'combined-nasal-morning', 'combined-inhalation-morning', 'combined-topical-night']) {
+  assert.match(support, new RegExp(template), `Catálogo deve incluir o modelo frequente ${template}.`);
+}
+assert.match(support, /prescriptionQuickTemplates/, 'Modelos frequentes precisam ter uma coleção própria.');
+assert.match(page, /Escolha um modelo frequente/, 'A tela precisa destacar modelos antes do preenchimento manual.');
+assert.match(page, /Modelo aplicado\. Agora informe medicamento e dose/, 'Aplicar um modelo deve lembrar os campos clínicos obrigatórios.');
+assert.match(page, /applyPrescriptionTemplate/, 'Modelos rápidos e biblioteca precisam usar a mesma aplicação segura.');
 
 for (const file of [
   'morning.png', 'lunch.png', 'evening.png', 'bedtime.png', 'oral.png', 'injection.png', 'topical.png', 'drops.png',
