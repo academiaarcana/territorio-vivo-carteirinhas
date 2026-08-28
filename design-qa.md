@@ -27,7 +27,7 @@ As oito capturas mostraram conteúdo estável, sem tela em branco, carregamento 
 
 ## Tratamentos ilustrados
 
-A rota `#/app/tratamentos` adiciona dez orientações de leitura fácil para ACS, Médica(o) e Enfermeira(o), com busca, filtros, leitura em voz alta, confirmação por demonstração e personalização clínica temporária. As ilustrações autorais de espaçador, insulina e pomada oftálmica foram revisadas; no guia do espaçador, a bombinha está conectada, não há mão duplicada e as setas apontam da bombinha para a boca.
+A rota `#/app/tratamentos` adiciona onze orientações de leitura fácil para ACS, Médica(o) e Enfermeira(o), com busca, filtros, leitura em voz alta, confirmação por demonstração e personalização clínica temporária. As ilustrações autorais de espaçador, bombinha sem espaçador, spray nasal, creme vaginal, insulina, pomada oftálmica e tratamento da água foram revisadas. No guia do espaçador, a bombinha está conectada, não há mão duplicada e as setas apontam da bombinha para a boca; os dois caminhos de tratamento da água aparecem separados.
 
 Essa rota ainda não está publicada e, portanto, não faz parte das oito evidências autenticadas acima. Sua QA permanece pendente em desktop e celular; contratos automatizados não substituem essa inspeção visual.
 

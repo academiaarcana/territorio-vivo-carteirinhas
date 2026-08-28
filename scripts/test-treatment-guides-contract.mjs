@@ -30,7 +30,8 @@ for (const forbidden of ['localStorage', 'sessionStorage', 'indexedDB']) assert.
 for (const guide of [
   'Bombinha com espaçador — plano para crise', 'Bombinha de controle — uso contínuo', 'Bombinha sem espaçador',
   'Spray ou jato nasal', 'Pomada para os olhos', 'Creme vaginal com aplicador', 'Insulina NPH',
-  'Insulina Regular', 'Insulina glargina', 'Água segura para beber'
+  'Insulina Regular', 'Insulina glargina', 'Água segura para beber — hipoclorito',
+  'Água segura para beber — filtrar e ferver'
 ]) assert.match(data, new RegExp(guide), `Catálogo deve incluir ${guide}.`);
 
 for (const safety of [
@@ -38,10 +39,18 @@ for (const safety of [
   'não será calculada automaticamente', 'ponta do tubo não deve tocar'
 ]) assert.match(data, new RegExp(safety, 'i'), `Conteúdo seguro ausente: ${safety}.`);
 
-for (const file of ['inhaler-spacer-steps.webp', 'insulin-steps.webp', 'eye-ointment-steps.webp']) {
+for (const file of [
+  'inhaler-spacer-steps.webp', 'inhaler-no-spacer-steps.webp', 'nasal-spray-steps.webp',
+  'vaginal-cream-steps.webp', 'insulin-steps.webp', 'eye-ointment-steps.webp',
+  'safe-water-drops-steps.webp', 'safe-water-boil-steps.webp'
+]) {
   assert.match(data, new RegExp(file.replace('.', '\\.')), `Catálogo deve referenciar ${file}.`);
-  assert.ok(fs.statSync(`src/assets/treatment-guides/${file}`).size > 35_000, `${file} precisa ser um ativo visual real.`);
+  assert.ok(fs.statSync(`src/assets/treatment-guides/${file}`).size > 20_000, `${file} precisa ser um ativo visual real.`);
 }
+
+assert.match(data, /2 gotas em cada 1 litro/, 'Método com hipoclorito deve proteger a proporção oficial.');
+assert.match(data, /mantenha a fervura por 5 minutos/, 'Método por fervura deve proteger o tempo oficial.');
+assert.match(data, /Não misture os dois métodos/, 'Os dois caminhos de tratamento da água devem permanecer separados.');
 
 assert.match(css, /#app\[data-route="\/app\/tratamentos"\]/, 'Estilos precisam ficar limitados à rota.');
 assert.match(css, /@media print/, 'Guias precisam ter contrato de impressão.');

@@ -64,7 +64,7 @@ export const treatmentGuides = Object.freeze([
     title: 'Bombinha sem espaçador',
     shortTitle: 'Bombinha sem espaçador',
     summary: 'Sequência geral para aerossol dosimetrado; a equipe deve demonstrar a técnica com o dispositivo real.',
-    image: assetUrl('prescription-support/inhalation.png'),
+    image: assetUrl('treatment-guides/inhaler-no-spacer-steps.webp'),
     steps: [
       { title: 'Retire a tampa e confira', detail: 'Veja se o bocal está limpo e se é a bombinha certa.' },
       { title: 'Agite', detail: 'Agite como orientado na bula do produto.' },
@@ -74,8 +74,8 @@ export const treatmentGuides = Object.freeze([
       { title: 'Segure e solte', detail: 'Segure o ar pelo tempo que conseguir confortavelmente e solte devagar.' }
     ],
     alerts: ['Se houver dificuldade de coordenação, peça à equipe para avaliar o uso de espaçador ou outro dispositivo.', 'Não use o teste da água no frasco metálico.'],
-    sourceLabel: 'Orientação deve seguir a bula e a demonstração da equipe',
-    sourceUrl: ''
+    sourceLabel: 'Técnica do inalador dosimetrado — Kent Community Health NHS',
+    sourceUrl: 'https://www.kentcht.nhs.uk/leaflet/good-inhaler-technique/'
   },
   {
     id: 'nasal-spray',
@@ -83,7 +83,7 @@ export const treatmentGuides = Object.freeze([
     title: 'Spray ou jato nasal',
     shortTitle: 'Spray nasal',
     summary: 'Mostra a posição e os cuidados gerais. Quantidade e duração ficam na receita.',
-    image: assetUrl('prescription-support/nasal-spray.png'),
+    image: assetUrl('treatment-guides/nasal-spray-steps.webp'),
     steps: [
       { title: 'Lave as mãos', detail: 'Limpe as mãos antes de tocar no aplicador.' },
       { title: 'Prepare o frasco', detail: 'Agite ou prepare a válvula somente se a bula do produto mandar.' },
@@ -93,8 +93,8 @@ export const treatmentGuides = Object.freeze([
       { title: 'Limpe e tampe', detail: 'Limpe o bico sem compartilhar o frasco e recoloque a tampa.' }
     ],
     alerts: ['Use somente a quantidade, o lado e o número de dias escritos na receita.'],
-    sourceLabel: 'Bula do produto prescrito e orientação da equipe',
-    sourceUrl: ''
+    sourceLabel: 'Técnica de spray nasal — East Kent Hospitals NHS',
+    sourceUrl: 'https://leaflets.ekhuft.nhs.uk/how-to-use-a-nasal-spray/html/'
   },
   {
     id: 'eye-ointment',
@@ -121,7 +121,7 @@ export const treatmentGuides = Object.freeze([
     title: 'Creme vaginal com aplicador',
     shortTitle: 'Creme vaginal',
     summary: 'Explicação respeitosa para preparar e usar o aplicador conforme a receita e a bula.',
-    image: assetUrl('prescription-support/topical.png'),
+    image: assetUrl('treatment-guides/vaginal-cream-steps.webp'),
     steps: [
       { title: 'Confira o produto', detail: 'Veja o nome, o laboratório, a quantidade e os dias de tratamento.' },
       { title: 'Lave as mãos', detail: 'Lave antes e depois da aplicação.' },
@@ -131,8 +131,8 @@ export const treatmentGuides = Object.freeze([
       { title: 'Descarte ou higienize', detail: 'Faça exatamente o que a bula informa para aquele tipo de aplicador.' }
     ],
     alerts: ['Não presuma que será sempre um aplicador cheio ou sempre à noite: siga a receita do produto específico.'],
-    sourceLabel: 'Bula do produto prescrito e protocolo do serviço',
-    sourceUrl: ''
+    sourceLabel: 'Uso de creme vaginal com aplicador — NHS e bula do produto',
+    sourceUrl: 'https://www.nhs.uk/medicines/hormone-replacement-therapy-hrt/vaginal-oestrogen/how-and-when-to-use-vaginal-oestrogen/'
   },
   {
     id: 'insulin-nph',
@@ -188,18 +188,36 @@ export const treatmentGuides = Object.freeze([
   {
     id: 'safe-water',
     category: 'home-care',
-    title: 'Água segura para beber',
-    shortTitle: 'Água segura',
-    summary: 'Passos do Ministério da Saúde para situações em que a água pode estar contaminada.',
-    icon: 'water',
+    title: 'Água segura para beber — hipoclorito',
+    shortTitle: 'Água com hipoclorito',
+    summary: 'Um caminho de cada vez: filtre, use somente hipoclorito a 2,5%, misture e espere.',
+    image: assetUrl('treatment-guides/safe-water-drops-steps.webp'),
     steps: [
       { title: 'Coe ou filtre', detail: 'Use filtro doméstico, coador de papel ou pano limpo.' },
       { title: 'Veja a concentração', detail: 'Use somente hipoclorito de sódio próprio para tratamento de água e confira se a concentração é 2,5%.' },
       { title: 'Pingue na medida certa', detail: 'Para hipoclorito a 2,5%, use 2 gotas em cada 1 litro de água filtrada.' },
       { title: 'Misture e espere', detail: 'Misture bem e espere 30 minutos antes de beber ou preparar alimentos.' },
-      { title: 'Quando não houver hipoclorito', detail: 'Depois de filtrar, ferva por 5 minutos após começar a fervura e espere esfriar em recipiente limpo e tampado.' }
+      { title: 'Guarde tampada', detail: 'Mantenha a água tratada em recipiente limpo e tampado. Consuma em até 24 horas.' }
     ],
-    alerts: ['Não use produto perfumado, com corante ou concentração diferente sem orientação.', 'A água tratada com hipoclorito deve ser consumida em até 24 horas.'],
+    alerts: ['Não use produto perfumado, com corante ou concentração diferente.', 'Se não houver hipoclorito a 2,5%, abra o guia separado “Água por fervura”.'],
+    sourceLabel: 'Cuidados com a água — Ministério da Saúde',
+    sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/e/enchentes/cuidados-com-a-agua'
+  },
+  {
+    id: 'safe-water-boil',
+    category: 'home-care',
+    title: 'Água segura para beber — filtrar e ferver',
+    shortTitle: 'Água por fervura',
+    summary: 'Alternativa do Ministério da Saúde para quando não há hipoclorito a 2,5%.',
+    image: assetUrl('treatment-guides/safe-water-boil-steps.webp'),
+    steps: [
+      { title: 'Coe ou filtre', detail: 'Use filtro doméstico, coador de papel ou pano limpo.' },
+      { title: 'Espere começar a ferver', detail: 'Leve a água filtrada ao fogo e observe quando a fervura começar.' },
+      { title: 'Conte 5 minutos', detail: 'Depois que começar a ferver, mantenha a fervura por 5 minutos.' },
+      { title: 'Desligue e deixe esfriar', detail: 'Tampe e espere esfriar naturalmente. Não coloque gelo nem toque na água quente.' },
+      { title: 'Guarde protegida', detail: 'Passe para recipiente limpo e tampado antes de beber.' }
+    ],
+    alerts: ['Este é o caminho para quando não há hipoclorito a 2,5%. Não misture os dois métodos na mesma água.', 'Tenha cuidado com fogo, vapor e panela quente.'],
     sourceLabel: 'Cuidados com a água — Ministério da Saúde',
     sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/e/enchentes/cuidados-com-a-agua'
   }
