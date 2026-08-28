@@ -8,14 +8,14 @@ import { CAPABILITIES, hasCapability } from './access-control.js';
 import { accessStatusLabel, isManagement, isMaster, isMasterAccount, roleLabel } from './permissions.js';
 
 const navItems = [
-  ['/app/inicio', 'Início', 'home'],
-  ['/app/territorio', 'Território e rede', 'location'],
-  ['/app/carteirinhas', 'Carteirinhas', 'document'],
-  ['/app/5-minutos', '5 minutos', 'clock'],
-  ['/app/indicadores', 'Indicadores', 'population'],
-  ['/app/educacao', 'Educação em saúde', 'group'],
-  ['/app/tutorial', 'Objetivo e tutorial', 'action'],
-  ['/app/perfil', 'Meu perfil', 'person']
+  ['/app/inicio', 'Início', 'home', 'blue'],
+  ['/app/territorio', 'Território e rede', 'location', 'teal'],
+  ['/app/carteirinhas', 'Carteirinhas', 'susCard', 'violet'],
+  ['/app/5-minutos', '5 minutos', 'clock', 'amber'],
+  ['/app/indicadores', 'Indicadores', 'population', 'green'],
+  ['/app/educacao', 'Educação em saúde', 'group', 'coral'],
+  ['/app/tutorial', 'Objetivo e tutorial', 'document', 'cyan'],
+  ['/app/perfil', 'Meu perfil', 'person', 'slate']
 ];
 
 export function appLayout({ title, subtitle = '', activePath, content }) {
@@ -24,10 +24,10 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
   const networkAdmin = isMaster(profile);
   const masterAccount = isMasterAccount(profile);
   const prescriptionItems = hasCapability(profile, CAPABILITIES.USE_EXTERNAL_PRESCRIPTIONS)
-    ? [['/app/prescricoes', 'Prescrições e receitas', 'prescription']]
+    ? [['/app/prescricoes', 'Prescrições e receitas', 'prescription', 'rose']]
     : [];
   const managementItems = management
-    ? [['/app/aprovacoes', 'Aprovações', 'action'], ['/app/gestao', networkAdmin ? 'Gestão da rede' : 'Gestão da UBS', 'partner']]
+    ? [['/app/aprovacoes', 'Aprovações', 'action', 'orange'], ['/app/gestao', networkAdmin ? 'Gestão da rede' : 'Gestão da UBS', 'partner', 'indigo']]
     : [];
   const items = [...navItems.slice(0, 6), ...prescriptionItems, ...navItems.slice(6), ...managementItems];
   const contextLabel = masterAccount
@@ -110,7 +110,7 @@ export function appLayout({ title, subtitle = '', activePath, content }) {
           </span>
         </a>
         <nav class="app-nav">
-          ${items.map(([path, label, icon]) => `<button type="button" class="nav-link ${activePath === path ? 'active' : ''}" data-nav="${path}" ${activePath === path ? 'aria-current="page"' : ''}>${renderFlaticonIcon(icon, { className: 'nav-flaticon-icon' })}<span>${escapeHtml(label)}</span></button>`).join('')}
+          ${items.map(([path, label, icon, tone]) => `<button type="button" class="nav-link ${activePath === path ? 'active' : ''}" data-nav="${path}" ${activePath === path ? 'aria-current="page"' : ''}><span class="nav-icon-tile nav-icon-tile--${tone}" aria-hidden="true">${renderFlaticonIcon(icon, { className: 'nav-flaticon-icon' })}</span><span class="nav-link-label">${escapeHtml(label)}</span></button>`).join('')}
         </nav>
         <div class="account-card">
           <span class="avatar" aria-hidden="true">${escapeHtml(initials(profile?.full_name))}</span>

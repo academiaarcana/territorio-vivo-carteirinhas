@@ -78,3 +78,24 @@ O navegador autenticado disponível para esta auditoria não oferece alteração
 - Guia de Cadastro e aba Microáreas da gestão.
 
 final result: desktop approved; simple PDF approved; complex pictogram PDF pending; mobile pending
+
+## QA específica — ícones do menu lateral
+
+- Data: 28/08/2026.
+- Referências: captura do menu atual do Território Vivo e capturas desktop/menu do PEC fornecidas pela autora.
+- Escopo: somente navegação autenticada; rotas, papéis, permissões e conteúdo das páginas permaneceram inalterados.
+- Decisão: adaptar a área regular, o alinhamento e a diferenciação funcional observados no PEC, preservando a barra azul e os pictogramas gratuitos com atribuição já adotados pelo Território Vivo.
+- Comparação desktop: referência e implementação foram inspecionadas juntas no navegador em uma única entrada visual.
+- Comparação responsiva: reflow real da aplicação em quadro de 390 × 844 px, sem simular conteúdo por recorte de screenshot.
+- Medidas verificadas: botões com 49,44 px de altura; caixas de pictograma com 34 × 34 px; mesma coordenada inicial em todos os itens; nenhum texto ou item com overflow.
+- Semântica corrigida: **Carteirinhas** usa cartão de saúde; **Objetivo e tutorial** usa documento/guia.
+- Estado ativo, hover e foco mantêm diferenciação por forma, contraste e contorno; a cor não é o único sinal.
+- Os dez pictogramas do perfil Master carregaram com largura natural de 512 px; nenhum placeholder ou emoji foi usado.
+
+### Resultado desta alteração
+
+- **P0:** nenhum bloqueador.
+- **P1:** nenhum corte, desalinhamento, ícone ausente ou perda de navegação.
+- **P2:** nenhum problema visual remanescente dentro do escopo do menu; a auditoria móvel completa das demais páginas continua com o status geral acima.
+
+final result: passed — menu lateral desktop e reflow responsivo de 390 px

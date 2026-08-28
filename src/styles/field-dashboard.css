@@ -53,7 +53,8 @@
   .app-nav { gap: .28rem; }
   .nav-link {
     min-height: 48px;
-    padding: .72rem .78rem;
+    gap: .72rem;
+    padding: .42rem .5rem;
     border-color: transparent;
     color: #fff;
     font-weight: 700;
@@ -68,9 +69,38 @@
     color: var(--field-navy);
     box-shadow: none;
   }
-  .nav-link:not(.active) .nav-flaticon-icon { filter: brightness(0) invert(1); }
-  .nav-link.active .nav-flaticon-icon {
-    filter: brightness(0) saturate(100%) invert(20%) sepia(84%) saturate(1912%) hue-rotate(198deg) brightness(86%) contrast(101%);
+  .nav-icon-tile {
+    --nav-icon-bg: #e8f2ff;
+    --nav-icon-border: #b9d6f5;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border: 1px solid var(--nav-icon-border);
+    border-radius: 9px;
+    background: var(--nav-icon-bg);
+  }
+  .nav-flaticon-icon {
+    width: 21px;
+    height: 21px;
+    flex-basis: 21px;
+    filter: none;
+  }
+  .nav-icon-tile--blue { --nav-icon-bg: #e8f2ff; --nav-icon-border: #b9d6f5; }
+  .nav-icon-tile--teal { --nav-icon-bg: #e4f7f4; --nav-icon-border: #a9ddd5; }
+  .nav-icon-tile--violet { --nav-icon-bg: #f0ebff; --nav-icon-border: #cabcf4; }
+  .nav-icon-tile--amber { --nav-icon-bg: #fff3d7; --nav-icon-border: #efd08d; }
+  .nav-icon-tile--green { --nav-icon-bg: #e7f5e9; --nav-icon-border: #b7dbbd; }
+  .nav-icon-tile--coral { --nav-icon-bg: #ffebe5; --nav-icon-border: #edbcb0; }
+  .nav-icon-tile--rose { --nav-icon-bg: #ffe8ef; --nav-icon-border: #efb5c6; }
+  .nav-icon-tile--cyan { --nav-icon-bg: #e3f5fb; --nav-icon-border: #add9e7; }
+  .nav-icon-tile--slate { --nav-icon-bg: #edf1f5; --nav-icon-border: #c9d2dc; }
+  .nav-icon-tile--orange { --nav-icon-bg: #fff0df; --nav-icon-border: #edc496; }
+  .nav-icon-tile--indigo { --nav-icon-bg: #e9edff; --nav-icon-border: #bec8f3; }
+  .nav-link-label {
+    min-width: 0;
+    line-height: 1.2;
   }
   .account-card {
     padding: .95rem .55rem .2rem;

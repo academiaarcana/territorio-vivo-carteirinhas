@@ -51,7 +51,7 @@ assert.match(visual, /renderFlaticonAttribution/, 'Biblioteca precisa expor atri
 assert.match(visual, /Uso gratuito com atribuição/, 'Crédito precisa deixar explícito o contrato gratuito com atribuição.');
 assert.doesNotMatch(visual, /premium|Premium/, 'Implementação não pode depender de recurso Premium.');
 assert.match(layout, /renderFlaticonIcon/, 'Navegação global precisa usar a biblioteca Flaticon compartilhada.');
-for (const navIcon of ['home', 'location', 'document', 'clock', 'population', 'group', 'person', 'action', 'partner']) {
+for (const navIcon of ['home', 'location', 'susCard', 'document', 'clock', 'population', 'group', 'person', 'action', 'partner']) {
   assert.match(layout, new RegExp(`'${navIcon}'`), `Navegação precisa manter o ícone Flaticon ${navIcon}.`);
 }
 assert.match(structuralCss, /nav-flaticon-icon/, 'CSS precisa dimensionar os ícones Flaticon da navegação.');
