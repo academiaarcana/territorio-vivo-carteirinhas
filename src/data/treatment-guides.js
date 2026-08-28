@@ -24,19 +24,21 @@ export const treatmentGuides = Object.freeze([
     title: 'Bombinha com espaçador — plano para crise',
     shortTitle: 'Espaçador na crise',
     summary: 'A equipe escreve quantos jatos usar, quantas vezes repetir e quando procurar atendimento.',
-    image: assetUrl('treatment-guides/inhaler-spacer-steps.webp'),
+    image: assetUrl('treatment-guides/inhaler-spacer-crisis-detailed.webp'),
     steps: [
       { title: 'Confira a bombinha', detail: 'Veja o nome, o laboratório e a dose escrita pela equipe.' },
       { title: 'Agite bem', detail: 'Agite a bombinha antes do primeiro jato e novamente antes de cada jato seguinte.' },
       { title: 'Monte o espaçador', detail: 'Conecte a bombinha ao espaçador. Encoste a máscara cobrindo nariz e boca, sem deixar frestas.' },
       { title: 'Aperte uma vez', detail: 'Dê somente um jato por vez.' },
-      { title: 'Respire devagar', detail: 'Mantenha a máscara no rosto e faça a quantidade de respirações indicada pela equipe.' },
-      { title: 'Repita somente como prescrito', detail: 'Espere o intervalo escrito. Agite de novo antes do próximo jato.' },
+      { title: 'Respire 10 vezes', detail: 'Depois de cada jato, mantenha a máscara vedada sobre nariz e boca e faça 10 respirações lentas.' },
+      { title: 'Repita somente como prescrito', detail: 'Agite de novo antes de cada jato seguinte. Use somente a quantidade de jatos escrita pela equipe.' },
+      { title: 'Espere o intervalo escrito', detail: 'Quando o plano de crise orientar, espere 20 minutos antes de repetir o ciclo prescrito.' },
       { title: 'Observe a pessoa', detail: 'Se houver piora, dificuldade para falar, sonolência, lábios arroxeados ou falta de ar intensa, procure atendimento sem demora.' }
     ],
     alerts: [
       'Não coloque o frasco metálico na água para verificar se está cheio.',
-      'A quantidade de jatos, repetições e intervalos deve ser escrita por médica(o) ou enfermeira(o) conforme o protocolo do serviço.'
+      'A quantidade de jatos, repetições e intervalos deve ser escrita por médica(o) ou enfermeira(o) conforme o protocolo do serviço.',
+      'A sequência de 10 respirações por jato e o intervalo de 20 minutos precisam ser validados pelo protocolo local antes do uso clínico.'
     ],
     sourceLabel: 'PCDT de doenças respiratórias — Ministério da Saúde',
     sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/pcdt/d/doenca-pulmonar-obstrutiva-cronica'
@@ -47,15 +49,18 @@ export const treatmentGuides = Object.freeze([
     title: 'Bombinha de controle — uso contínuo',
     shortTitle: 'Bombinha contínua',
     summary: 'Ajuda a usar corretamente o medicamento inalatório prescrito para todos os dias.',
-    image: assetUrl('treatment-guides/inhaler-spacer-steps.webp'),
+    image: assetUrl('treatment-guides/inhaled-controller-spacer-detailed.webp'),
     steps: [
       { title: 'Use todos os dias', detail: 'Siga os horários escritos, mesmo quando estiver se sentindo bem.' },
       { title: 'Agite e conecte', detail: 'Quando o produto exigir, agite a bombinha e conecte ao espaçador.' },
-      { title: 'Um jato por vez', detail: 'Aperte uma vez e respire devagar. Agite novamente antes de outro jato.' },
+      { title: 'Vede a máscara', detail: 'Cubra nariz e boca com a máscara, sem deixar frestas.' },
+      { title: 'Um jato por vez', detail: 'Aperte a bombinha somente uma vez.' },
+      { title: 'Respire 10 vezes', detail: 'Depois do jato, mantenha a máscara vedada e faça 10 respirações lentas.' },
+      { title: 'Agite antes do próximo', detail: 'Se houver outro jato prescrito, retire e agite a bombinha novamente antes de apertar.' },
       { title: 'Lave a boca', detail: 'Quando houver corticoide inalatório, gargareje com água e cuspa após terminar. Não engula essa água.' },
       { title: 'Não troque sozinho', detail: 'Não aumente, diminua ou interrompa o medicamento sem orientação da equipe.' }
     ],
-    alerts: ['Medicamento de alívio e medicamento de controle têm finalidades diferentes. Confira o rótulo antes de usar.'],
+    alerts: ['Medicamento de alívio e medicamento de controle têm finalidades diferentes. Confira o rótulo antes de usar.', 'A sequência de 10 respirações por jato deve ser validada pelo protocolo local antes do uso clínico.'],
     sourceLabel: 'PCDT de doenças respiratórias — Ministério da Saúde',
     sourceUrl: 'https://www.gov.br/saude/pt-br/assuntos/pcdt/d/doenca-pulmonar-obstrutiva-cronica'
   },
@@ -325,6 +330,70 @@ export const treatmentGuides = Object.freeze([
     alerts: ['Pessoa inconsciente ou convulsionando: não dê comida, bebida ou medicamento pela boca.', 'Este guia ajuda a reconhecer perigo; ele não substitui avaliação profissional.'],
     sourceLabel: 'Protocolos públicos de urgência — SUS',
     sourceUrl: 'https://www.saude.df.gov.br/documents/37101/0/Protocolos%2Bde%2BRegula%C3%A7%C3%A3o%2BM%C3%A9dica%2Bde%2BUrg%C3%AAncia%2Bdo%2BSAMU-%2BDF%2B192%2Be%2BCrit%C3%A9rios%2BM%C3%A9dicos%2Bde%2BDespacho%2Bde%2BViaturas%2BCM.pdf/10e76074-d445-7a0a-a6d8-2a7f65d4d91f?t=1717432207776'
+  },
+  {
+    id: 'urgent-breathing',
+    category: 'safety',
+    title: 'Falta de ar grave — procure ajuda',
+    shortTitle: 'Falta de ar grave',
+    summary: 'Uma imagem grande para reconhecer quando a respiração está muito difícil.',
+    image: assetUrl('treatment-guides/urgent-breathing.webp'),
+    steps: [
+      { title: 'Observe a respiração', detail: 'É grave quando a pessoa faz muito esforço para respirar, não consegue falar frases, fica muito sonolenta ou apresenta lábios arroxeados.' },
+      { title: 'Não espere em casa', detail: 'Siga o plano de crise escrito e procure atendimento sem demora quando houver sinal de gravidade.' },
+      { title: 'Acione a urgência', detail: 'Em risco imediato, ligue para o SAMU 192 ou siga o fluxo de urgência do município.' }
+    ],
+    alerts: ['Este cartão ajuda a reconhecer perigo e não substitui avaliação profissional.'],
+    sourceLabel: 'Protocolos públicos de urgência — SUS',
+    sourceUrl: 'https://www.saude.df.gov.br/documents/37101/0/Protocolos%2Bde%2BRegula%C3%A7%C3%A3o%2BM%C3%A9dica%2Bde%2BUrg%C3%AAncia%2Bdo%2BSAMU-%2BDF%2B192%2Be%2BCrit%C3%A9rios%2BM%C3%A9dicos%2Bde%2BDespacho%2Bde%2BViaturas%2BCM.pdf/10e76074-d445-7a0a-a6d8-2a7f65d4d91f?t=1717432207776'
+  },
+  {
+    id: 'urgent-hypoglycemia',
+    category: 'safety',
+    title: 'Desmaio ou convulsão — procure ajuda',
+    shortTitle: 'Desmaio ou convulsão',
+    summary: 'A pessoa inconsciente ou convulsionando precisa de ajuda imediata e não pode receber nada pela boca.',
+    image: assetUrl('treatment-guides/urgent-hypoglycemia.webp'),
+    steps: [
+      { title: 'Proteja a pessoa', detail: 'Afaste objetos que possam machucar e coloque de lado quando for possível com segurança.' },
+      { title: 'Nada pela boca', detail: 'Não dê comida, bebida ou medicamento enquanto a pessoa estiver inconsciente ou convulsionando.' },
+      { title: 'Ligue 192', detail: 'Acione o SAMU 192 ou siga imediatamente o fluxo de urgência orientado no município.' }
+    ],
+    alerts: ['Não tente segurar a língua e não coloque objetos na boca.'],
+    sourceLabel: 'Protocolos públicos de urgência — SUS',
+    sourceUrl: 'https://www.saude.df.gov.br/documents/37101/0/Protocolos%2Bde%2BRegula%C3%A7%C3%A3o%2BM%C3%A9dica%2Bde%2BUrg%C3%AAncia%2Bdo%2BSAMU-%2BDF%2B192%2Be%2BCrit%C3%A9rios%2BM%C3%A9dicos%2Bde%2BDespacho%2Bde%2BViaturas%2BCM.pdf/10e76074-d445-7a0a-a6d8-2a7f65d4d91f?t=1717432207776'
+  },
+  {
+    id: 'urgent-eye',
+    category: 'safety',
+    title: 'Problema grave no olho — procure ajuda',
+    shortTitle: 'Urgência no olho',
+    summary: 'Perda súbita da visão, dor intensa, trauma ou produto químico no olho precisam de avaliação urgente.',
+    image: assetUrl('treatment-guides/urgent-eye.webp'),
+    steps: [
+      { title: 'Reconheça o perigo', detail: 'Perda súbita da visão, dor muito forte, trauma ou contato com produto químico são sinais de urgência.' },
+      { title: 'Não improvise medicamento', detail: 'Não use colírio ou pomada de outra pessoa e não espere a visão melhorar sozinha.' },
+      { title: 'Procure atendimento', detail: 'Vá ao serviço de urgência conforme o fluxo orientado no município.' }
+    ],
+    alerts: ['Em contato com produto químico, siga imediatamente a orientação de emergência do produto e do serviço de saúde.'],
+    sourceLabel: 'Protocolos públicos de urgência — SUS',
+    sourceUrl: 'https://www.saude.df.gov.br/documents/37101/0/Protocolos%2Bde%2BRegula%C3%A7%C3%A3o%2BM%C3%A9dica%2Bde%2BUrg%C3%AAncia%2Bdo%2BSAMU-%2BDF%2B192%2Be%2BCrit%C3%A9rios%2BM%C3%A9dicos%2Bde%2BDespacho%2Bde%2BViaturas%2BCM.pdf/10e76074-d445-7a0a-a6d8-2a7f65d4d91f?t=1717432207776'
+  },
+  {
+    id: 'urgent-call-192',
+    category: 'safety',
+    title: 'Como pedir ajuda — SAMU 192',
+    shortTitle: 'Ligar para o SAMU 192',
+    summary: 'Mostra o número 192 em tamanho grande e reforça quando acionar a urgência.',
+    image: assetUrl('treatment-guides/urgent-call-192.webp'),
+    steps: [
+      { title: 'Ligue 192', detail: 'Use o telefone para chamar o SAMU quando houver risco imediato.' },
+      { title: 'Diga onde está', detail: 'Informe endereço, ponto de referência e o que está acontecendo.' },
+      { title: 'Siga as orientações', detail: 'Permaneça na linha e faça somente o que a regulação orientar até a ajuda chegar.' }
+    ],
+    alerts: ['O fluxo de urgência pode incluir outros números ou serviços locais; confirme com a gestão municipal.'],
+    sourceLabel: 'SAMU 192 — Ministério da Saúde',
+    sourceUrl: 'https://www.gov.br/saude/pt-br/composicao/saes/samu-192'
   }
 ]);
 

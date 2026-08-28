@@ -21,17 +21,17 @@ A etapa separada **Escolha a via de uso** foi incorporada à **Biblioteca visual
 
 A via continua sendo um campo obrigatório do rascunho temporário. Ao abrir a categoria **Via de uso**, a opção atual aparece selecionada e pode ser trocada sem criar um segundo seletor visual.
 
-O conjunto autoral local inclui manhã, almoço, noite, antes de dormir, via oral, injeção, pele, gotas, inalação, gotas nos olhos, gotas no ouvido, uso nasal, dor, febre, tosse, desconforto abdominal, evitar álcool, redução gradual e duas cenas de contexto cotidiano para povos indígenas. Personagens e utilitários complementares reutilizam a biblioteca Flaticon já atribuída no produto.
+O conjunto autoral local inclui manhã, almoço, noite, antes de dormir, via oral, injeção, pele, gotas, inalação, gotas nos olhos, gotas no ouvido, uso nasal, dor, febre, tosse, desconforto abdominal, evitar álcool e redução gradual. Também inclui 16 cenas específicas de relação com refeições: antes e depois do café da manhã, almoço e jantar, com alimento e em jejum, tanto no conjunto geral quanto no conjunto para validação com povos indígenas. Personagens e utilitários complementares reutilizam a biblioteca Flaticon já atribuída no produto.
 
 ## Direção de geração
 
-Modo usado: ferramenta de geração de imagens integrada, um ativo por chamada.
+Modo usado: ferramenta de geração de imagens integrada. Os ativos simples foram produzidos individualmente; as cenas de refeições foram organizadas em duas pranchas autorais 4 × 2 e recortadas em arquivos independentes de 512 × 512 px.
 
 Prompt-base: pictograma científico-educacional para um construtor acessível de orientações de medicamentos; ilustração acolhedora em saúde, contorno azul-marinho espesso, preenchimentos planos turquesa, verde-azulado, amarelo e laranja, formas arredondadas, alto contraste, um assunto central, tela quadrada, margem ampla, leitura em 64 px, fundo realmente transparente, sem texto, letras, números, logotipo, marca-d'água ou moldura.
 
-Variações finais: inalação; gotas no ouvido; gotas nos olhos; spray nasal; dor; febre; tosse; desconforto abdominal; evitar álcool; redução gradual; pessoa indígena contemporânea tomando medicamento com refeição pela manhã; pessoa indígena contemporânea descansando em rede à noite. Nas duas últimas foi vedado o uso de traje cerimonial, penas, pintura corporal, caricatura ou padrão tribal genérico.
+Variações finais: inalação; gotas no ouvido; gotas nos olhos; spray nasal; dor; febre; tosse; desconforto abdominal; evitar álcool; redução gradual; antes e depois do café da manhã, almoço e jantar; com refeição; em jejum; e as oito cenas equivalentes com pessoas indígenas contemporâneas. No conjunto indígena foi vedado o uso de traje cerimonial, penas, pintura corporal, caricatura ou padrão tribal genérico.
 
-Os PNGs foram normalizados em 512 × 512 px, fundo transparente e paleta otimizada para carregamento no site.
+Os PNGs simples foram normalizados em 512 × 512 px e fundo transparente. As cenas detalhadas de refeições foram recortadas e convertidas para WebP em 512 × 512 px. A biblioteca mostra três cartões por linha no computador e dois no celular, com imagem de 106 px, para preservar a leitura das diferenças visuais.
 
 ## Limites clínicos e culturais
 

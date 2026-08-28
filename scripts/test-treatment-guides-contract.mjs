@@ -34,7 +34,9 @@ for (const guide of [
   'Água segura para beber — filtrar e ferver', 'Depois da bombinha com corticoide',
   'Spray nasal — higiene e cuidado', 'Pomada para os olhos — evitar contaminação',
   'Insulina — guardar, transportar e descartar', 'Hipoclorito — qual produto pode usar?',
-  'Sinais de alerta — procure ajuda sem demora'
+  'Sinais de alerta — procure ajuda sem demora', 'Falta de ar grave — procure ajuda',
+  'Desmaio ou convulsão — procure ajuda', 'Problema grave no olho — procure ajuda',
+  'Como pedir ajuda — SAMU 192'
 ]) assert.match(data, new RegExp(guide), `Catálogo deve incluir ${guide}.`);
 
 for (const safety of [
@@ -43,13 +45,15 @@ for (const safety of [
 ]) assert.match(data, new RegExp(safety, 'i'), `Conteúdo seguro ausente: ${safety}.`);
 
 for (const file of [
-  'inhaler-spacer-steps.webp', 'inhaler-no-spacer-steps.webp', 'nasal-spray-steps.webp',
+  'inhaler-spacer-crisis-detailed.webp', 'inhaled-controller-spacer-detailed.webp',
+  'inhaler-no-spacer-steps.webp', 'nasal-spray-steps.webp',
   'vaginal-cream-steps.webp', 'insulin-nph-steps.webp', 'insulin-regular-steps.webp',
   'insulin-glargine-pen-steps.webp', 'eye-ointment-steps.webp',
   'safe-water-drops-steps.webp', 'safe-water-boil-steps.webp',
   'inhaled-steroid-mouth-care.webp', 'nasal-spray-hygiene.webp',
   'eye-ointment-hygiene.webp', 'insulin-storage-disposal.webp',
-  'safe-water-product-check.webp', 'urgent-warning-signs.webp'
+  'safe-water-product-check.webp', 'urgent-warning-signs.webp', 'urgent-breathing.webp',
+  'urgent-hypoglycemia.webp', 'urgent-eye.webp', 'urgent-call-192.webp'
 ]) {
   assert.match(data, new RegExp(file.replace('.', '\\.')), `Catálogo deve referenciar ${file}.`);
   assert.ok(fs.statSync(`src/assets/treatment-guides/${file}`).size > 20_000, `${file} precisa ser um ativo visual real.`);
@@ -67,6 +71,9 @@ assert.match(data, /Cada pessoa deve usar o próprio frasco/, 'Spray nasal não 
 assert.match(data, /não pode tocar o olho, os cílios, a pele ou os dedos/i, 'Pomada ocular precisa evitar contaminação da ponta.');
 assert.match(data, /não dê comida, bebida ou medicamento pela boca/i, 'Alerta de inconsciência precisa impedir administração oral insegura.');
 assert.match(data, /SAMU 192/, 'Guia de sinais de alerta precisa orientar busca imediata de ajuda.');
+assert.match(data, /Respire 10 vezes/, 'Espaçador deve explicar dez respirações depois de cada jato.');
+assert.match(data, /validada pelo protocolo local/i, 'A sequência de dez respirações precisa exigir validação local.');
+assert.match(data, /Quando o plano de crise orientar, espere 20 minutos/, 'O intervalo de crise não pode aparecer como regra universal.');
 
 assert.match(css, /#app\[data-route="\/app\/tratamentos"\]/, 'Estilos precisam ficar limitados à rota.');
 assert.match(css, /@media print/, 'Guias precisam ter contrato de impressão.');

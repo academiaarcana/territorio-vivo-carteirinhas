@@ -37,7 +37,7 @@ Seis cartões complementares mantêm uma ação principal por quadro e evitam so
 - pomada ocular: higiene das mãos, uso de espelho, ponta afastada e não compartilhamento;
 - sinais de urgência: dificuldade respiratória grave, hipoglicemia grave, perda súbita da visão e acionamento do SAMU 192.
 
-O catálogo passa a ter 17 guias: 11 principais e 6 complementares.
+Quatro alertas também aparecem em cartões individuais e grandes: falta de ar grave, desmaio ou convulsão, problema grave no olho e ligação para o SAMU 192. O catálogo passa a ter 21 guias: 11 principais, 6 complementares e 4 alertas individuais.
 
 ## Correções de segurança aplicadas
 
@@ -55,6 +55,9 @@ O catálogo passa a ter 17 guias: 11 principais e 6 complementares.
 - A alternativa com água sanitária só aparece quando o rótulo informa de 2,0% a 2,5% de cloro ativo e ausência de perfume, essência, desinfetante ou outro aditivo, conforme o Ministério da Saúde.
 - Insulina em transporte não encosta diretamente no gelo; agulhas e seringas vão para recipiente rígido resistente à perfuração e depois para a UBS.
 - Pessoa inconsciente ou convulsionando não recebe comida, bebida ou medicamento pela boca.
+- Bombinha com espaçador usa um jato por vez. Quando o protocolo local e a prescrição adotarem essa técnica, a pessoa mantém a máscara vedada e respira 10 vezes depois de cada jato; isso não significa aplicar dez jatos.
+- O intervalo de 20 minutos aparece somente como parte do plano de crise escrito e validado pelo serviço, nunca como regra automática para todos.
+- A imagem de urgência local identifica o **Hospital e Maternidade Ana Neta**; em risco imediato, o guia também preserva a orientação para o SAMU 192 e para o fluxo municipal.
 
 ## Fontes de referência
 
@@ -75,7 +78,7 @@ Os guias de spray nasal e creme vaginal exigem conferência da bula do produto e
 
 ## Imagens
 
-As ilustrações específicas de espaçador, bombinha sem espaçador, spray nasal, creme vaginal, NPH, Regular, glargina, pomada oftálmica, tratamento da água e os seis complementos são originais e ficam em `src/assets/treatment-guides/`, otimizadas em WebP para carregamento no computador e no celular. Cada sequência usa uma ação principal por quadro e reduz dependência de texto. As capturas enviadas foram usadas apenas como referência de temas e problemas de comunicação. Nenhum desenho, logotipo, código ou ativo do site externo foi incorporado.
+As ilustrações específicas de espaçador, bombinha sem espaçador, spray nasal, creme vaginal, NPH, Regular, glargina, pomada oftálmica, tratamento da água, complementos e alertas são originais e ficam em `src/assets/treatment-guides/`, otimizadas em WebP para carregamento no computador e no celular. O uso contínuo e o plano de crise possuem imagens distintas. As duas explicitam `1 JATO` e `RESPIRAR 10 VEZES`; a versão de crise separa ainda `REPETIR SÓ SE RECEITADO`, `20 min` e a procura do Hospital e Maternidade Ana Neta. Cada sequência usa uma ação principal por quadro e reduz dependência de texto. As capturas enviadas foram usadas apenas como referência de temas, nome oficial do serviço e problemas de comunicação. Nenhum desenho, logotipo, código ou ativo do site externo foi incorporado.
 
 ### Prompt-base dos seis complementos autorais
 
@@ -87,3 +90,9 @@ As seis imagens foram geradas em modo de criação, sem editar nem copiar ativos
 4. usar spray nasal com mãos limpas, apontar para fora, limpar o bico e não compartilhar;
 5. usar pomada oftálmica com mãos limpas, espelho e ponta afastada do olho, sem compartilhar;
 6. reconhecer dificuldade respiratória grave, hipoglicemia grave, perda súbita da visão e acionar o SAMU 192.
+
+### Prompts das correções de espaçador e alertas
+
+Modo usado: ferramenta de geração de imagens integrada. Os prompts preservaram a grade e o estilo educativo, trocaram `10×` por `1 JATO — RESPIRAR 10 VEZES`, mantiveram a repetição condicionada à receita e separaram o intervalo de 20 minutos. A fotografia do Hospital e Maternidade Ana Neta foi usada apenas para confirmar o nome; fachada, logotipo, bandeiras e demais elementos da foto não foram copiados.
+
+Os quatro alertas individuais foram recortados de uma prancha autoral 2 × 2: falta de ar grave, pessoa inconsciente ou convulsionando sem nada pela boca, urgência ocular e ligação para o SAMU 192.

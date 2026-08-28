@@ -94,3 +94,13 @@ O navegador autenticado disponível para esta auditoria não oferece alteração
 A comparação visual bloqueante entre a captura de referência e a implementação renderizada não foi concluída: o navegador em nuvem recusou a URL local de QA pela política de segurança. Não foi usado outro navegador nem uma captura simulada como substituto. A conferência visual real em computador e celular permanece pendente antes de publicar esta etapa.
 
 final result: blocked
+
+## Complemento — refeições e espaçadores detalhados
+
+- As 16 cenas de relação com refeições foram inspecionadas como arquivos individuais: antes e depois do café da manhã, almoço e jantar, com alimento e em jejum, nos conjuntos geral e indígena.
+- A biblioteca foi ampliada de 72 px para 106 px por imagem e passou a usar três colunas no computador e duas no celular.
+- As imagens de espaçador para uso contínuo e crise foram inspecionadas individualmente. Ambas comunicam um jato por vez e dez respirações após o jato; a imagem de crise mantém repetição condicionada à receita, intervalo de 20 minutos e procura do Hospital e Maternidade Ana Neta.
+- Os quatro alertas individuais foram inspecionados sem corte nos arquivos de origem.
+- Essas verificações confirmam os ativos isolados, não a página renderizada. A validação real de reflow, foco, rolagem e legibilidade em computador e celular continua pendente.
+
+final result: blocked

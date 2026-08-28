@@ -39,13 +39,39 @@ const combined = [
   ['combined-oral-lunch', 'Comprimido no almoço', 'Via oral + almoço', 'oral', 'lunch', ''],
   ['combined-oral-evening', 'Comprimido à noite', 'Via oral + noite', 'oral', 'evening', ''],
   ['combined-oral-bedtime', 'Comprimido antes de dormir', 'Via oral + hora de deitar', 'oral', 'bedtime', ''],
-  ['combined-before-meal', 'Antes da refeição', 'Via oral + 30 minutos antes de comer', 'oral', 'lunch', '30 minutos antes da refeição'],
+  ['combined-before-breakfast', 'Antes do café da manhã', 'Via oral • conferir intervalo', 'oral', 'morning', 'antes do café da manhã', 'meal-before-breakfast.webp'],
+  ['combined-after-breakfast', 'Depois do café da manhã', 'Via oral • conferir intervalo', 'oral', 'morning', 'depois do café da manhã', 'meal-after-breakfast.webp'],
+  ['combined-before-lunch', 'Antes do almoço', 'Via oral • conferir intervalo', 'oral', 'lunch', 'antes do almoço', 'meal-before-lunch.webp'],
+  ['combined-after-lunch', 'Depois do almoço', 'Via oral • conferir intervalo', 'oral', 'lunch', 'depois do almoço', 'meal-after-lunch.webp'],
+  ['combined-before-dinner', 'Antes do jantar', 'Via oral • conferir intervalo', 'oral', 'evening', 'antes do jantar', 'meal-before-dinner.webp'],
+  ['combined-after-dinner', 'Depois do jantar', 'Via oral • conferir intervalo', 'oral', 'evening', 'depois do jantar', 'meal-after-dinner.webp'],
   ['combined-drops-morning', 'Gotas pela manhã', 'Gotas + manhã', 'drops', 'morning', ''],
   ['combined-topical-night', 'Aplicar à noite', 'Uso na pele + noite', 'topical', 'evening', '']
-].map(([id, label, hint, route, schedule, observation]) => ({
+].map(([id, label, hint, route, schedule, observation, imageFile]) => ({
   id, category: 'combined', label, hint, action: 'preset', route, schedule, observation,
-  image: prescriptionRoutes.find((item) => item.id === route)?.image
+  image: imageFile ? assetUrl(imageFile) : prescriptionRoutes.find((item) => item.id === route)?.image
 }));
+
+const combinedMealAssociations = [
+  { id: 'combined-with-food', category: 'combined', label: 'Tomar com a refeição', hint: 'Somente se estiver prescrito', action: 'observation', observation: 'junto com a refeição', ...localVisual('meal-with-food.webp') },
+  { id: 'combined-fasting', category: 'combined', label: 'Tomar em jejum', hint: 'Somente se estiver prescrito', action: 'observation', observation: 'em jejum', ...localVisual('meal-fasting.webp') }
+];
+
+const indigenousMealPresets = [
+  ['indigenous-before-breakfast', 'Antes do café da manhã', 'Validar com a comunidade', 'morning', 'antes do café da manhã', 'indigenous-before-breakfast.webp'],
+  ['indigenous-after-breakfast', 'Depois do café da manhã', 'Validar com a comunidade', 'morning', 'depois do café da manhã', 'indigenous-after-breakfast.webp'],
+  ['indigenous-before-lunch', 'Antes do almoço', 'Validar com a comunidade', 'lunch', 'antes do almoço', 'indigenous-before-lunch.webp'],
+  ['indigenous-after-lunch', 'Depois do almoço', 'Validar com a comunidade', 'lunch', 'depois do almoço', 'indigenous-after-lunch.webp'],
+  ['indigenous-before-dinner', 'Antes do jantar', 'Validar com a comunidade', 'evening', 'antes do jantar', 'indigenous-before-dinner.webp'],
+  ['indigenous-after-dinner', 'Depois do jantar', 'Validar com a comunidade', 'evening', 'depois do jantar', 'indigenous-after-dinner.webp']
+].map(([id, label, hint, schedule, observation, imageFile]) => ({
+  id, category: 'indigenous', label, hint, action: 'preset', route: 'oral', schedule, observation, ...localVisual(imageFile)
+}));
+
+const indigenousMealAssociations = [
+  { id: 'indigenous-with-food', category: 'indigenous', label: 'Tomar com a refeição', hint: 'Validar com a comunidade', action: 'observation', observation: 'junto com a refeição', ...localVisual('indigenous-with-food.webp') },
+  { id: 'indigenous-fasting', category: 'indigenous', label: 'Tomar em jejum', hint: 'Validar com a comunidade', action: 'observation', observation: 'em jejum', ...localVisual('indigenous-fasting.webp') }
+];
 
 const routeItems = prescriptionRoutes.map((item) => ({ ...item, category: 'routes', action: 'route' }));
 const timeItems = [
@@ -79,11 +105,11 @@ const supportItems = [
   { id: 'family', category: 'characters', label: 'Família', hint: 'Rede de cuidado', action: 'support', ...attributedVisual('family') },
 
   { id: 'water', category: 'associations', label: 'Tomar com água', hint: 'Somente se estiver prescrito', action: 'support', ...attributedVisual('water') },
-  { id: 'fasting', category: 'associations', label: 'Jejum', hint: 'Somente se estiver prescrito', action: 'support', ...attributedVisual('fasting') },
+  { id: 'fasting', category: 'associations', label: 'Jejum', hint: 'Somente se estiver prescrito', action: 'support', ...localVisual('meal-fasting.webp') },
   { id: 'medicine', category: 'associations', label: 'Medicamento', hint: 'Apoio geral', action: 'support', ...attributedVisual('medicine') },
   { id: 'avoid-alcohol', category: 'associations', label: 'Evitar álcool', hint: 'Somente se estiver orientado', action: 'support', ...localVisual('avoid-alcohol.png') },
   { id: 'companion', category: 'associations', label: 'Pessoa acompanhante', hint: 'Rede de apoio', action: 'support', ...attributedVisual('companion') },
-  { id: 'with-food', category: 'associations', label: 'Tomar com alimento', hint: 'Somente se estiver prescrito', action: 'support', ...localVisual('lunch.png') },
+  { id: 'with-food', category: 'associations', label: 'Tomar com alimento', hint: 'Somente se estiver prescrito', action: 'support', ...localVisual('meal-with-food.webp') },
 
   { id: 'gradual-reduction', category: 'taper', label: 'Redução gradual', hint: 'Escrever todas as etapas', action: 'support', ...localVisual('gradual-reduction.png') },
 
@@ -100,7 +126,15 @@ const supportItems = [
   { id: 'document', category: 'utilities', label: 'Documento', hint: 'Receita ou orientação', action: 'support', ...attributedVisual('document') }
 ];
 
-export const prescriptionSupportItems = Object.freeze([...combined, ...routeItems, ...timeItems, ...supportItems]);
+export const prescriptionSupportItems = Object.freeze([
+  ...combined,
+  ...combinedMealAssociations,
+  ...indigenousMealPresets,
+  ...indigenousMealAssociations,
+  ...routeItems,
+  ...timeItems,
+  ...supportItems
+]);
 
 const itemById = new Map(prescriptionSupportItems.map((item) => [item.id, item]));
 

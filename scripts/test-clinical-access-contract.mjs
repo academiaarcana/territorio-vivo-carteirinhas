@@ -50,7 +50,12 @@ for (const category of ['Combinados', 'Combinados Povos Indígenas', 'Via de uso
 for (const file of [
   'morning.png', 'lunch.png', 'evening.png', 'bedtime.png', 'oral.png', 'injection.png', 'topical.png', 'drops.png',
   'inhalation.png', 'eye-drops.png', 'ear-drops.png', 'nasal-spray.png', 'pain.png', 'fever.png', 'cough.png',
-  'stomach-discomfort.png', 'avoid-alcohol.png', 'gradual-reduction.png', 'indigenous-morning.png', 'indigenous-night.png'
+  'stomach-discomfort.png', 'avoid-alcohol.png', 'gradual-reduction.png', 'indigenous-morning.png', 'indigenous-night.png',
+  'meal-before-breakfast.webp', 'meal-after-breakfast.webp', 'meal-before-lunch.webp', 'meal-after-lunch.webp',
+  'meal-before-dinner.webp', 'meal-after-dinner.webp', 'meal-with-food.webp', 'meal-fasting.webp',
+  'indigenous-before-breakfast.webp', 'indigenous-after-breakfast.webp', 'indigenous-before-lunch.webp',
+  'indigenous-after-lunch.webp', 'indigenous-before-dinner.webp', 'indigenous-after-dinner.webp',
+  'indigenous-with-food.webp', 'indigenous-fasting.webp'
 ]) {
   assert.match(support, new RegExp(file.replace('.', '\\.')), `Catálogo deve referenciar ${file}.`);
   assert.ok(fs.statSync(`src/assets/prescription-support/${file}`).size > 10_000, `${file} precisa ser um ativo visual real.`);
@@ -68,5 +73,8 @@ assert.match(css, /#app\[data-route="\/app\/prescricoes"\]/, 'Estilos devem fica
 assert.match(css, /@media print/, 'Orientações locais precisam de contrato de impressão.');
 assert.match(css, /prescription-print-sheet/, 'Impressão deve ter folha própria.');
 assert.match(css, /prescription-support-tabs button[^}]*white-space: nowrap/, 'Abas devem permanecer em uma linha como na referência visual.');
+assert.match(css, /prescription-support-grid[^}]*repeat\(3, minmax\(0, 1fr\)\)/, 'Biblioteca deve limitar a grade a três colunas legíveis no computador.');
+assert.match(css, /prescription-support-card-visual img[^}]*width: 106px[^}]*height: 106px/, 'Pictogramas detalhados precisam permanecer grandes na biblioteca.');
+assert.match(css, /@media \(max-width: 760px\)[\s\S]*prescription-support-grid[^}]*repeat\(2, minmax\(0, 1fr\)\)/, 'Biblioteca deve usar duas colunas no celular.');
 
 console.log('Contrato clínico OK: Médico/Enfermeiro, menor privilégio, pictogramas autorais e rascunho local sem persistência.');
