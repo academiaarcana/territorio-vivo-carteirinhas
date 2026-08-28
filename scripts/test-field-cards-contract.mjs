@@ -13,6 +13,10 @@ assert.match(cards, /card-editor-steps/, 'O editor precisa explicitar preencher,
 assert.match(cards, /Opções de impressão e acessibilidade/, 'As opções da prévia precisam formar um grupo acessível.');
 assert.match(cards, /renderFlaticonIcon/, 'A biblioteca deve reutilizar os ícones atribuídos do projeto.');
 assert.match(cards, /Criar/, 'A ação dos modelos deve comunicar o resultado esperado.');
+assert.match(cards, /const opts = \{ \.\.\.options\(body\), showEditorPlaceholder: false \};/, 'Impressão e PDF precisam desativar a instrução interna do editor.');
+assert.match(cards, /showEditorPlaceholder = true/, 'A prévia em tela deve continuar orientando quando nenhum campo foi preenchido.');
+assert.match(cards, /renderEditorPlaceholder\(showEditorPlaceholder\)/, 'Todos os modelos devem compartilhar a separação entre prévia vazia e conteúdo imprimível.');
+assert.match(cards, /showEditorPlaceholder\s*\? '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha\.<\/p>'\s*:\s*'';/, 'A instrução do editor nunca pode integrar o HTML de impressão quando desativada.');
 assert.match(css, /@media screen/, 'A camada visual não pode alcançar impressão ou PDF.');
 assert.match(css, /#app\[data-route="\/app\/carteirinhas"\]/, 'O refinamento precisa ficar limitado à rota de carteirinhas.');
 assert.match(css, /@media \(max-width: 760px\)/, 'A biblioteca e o editor precisam preservar reflow mobile.');
