@@ -5,6 +5,7 @@ import { setButtonBusy, canSubmitForm } from '../lib/forms.js';
 import { isMaster, isMasterAccount, isUnitAdmin, roleLabel, canChangeProfileRole } from '../core/permissions.js';
 import {
   listProfiles, listUnits, listTeams, listMunicipalities, adminUpdateProfile, setProfileRole,
+  listMicroareas, createMicroarea, updateMicroarea,
   createTeam, updateTeam, updateUnit, createUnit, createMunicipality, updateMunicipality
 } from '../services/repository.js';
 
@@ -22,6 +23,7 @@ export function renderAdminPage({ state }) {
         <button class="tab-button active" role="tab" aria-selected="true" data-admin-tab="profiles">Perfis</button>
         <button class="tab-button" role="tab" aria-selected="false" data-admin-tab="units">Unidades</button>
         <button class="tab-button" role="tab" aria-selected="false" data-admin-tab="teams">Equipes</button>
+        <button class="tab-button" role="tab" aria-selected="false" data-admin-tab="microareas">Microáreas</button>
         ${master ? '<button class="tab-button" role="tab" aria-selected="false" data-admin-tab="municipalities">Municípios</button>' : ''}
       </div>
       <div id="admin-content"><p>Carregando…</p></div>
@@ -36,7 +38,7 @@ export async function mountAdminPage({ root, state }) {
   const master = isMaster(state.profile);
   const masterAccount = isMasterAccount(state.profile);
   const unitAdmin = isUnitAdmin(state.profile);
-  let data = { profiles: [], units: [], teams: [], municipalities: [] };
+  let data = { profiles: [], units: [], teams: [], microareas: [], municipalities: [] };
   let active = 'profiles';
   let searchQuery = '';
   let mutationInFlight = false;
@@ -54,16 +56,19 @@ export async function mountAdminPage({ root, state }) {
     setStatus(status, 'Atualizando…', 'info');
     refreshPromise = (async () => {
       try {
-        const [profilesRaw, unitsRaw, teamsRaw, municipalitiesRaw] = await Promise.all([
-          listProfiles(), listUnits({ includeInactive: true }), listTeams({ includeInactive: true }), listMunicipalities({ includeInactive: true })
+        const [profilesRaw, unitsRaw, teamsRaw, microareasRaw, municipalitiesRaw] = await Promise.all([
+          listProfiles(), listUnits({ includeInactive: true }), listTeams({ includeInactive: true }),
+          listMicroareas({ includeInactive: true }), listMunicipalities({ includeInactive: true })
         ]);
         const ownUnit = state.profile?.unit_cnes;
         const ownMunicipality = state.profile?.municipality_code;
         const units = master ? unitsRaw : unitsRaw.filter((unit) => unit.cnes === ownUnit);
         const teams = master ? teamsRaw : teamsRaw.filter((team) => team.unit_cnes === ownUnit);
+        const visibleTeamIds = new Set(teams.map((team) => team.id));
+        const microareas = microareasRaw.filter((microarea) => visibleTeamIds.has(microarea.team_id));
         const profiles = master ? profilesRaw : profilesRaw.filter((profile) => profile.unit_cnes === ownUnit);
         const municipalities = master ? municipalitiesRaw : municipalitiesRaw.filter((item) => item.code === ownMunicipality);
-        data = { profiles, units, teams, municipalities };
+        data = { profiles, units, teams, microareas, municipalities };
         renderKpis(root, data, { master });
         renderActive();
         setStatus(status, '', '');
@@ -138,6 +143,7 @@ export async function mountAdminPage({ root, state }) {
     if (active === 'profiles') content.innerHTML = renderProfiles(data, searchQuery, { master, masterAccount, actor: state.profile });
     if (active === 'units') content.innerHTML = renderUnits(data, searchQuery, { master, unitAdmin });
     if (active === 'teams') content.innerHTML = renderTeams(data, searchQuery);
+    if (active === 'microareas') content.innerHTML = renderMicroareas(data, searchQuery);
     if (active === 'municipalities') content.innerHTML = renderMunicipalities(data, searchQuery, { master });
   }
 
@@ -169,6 +175,9 @@ export async function mountAdminPage({ root, state }) {
     const toggleTeam = event.target.closest('[data-toggle-team]');
     const editTeam = event.target.closest('[data-edit-team]');
     const addTeam = event.target.closest('[data-add-team]');
+    const editMicroarea = event.target.closest('[data-edit-microarea]');
+    const addMicroarea = event.target.closest('[data-add-microarea]');
+    const toggleMicroarea = event.target.closest('[data-toggle-microarea]');
     const addUnit = event.target.closest('[data-add-unit]');
     const addMunicipality = event.target.closest('[data-add-municipality]');
     const editMunicipality = event.target.closest('[data-edit-municipality]');
@@ -182,6 +191,8 @@ export async function mountAdminPage({ root, state }) {
     if (editUnit) return openUnitEditor(editUnit.dataset.editUnit);
     if (editTeam) return openTeamEditor({ teamId: editTeam.dataset.editTeam });
     if (addTeam) return openTeamEditor();
+    if (editMicroarea) return openMicroareaEditor(editMicroarea.dataset.editMicroarea);
+    if (addMicroarea) return openMicroareaEditor();
     if (addUnit && master) return openUnitCreate();
     if (addMunicipality && master) return openMunicipalityCreate();
     if (editMunicipality && master) return openMunicipalityEditor(editMunicipality.dataset.editMunicipality);
@@ -205,6 +216,17 @@ export async function mountAdminPage({ root, state }) {
         task: () => updateTeam(team.id, { active: !team.active })
       });
     }
+
+    if (toggleMicroarea) {
+      const microarea = data.microareas.find((row) => row.id === toggleMicroarea.dataset.toggleMicroarea);
+      if (!microarea) return;
+      return runInlineMutation(toggleMicroarea, {
+        busyLabel: microarea.active ? 'Desativando…' : 'Ativando…',
+        successMessage: microarea.active ? 'Microárea desativada.' : 'Microárea ativada.',
+        errorMessage: 'Não foi possível alterar a microárea.',
+        task: () => updateMicroarea(microarea.id, { active: !microarea.active })
+      });
+    }
   });
 
   function openProfileEditor(id) {
@@ -223,22 +245,29 @@ export async function mountAdminPage({ root, state }) {
     dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">Editar perfil profissional</h2><p>${editorIntro}</p>
       <form id="admin-profile-form" class="stack-form">
         <label>Nome<input name="full_name" value="${escapeHtml(profile.full_name || '')}" required maxlength="160"></label>
-        <label>Microárea <span class="field-hint">(somente ACS)</span><input name="microarea" value="${escapeHtml(profile.microarea || '')}" maxlength="40"></label>
         <label>Contato<input name="acs_phone" value="${escapeHtml(profile.acs_phone || '')}" maxlength="80"></label>
         ${master ? `<label>Unidade<select name="unit_cnes" id="admin-profile-unit"><option value="">—</option>${availableUnits.map((unit) => `<option value="${escapeHtml(unit.cnes)}" ${unit.cnes === profile.unit_cnes ? 'selected' : ''}>${escapeHtml(unit.short_name)}</option>`).join('')}</select></label>` : `<div class="readonly-field"><span>Unidade</span><strong>${escapeHtml(profileUnit?.short_name || profile.unit_name || '—')}</strong></div>`}
         <label>Equipe<select name="team_id" id="admin-profile-team"><option value="">—</option></select></label>
+        <label>Microárea <span class="field-hint">(somente ACS)</span><select name="microarea_id" id="admin-profile-microarea"><option value="">Não informada</option></select></label>
         ${roleEditable ? `<label>Função de acesso<select name="role">${professionalOptions}<option value="unit_admin" ${profile.role === 'unit_admin' ? 'selected' : ''}>Administrador da UBS</option>${adminOption}</select></label>` : `<div class="readonly-field"><span>Função</span><strong>${escapeHtml(roleLabel(profile))}</strong></div>`}
         <button class="button primary" type="submit">Salvar</button>
       </form></section>`;
     const form = dialogBody.querySelector('#admin-profile-form');
     const unitSelect = form.querySelector('#admin-profile-unit');
     const teamSelect = form.querySelector('#admin-profile-team');
+    const microareaSelect = form.querySelector('#admin-profile-microarea');
+    function syncMicroareas(teamId, selectedId = '') {
+      const rows = data.microareas.filter((microarea) => microarea.team_id === teamId && microarea.active);
+      microareaSelect.innerHTML = '<option value="">Não informada</option>' + rows.map((microarea) => `<option value="${escapeHtml(microarea.id)}" ${microarea.id === selectedId ? 'selected' : ''}>Microárea ${escapeHtml(microarea.code)}${microarea.population_count === null ? ' • pessoas não informadas' : ` • ${microarea.population_count} pessoas`}</option>`).join('');
+    }
     function syncTeams(unitCnes, selectedId = '') {
       const rows = data.teams.filter((team) => team.unit_cnes === unitCnes && team.active);
       teamSelect.innerHTML = '<option value="">—</option>' + rows.map((team) => `<option value="${escapeHtml(team.id)}" ${team.id === selectedId ? 'selected' : ''}>${escapeHtml(team.name)}${team.ine ? ` • INE ${escapeHtml(team.ine)}` : ''}</option>`).join('');
+      syncMicroareas(teamSelect.value, selectedId ? profile.microarea_id || '' : '');
     }
     syncTeams(profile.unit_cnes, profile.team_id || '');
     unitSelect?.addEventListener('change', () => syncTeams(unitSelect.value));
+    teamSelect.addEventListener('change', () => syncMicroareas(teamSelect.value));
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const values = formToObject(form);
@@ -247,6 +276,7 @@ export async function mountAdminPage({ root, state }) {
       const team = data.teams.find((row) => row.id === values.team_id && row.unit_cnes === unitCnes);
       const requestedRole = roleEditable ? values.role : profile.role;
       const acsScope = requestedRole === 'acs';
+      const microarea = data.microareas.find((row) => row.id === values.microarea_id && row.team_id === team?.id && row.active);
       const localStatus = ensureFormStatus(form);
       if (requestedRole !== 'admin' && !unitCnes) return setStatus(localStatus, 'Perfil profissional precisa estar vinculado a uma unidade.', 'error');
       await submitDialogForm(form, {
@@ -261,7 +291,8 @@ export async function mountAdminPage({ root, state }) {
           const managedTeam = gestorScope ? null : team;
           await adminUpdateProfile(id, {
             full_name: (values.full_name || '').trim(),
-            microarea: gestorScope || !acsScope ? '' : (values.microarea || '').trim(),
+            microarea_id: gestorScope || !acsScope ? null : (microarea?.id || null),
+            microarea: gestorScope || !acsScope ? '' : (microarea?.code || ''),
             acs_phone: (values.acs_phone || '').trim(),
             municipality_code: managedUnit?.municipality_code || (gestorScope ? null : profile.municipality_code || null),
             unit_cnes: gestorScope ? null : unitCnes,
@@ -307,6 +338,38 @@ export async function mountAdminPage({ root, state }) {
             await adminUpdateProfile(pendingProfile.id, { municipality_code: unit?.municipality_code || pendingProfile.municipality_code, unit_cnes: saved.unit_cnes, team_id: saved.id, unit_name: unit?.name || pendingProfile.unit_name || '', team_name: saved.name });
           }
         }
+      });
+    });
+    openAccessibleDialog(dialog);
+  }
+
+  function openMicroareaEditor(microareaId = null) {
+    const existing = microareaId ? data.microareas.find((row) => row.id === microareaId) : null;
+    const availableTeams = data.teams.filter((team) => team.active);
+    const assignedAcs = existing ? data.profiles.find((profile) => profile.role === 'acs' && profile.microarea_id === existing.id) : null;
+    dialogBody.innerHTML = `<section><h2 id="admin-dialog-title">${existing ? 'Editar microárea' : 'Cadastrar microárea'}</h2>
+      <p>Registre somente a quantidade agregada de pessoas. Não inclua nomes, CPF, CNS, diagnósticos ou dados de prontuário.</p>
+      <form id="microarea-form" class="stack-form">
+        ${existing ? `<div class="readonly-field"><span>Equipe</span><strong>${escapeHtml(teamLabel(data, existing.team_id))}</strong></div>` : `<label>Equipe<select name="team_id" required><option value="">Selecione</option>${availableTeams.map((team) => `<option value="${escapeHtml(team.id)}">${escapeHtml(teamLabel(data, team.id))}</option>`).join('')}</select></label>`}
+        <label>Código da microárea<input name="code" required maxlength="40" value="${escapeHtml(existing?.code || '')}" placeholder="Ex.: 08"></label>
+        <label>Pessoas acompanhadas <span class="field-hint">(deixe vazio quando não souber)</span><input name="population_count" type="number" min="0" step="1" value="${existing?.population_count ?? ''}" inputmode="numeric"></label>
+        <label>Data de referência<input name="population_reference_date" type="date" value="${escapeHtml(existing?.population_reference_date || '')}"></label>
+        <label>Origem do total<select name="data_status"><option value="not_informed" ${!existing || existing.data_status === 'not_informed' ? 'selected' : ''}>Não informado</option><option value="local_confirmed" ${existing?.data_status === 'local_confirmed' ? 'selected' : ''}>Confirmado pela equipe/gestão</option><option value="esus_report" ${existing?.data_status === 'esus_report' ? 'selected' : ''}>Relatório e-SUS APS</option></select></label>
+        <label>Identificação da fonte<input name="source_label" maxlength="180" value="${escapeHtml(existing?.source_label || '')}" placeholder="Ex.: Relatório e-SUS APS"></label>
+        <label>Observação<textarea name="source_note" rows="3" maxlength="2000">${escapeHtml(existing?.source_note || '')}</textarea></label>
+        ${assignedAcs ? `<div class="readonly-field"><span>ACS responsável</span><strong>${escapeHtml(assignedAcs.full_name || 'Perfil sem nome')}</strong></div>` : '<p class="field-hint">O ACS responsável é definido em Perfis profissionais.</p>'}
+        <button class="button primary" type="submit">${existing ? 'Salvar microárea' : 'Cadastrar microárea'}</button>
+      </form></section>`;
+    const form = dialogBody.querySelector('#microarea-form');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const values = formToObject(form);
+      if (existing) values.team_id = existing.team_id;
+      await submitDialogForm(form, {
+        busyLabel: existing ? 'Salvando…' : 'Cadastrando…',
+        successMessage: existing ? 'Microárea atualizada.' : 'Microárea cadastrada.',
+        errorMessage: 'Não foi possível salvar a microárea. Confira a equipe, o código e a quantidade informada.',
+        task: () => existing ? updateMicroarea(existing.id, values) : createMicroarea(values)
       });
     });
     openAccessibleDialog(dialog);
@@ -409,12 +472,13 @@ function ensureFormStatus(form) {
 }
 
 function renderKpis(root, data, { master }) {
-  const pendingTeams = data.profiles.filter((p) => ['acs', 'physician', 'nurse'].includes(p.role) && !p.team_id && p.team_name?.trim()).length;
+  const informedPopulation = data.microareas.reduce((total, microarea) => total + (microarea.population_count ?? 0), 0);
   root.querySelector('#admin-kpis').innerHTML = [
     ['Perfis', data.profiles.length],
     [master ? 'Unidades ativas' : 'Minha unidade', master ? data.units.filter((u) => u.is_active).length : data.units.length],
     ['Equipes ativas', data.teams.filter((t) => t.active).length],
-    ['Equipes a confirmar', pendingTeams]
+    ['Microáreas ativas', data.microareas.filter((m) => m.active).length],
+    ['Pessoas informadas', informedPopulation]
   ].map(([label,value]) => `<article class="kpi"><small>${escapeHtml(label)}</small><strong>${value}</strong></article>`).join('');
 }
 
@@ -426,10 +490,11 @@ function renderProfiles(data, query, { master, masterAccount, actor }) {
       ? 'O Gestor Municipal administra profissionais e administradores de UBS, mas não altera outra conta de Gestor nem a conta Master.'
       : 'A gestão local vê o próprio perfil e os profissionais/ACS da unidade; somente perfis profissionais/ACS podem ser editados.';
   return `<div class="section-actions"><div><h3>Perfis profissionais</h3><p class="field-hint">${hint}</p></div></div>
-    ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Unidade</th><th>Equipe</th><th>Microárea</th><th>Função</th><th>Ações</th></tr></thead><tbody>${rows.map((p) => {
+    ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Profissional</th><th>Unidade</th><th>Equipe</th><th>Microárea</th><th>Pessoas</th><th>Função</th><th>Ações</th></tr></thead><tbody>${rows.map((p) => {
       const editable = canEditManagedProfile(actor, p);
       const pendingTeam = editable && ['acs', 'physician', 'nurse'].includes(p.role) && !p.team_id && p.team_name?.trim() && p.unit_cnes;
-      return `<tr><td>${escapeHtml(p.full_name || '—')}</td><td>${escapeHtml(p.unit_name || '—')}</td><td>${escapeHtml(p.team_name || '—')}${!p.team_id && p.team_name?.trim() ? '<br><span class="status-badge warning">A confirmar</span>' : ''}</td><td>${escapeHtml(p.microarea || '—')}</td><td>${escapeHtml(roleLabel(p))}</td><td><div class="actions">${editable ? `<button class="link-button" type="button" data-edit-profile="${escapeHtml(p.id)}">Editar</button>` : '<span class="field-hint">Protegido</span>'}${pendingTeam ? `<button class="link-button" type="button" data-confirm-pending-team="${escapeHtml(p.id)}">Confirmar equipe</button>` : ''}</div></td></tr>`;
+      const microarea = data.microareas.find((item) => item.id === p.microarea_id);
+      return `<tr><td>${escapeHtml(p.full_name || '—')}</td><td>${escapeHtml(p.unit_name || '—')}</td><td>${escapeHtml(p.team_name || '—')}${!p.team_id && p.team_name?.trim() ? '<br><span class="status-badge warning">A confirmar</span>' : ''}</td><td>${escapeHtml(microarea?.code || p.microarea || '—')}</td><td>${microarea?.population_count === null || microarea?.population_count === undefined ? 'Não informado' : microarea.population_count}</td><td>${escapeHtml(roleLabel(p))}</td><td><div class="actions">${editable ? `<button class="link-button" type="button" data-edit-profile="${escapeHtml(p.id)}">Editar</button>` : '<span class="field-hint">Protegido</span>'}${pendingTeam ? `<button class="link-button" type="button" data-confirm-pending-team="${escapeHtml(p.id)}">Confirmar equipe</button>` : ''}</div></td></tr>`;
     }).join('')}</tbody></table></div>` : empty('Nenhum perfil encontrado')}`;
 }
 
@@ -443,6 +508,19 @@ function renderTeams(data, query) {
   const rows = filterRows(data.teams, query, (t) => [t.name,t.ine,t.verification_status,data.units.find((u) => u.cnes === t.unit_cnes)?.short_name]);
   return `<div class="section-actions"><div><h3>Equipes</h3><p class="field-hint">Cadastre ou confirme equipes vinculadas às unidades do seu escopo.</p></div><button class="button" data-add-team type="button">Cadastrar equipe</button></div>
     ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Unidade</th><th>Equipe</th><th>INE</th><th>Status</th><th>Ativa</th><th>Ações</th></tr></thead><tbody>${rows.map((t) => { const unit = data.units.find((u) => u.cnes === t.unit_cnes); return `<tr><td>${escapeHtml(unit?.short_name || t.unit_cnes)}</td><td>${escapeHtml(t.name)}</td><td>${escapeHtml(t.ine || '—')}</td><td>${t.verification_status === 'confirmed' ? 'Confirmada' : 'Pendente'}</td><td>${t.active ? 'Sim' : 'Não'}</td><td><div class="actions"><button class="link-button" type="button" data-edit-team="${escapeHtml(t.id)}">Editar</button><button class="link-button" type="button" data-toggle-team="${escapeHtml(t.id)}">${t.active ? 'Desativar' : 'Ativar'}</button></div></td></tr>`; }).join('')}</tbody></table></div>` : empty('Nenhuma equipe encontrada')}`;
+}
+
+function renderMicroareas(data, query) {
+  const rows = filterRows(data.microareas, query, (microarea) => {
+    const profile = data.profiles.find((item) => item.microarea_id === microarea.id);
+    return [microarea.code, microarea.population_count, microarea.data_status, microarea.source_label, teamLabel(data, microarea.team_id), profile?.full_name];
+  });
+  return `<div class="section-actions"><div><h3>Microáreas e população acompanhada</h3><p class="field-hint">Cada microárea pertence a uma equipe eSF. Totais vazios aparecem como “Não informado”; zero só deve ser usado quando o relatório realmente registrar zero.</p></div><button class="button" data-add-microarea type="button">Cadastrar microárea</button></div>
+    ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>UBS / equipe</th><th>Microárea</th><th>ACS responsável</th><th>Pessoas</th><th>Referência</th><th>Fonte</th><th>Ativa</th><th>Ações</th></tr></thead><tbody>${rows.map((microarea) => {
+      const profile = data.profiles.find((item) => item.role === 'acs' && item.microarea_id === microarea.id);
+      const sourceLabel = microarea.data_status === 'esus_report' ? 'e-SUS APS' : microarea.data_status === 'local_confirmed' ? 'Confirmação local' : 'Não informada';
+      return `<tr><td>${escapeHtml(teamLabel(data, microarea.team_id))}</td><td>${escapeHtml(microarea.code)}</td><td>${escapeHtml(profile?.full_name || 'Não informado')}</td><td>${microarea.population_count === null ? 'Não informado' : microarea.population_count}</td><td>${microarea.population_reference_date ? formatDateBr(microarea.population_reference_date) : '—'}</td><td>${escapeHtml(microarea.source_label || sourceLabel)}</td><td>${microarea.active ? 'Sim' : 'Não'}</td><td><div class="actions"><button class="link-button" type="button" data-edit-microarea="${escapeHtml(microarea.id)}">Editar</button><button class="link-button" type="button" data-toggle-microarea="${escapeHtml(microarea.id)}">${microarea.active ? 'Desativar' : 'Ativar'}</button></div></td></tr>`;
+    }).join('')}</tbody></table></div>` : empty('Nenhuma microárea encontrada')}`;
 }
 
 function renderMunicipalities(data, query, { master }) {
@@ -462,6 +540,12 @@ function canEditManagedProfile(actor, target) {
 function filterRows(rows, query, values) {
   if (!query) return rows;
   return rows.filter((row) => values(row).filter(Boolean).join(' ').toLowerCase().includes(query));
+}
+
+function teamLabel(data, teamId) {
+  const team = data.teams.find((item) => item.id === teamId);
+  const unit = data.units.find((item) => item.cnes === team?.unit_cnes);
+  return [unit?.short_name || team?.unit_cnes, team?.name].filter(Boolean).join(' • ') || 'Equipe não informada';
 }
 
 function empty(title) {

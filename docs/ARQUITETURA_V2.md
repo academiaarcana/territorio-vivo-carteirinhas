@@ -170,6 +170,7 @@ Os campos relacionais são a referência primária:
 - `municipality_code` → `municipalities.code`;
 - `unit_cnes` → `health_units.cnes`;
 - `team_id` → `teams.id`.
+- `microarea_id` → `microareas.id` (somente ACS; pode permanecer vazio enquanto o dado não for confirmado).
 
 `unit_name` e `team_name` não podem divergir silenciosamente dos IDs. Triggers do banco recalculam os nomes canônicos quando há vínculo por identificador e sincronizam perfis quando nomes institucionais vinculados são alterados.
 
@@ -183,6 +184,7 @@ Tabelas públicas:
 - `municipalities`: municípios habilitados;
 - `health_units`: UBS/postos/pontos de atendimento;
 - `teams`: equipes por unidade;
+- `microareas`: microáreas por equipe, ACS responsável e contagem agregada opcional;
 - `territory_points`: recursos, parceiros, potencialidades, riscos ambientais/estruturais, barreiras e pontos críticos **não pessoais**.
 
 Todas possuem RLS habilitado.
@@ -223,7 +225,9 @@ Protegidas e ativas:
 - `#/app/5-minutos`;
 - `#/app/indicadores`;
 - `#/app/educacao`;
+- `#/app/guia-cadastro` — guia educativo de consulta, sem coleta ou persistência de respostas do cidadão;
 - `#/app/prescricoes` — somente `physician` ou `nurse` ativos; abre serviço externo sem persistência local;
+- O fluxo entre PEC e apoio visual segue `docs/INTEGRACAO_SEGURA_PEC.md`: a receita oficial permanece no PEC e o Território Vivo gera apenas uma orientação visual complementar, temporária e conferida pela(o) profissional.
 - `#/app/perfil`.
 
 Gestão ativa:
@@ -322,9 +326,9 @@ O workflow também testa com a publishable key que o catálogo público é acess
 
 Mudança DDL nova deve ser sempre uma nova migration numerada, aplicada ao mesmo projeto Supabase e seguida de Security/Performance Advisor.
 
-## Critério antes do redesign
+## Critérios usados na transição para o design system
 
-A V2 só avança para design system quando:
+A transição da V2 para o design system exigiu:
 
 1. migrations Git e Supabase estiverem sincronizadas;
 2. Security/Performance Advisors revisados;
@@ -335,4 +339,4 @@ A V2 só avança para design system quando:
 7. não houver dependência do código legado nem de plataforma de deploy paralela;
 8. as fronteiras de privacidade e autorização permanecerem comprovadas.
 
-O PR de homologação permanece Draft e não deve ser mesclado na `main` antes desses critérios.
+Esses critérios foram atendidos para a entrega publicada. O Painel de Campo e as superfícies funcionais foram integrados à `main` com CI aprovado. A QA visual autenticada em desktop está registrada em `design-qa.md`; a evidência em celular continua pendente e não deve ser presumida a partir de recorte ou redução de captura desktop.

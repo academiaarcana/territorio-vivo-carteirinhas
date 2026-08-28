@@ -44,8 +44,11 @@ O repositório não depende de configuração Vercel. A branch de desenvolviment
 - 5 minutos do território;
 - indicadores;
 - educação em saúde;
+- guia inclusivo de cadastro territorial;
+- prescrições e receitas com apoio visual temporário para Médico/Enfermeiro;
 - perfil profissional/territorial;
-- aprovações e gestão por escopo para `unit_admin`/master.
+- aprovações e gestão por escopo para Administrador da UBS, Gestor Municipal e Master;
+- gestão de microáreas e totais populacionais agregados.
 
 ## Modelo territorial
 
@@ -58,6 +61,8 @@ Tabelas atuais do Supabase:
 - `municipalities`;
 - `health_units`;
 - `teams`;
+- `microareas`;
+- `territory_points`;
 - `profiles`.
 
 Unidades podem vir de referência pública. Equipes e lotações profissionais devem ser confirmadas localmente, porque mudam com o tempo.
@@ -67,6 +72,9 @@ Unidades podem vir de referência pública. Equipes e lotações profissionais d
 Cada profissional cria a própria conta. O backend é a fonte de verdade para permissões.
 
 - contas comuns recebem papel `acs`;
+- Médico e Enfermeiro são perfis clínicos de menor privilégio, vinculados à UBS/equipe;
+- o Administrador da UBS gerencia somente a própria unidade;
+- o Gestor Municipal atua no escopo municipal;
 - a conta master definida no banco recebe papel `admin`;
 - o frontend **não permite escolher função**;
 - `role` + `access_status` + vínculo territorial determinam o nível efetivo;
@@ -138,4 +146,19 @@ No Supabase, a URL de produção precisa estar autorizada em **Authentication �
 
 ## Estado da V2
 
-A arquitetura V2 é desenvolvida primeiro em branch/PR de refactor. **Design visual e identidade serão tratados depois da homologação funcional**, sem misturar regras de negócio com acabamento de interface.
+A V2 está publicada na `main` e no GitHub Pages. A arquitetura modular, o Painel de Campo, os papéis territoriais, o Guia de Cadastro Inclusivo, o apoio visual a prescrições e a estrutura de microáreas foram integrados após CI e homologação.
+
+| Área | Estado em 28/08/2026 |
+|---|---|
+| Auth, aprovação e papéis | Homologados |
+| RLS, migrations e Advisors | Verificados |
+| Painel de Campo no desktop | Aprovado em navegador autenticado |
+| Guia de Cadastro Inclusivo | Publicado |
+| Prescrições e receitas | Publicado; rascunho temporário, sem prontuário paralelo |
+| Carteirinhas e PDF | Modelo simples validado em A4 real; modelo com pictogramas complexos aguarda inspeção humana |
+| Correspondência dos pictogramas | Contratos cobrem plurais, serviços, preparos, 5 Minutos e Indicadores |
+| Microáreas | Estrutura publicada; totais oficiais aguardam fonte e data de referência |
+| Reflow em celular | Pendente de evidência em dispositivo real |
+| Senhas vazadas do Supabase | Recurso posterior, dependente de plano Pro |
+
+Não cadastrar totais populacionais por estimativa. Ausência de fonte oficial continua como `null`/“Não informado”.

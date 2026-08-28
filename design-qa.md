@@ -1,70 +1,86 @@
-# Design QA — Território, Carteirinhas, 5 Minutos, Indicadores, Educação, Prescrições e Tratamentos Ilustrados
+# Design QA — Painel de Campo e fluxos autenticados
 
-## Evidências
+## Estado da validação
 
-- Fonte visual: `/workspace/scratch/47bc8ece9b5f/generated_images/exec-86adee3b-15ca-4c3c-ac9f-6a057afe5359.png`
-- Fonte visual aberta: sim; referência “Painel de Campo”, 1488 × 1058 px.
-- Implementação: `src/pages/territory.js`, `src/styles/field-territory.css`, `src/pages/cards.js`, `src/styles/field-cards.css`, `src/pages/five.js`, `src/styles/field-five.css`, `src/pages/indicators.js`, `src/styles/field-indicators.css`, `src/pages/education.js`, `src/styles/field-education.css`, `src/pages/prescriptions.js`, `src/data/prescription-support.js`, `src/assets/prescription-support/`, `src/styles/field-prescriptions.css`, `src/pages/treatments.js`, `src/data/treatment-guides.js`, `src/assets/treatment-guides/` e `src/styles/field-treatments.css`.
-- Captura da implementação: indisponível.
-- Tentativa atual de captura: em 27/08/2026 foi montada uma prévia temporária com estado de Médica(o) ativo; o servidor local respondeu na porta `4173`, mas o navegador em nuvem não alcançou a ponte e retornou `ERR_CONNECTION_REFUSED` antes da renderização. Os arquivos temporários foram removidos após a tentativa.
-- Viewport-alvo: desktop 1440 × 1024 CSS px, densidade 1×; reflow previsto em 760 px.
-- Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos`, `#/app/indicadores`, `#/app/educacao`, `#/app/tratamentos` e `#/app/prescricoes` com um perfil autenticado e vínculo territorial válido; Prescrições exige papel Médico ou Enfermeiro ativo e Tratamentos diferencia ACS de perfil clínico.
-- Interações prioritárias: filtrar achados e rede, cadastrar e gerenciar achados conforme permissão; buscar e filtrar modelos, abrir o editor, preencher lote, ajustar acessibilidade e iniciar PDF/impressão; preencher a nota dos 5 minutos; selecionar escopo, informar indicadores, registrar a leitura contextual; abrir materiais educativos, imprimir, gerar PDF e acessar ferramentas externas identificadas; preservar os rascunhos durante a navegação e limpar quando aplicável.
-- Console do navegador: não verificado porque a página não chegou a renderizar no navegador em nuvem; tentativas anteriores também haviam retornado `ERR_BLOCKED_BY_CLIENT`.
+- Data: 28/08/2026.
+- Base das oito capturas autenticadas: versão publicada no GitHub Pages, commit `f9b1cc6fd0fc2afdcf8486f578f64a324022b7a2`.
+- Versão pública atual após as correções de PDF e pictogramas: commit `374828d9c47abb0e85aa10aff823d8f90449dbea`.
+- Sessão: perfil Enfermeira(o) ativo, vinculado à UBS Madre Tereza de Calcutá e à Equipe 02.
+- Viewport real: 1348 × 926 px, densidade 1×.
+- Dados clínicos: nenhum formulário foi preenchido; nenhuma receita, identificação pessoal ou diagnóstico foi inserido.
+- Console: nenhuma mensagem de erro ou alerta originada pelo domínio do Território Vivo durante as capturas autenticadas.
 
-## Comparação de tela inteira
+## Evidências desktop
 
-Bloqueada. A referência aprovada define shell, cores, tipografia, densidade e hierarquia, mas representa a rota Início. As rotas Território, Carteirinhas, 5 Minutos, Indicadores e Educação estendem esse sistema sem telas-fonte específicas geradas pelo 12UI, cuja autenticação foi cancelada após bloqueio de segurança do Fortinet. Sem capturas reais da implementação, não é possível encerrar diferenças visuais P0/P1/P2.
+Foram capturadas, salvas e inspecionadas as seguintes rotas publicadas:
 
-## Comparação de regiões focadas
+1. `#/app/inicio` — shell, vínculo territorial, papel e roteiro principal.
+2. `#/app/territorio` — faixa territorial, filtros, métricas, estado vazio e formulário de achado.
+3. `#/app/carteirinhas` — biblioteca, busca, categorias, cartões e declaração de não persistência.
+4. `#/app/5-minutos` — roteiro em quatro movimentos, nota temporária e formulário sequencial.
+5. `#/app/indicadores` — ciclo de leitura, números disponíveis, interpretação e declarações de rascunho temporário.
+6. `#/app/educacao` — guia de cadastro, biblioteca interna e materiais educativos.
+7. `#/app/guia-cadastro` — limites do material e primeiras dimensões do cadastro territorial.
+8. `#/app/prescricoes` — restrição por papel, fronteira de privacidade, colagem opcional do PEC e prévia de adesivos.
 
-Bloqueada. Não foi possível produzir uma composição conjunta contendo a referência e uma captura renderizada dos seguintes trechos:
+As oito capturas mostraram conteúdo estável, sem tela em branco, carregamento interrompido, parede de login, modal indevido ou erro de renderização.
 
-- introdução do território e ação principal;
-- filtros e métricas de achados;
-- cartões de achados e estados;
-- formulário de registro;
-- rede de unidades e breakpoint móvel;
-- biblioteca, filtros e cartões de modelos;
-- editor, opções de acessibilidade e prévia da carteirinha;
-- estados desktop e móvel das Carteirinhas.
-- introdução, duração e roteiro em quatro movimentos dos 5 Minutos;
-- formulário sequencial, opções de impressão e estados desktop e móvel da nota.
-- introdução e ciclo em quatro movimentos dos Indicadores;
-- referência, grupos numéricos, reflexão territorial, opções de impressão e estados desktop e móvel dos Indicadores.
-- introdução, biblioteca interna e cartões de Educação em saúde;
-- ferramentas externas, detalhe do material, fontes, opções de impressão e estados desktop e móvel da Educação.
-- gerador local de orientações visuais, colagem temporária do PEC, seleção de via e período, biblioteca com dez categorias, busca, seleção de apoios, avisos de retirada de corticoide e validação cultural, prévia, lista, remoção, limpeza, impressão/PDF, fronteira de privacidade, orientação específica por papel e reflow móvel.
-- biblioteca de dez tratamentos ilustrados, busca, filtros, passos de leitura fácil, ilustrações de espaçador/insulina/pomada oftálmica, leitura em voz alta, confirmação por demonstração, personalização clínica temporária, modo ACS, impressão/PDF e reflow móvel.
+## Tratamentos ilustrados
 
-## Superfícies de fidelidade
+A rota `#/app/tratamentos` adiciona dez orientações de leitura fácil para ACS, Médica(o) e Enfermeira(o), com busca, filtros, leitura em voz alta, confirmação por demonstração e personalização clínica temporária. As ilustrações autorais de espaçador, insulina e pomada oftálmica foram revisadas; no guia do espaçador, a bombinha está conectada, não há mão duplicada e as setas apontam da bombinha para a boca.
 
-- Tipografia: a família Inter e a escala do Painel de Campo foram preservadas no código; wrapping e peso óptico não foram confirmados em navegador.
-- Espaçamento e ritmo: Território usa faixa introdutória, área de trabalho assimétrica e métricas leves; Carteirinhas usa biblioteca em três colunas e editor com formulário e prévia; 5 Minutos usa roteiro lateral e formulário sequencial; Indicadores usa faixa introdutória, ciclo em quatro movimentos e área assimétrica entre números e interpretação; Educação separa biblioteca interna, ferramentas externas e detalhe sequencial. As superfícies passam a uma coluna em telas menores. As proporções finais dependem de captura.
-- Cores e tokens: azul profundo, azul de ação, verde territorial e neutros reutilizam os tokens de `field-dashboard.css`; contraste renderizado ainda requer evidência visual.
-- Imagens e ícones: a biblioteca Flaticon já atribuída foi preservada e vinte pictogramas autorais foram gerados individualmente para vias, períodos, sintomas, associações, redução gradual e dois contextos de povos indígenas. Não foram usados recortes, sprites, logotipos, código ou ativos do site externo. A origem Google Cloud própria está documentada, mas não foi ativada porque o ambiente ainda não possui acesso `gcloud`.
-- Texto e conteúdo: a redação permanece não pessoal e orientada à equipe; Carteirinhas, 5 Minutos e Indicadores mantêm declarações explícitas de dados temporários e não persistentes. Indicadores também explicita que campo vazio não equivale a zero. Educação identifica ferramentas externas, remove parâmetros de rastreamento e declara que elas não integram prontuários, contas ou dados do produto. Prescrições restringe o acesso a Médico/Enfermeiro, não coleta identificação ou diagnóstico, mantém o rascunho somente em memória e explicita que os pictogramas não substituem a prescrição original.
+Essa rota ainda não está publicada e, portanto, não faz parte das oito evidências autenticadas acima. Sua QA permanece pendente em desktop e celular; contratos automatizados não substituem essa inspeção visual.
 
-## Histórico de comparação
+## Evidência complementar de PDF
 
-Não houve iteração visual válida porque não foi possível abrir a implementação em navegador. A inspeção da referência e os testes automatizados não substituem a comparação visual exigida.
+O modelo **Minha ACS e Minha Equipe** foi gerado no site público em uma sessão autenticada de Enfermeira(o), sem nome de cidadão, receita, diagnóstico ou outro dado clínico. A primeira inspeção real identificou que a instrução interna do editor aparecia indevidamente nas quatro posições da folha. A separação entre prévia vazia e conteúdo imprimível foi corrigida no PR #15.
 
-## Verificações concluídas
+Depois da publicação do commit `0c07302ac0ba54ea5bd9aeac23618ef28559a299`, o mesmo PDF foi baixado, renderizado em PNG e inspecionado novamente:
 
-- `npm run check --offline`: aprovado integralmente em 27/08/2026 após a tentativa de prévia.
-- Contrato “Território em Campo”: aprovado.
-- Contrato “Carteirinhas em Campo”: aprovado.
-- Contrato “5 Minutos em Campo”: aprovado.
-- Contrato “Indicadores em Campo”: aprovado.
-- Contrato “Educação em Campo”: aprovado.
-- Contrato clínico Médico/Enfermeiro: aprovado.
-- Contrato “Tratamentos Ilustrados”: aprovado.
-- Sintaxe JavaScript: aprovada.
-- Arquitetura, segurança, migrations, Auth, papéis, concorrência, coordenadas, impressão e PDF: aprovados.
-- Migration de papéis clínicos: versionada e pendente de aplicação; banco e contas de produção ainda não foram alterados.
+- formato A4 e uma única página;
+- grade 2 × 2 com quatro carteirinhas;
+- nenhuma instrução interna do editor no material final;
+- nenhum corte, sobreposição ou estouro da folha;
+- título, UBS, equipe, referência profissional e rodapé legíveis.
 
-## Bloqueador
+O PR #16 ampliou a correspondência automatizada dos pictogramas e corrigiu os termos reais no plural usados pelo produto: **Famílias**, **Pessoas idosas**, **Gestantes** e **Equipe**. O contrato também cobre data, hora, UBS, serviços, preparos, avisos, 5 Minutos e Indicadores.
 
-Obter capturas reais das rotas autenticadas Território, Carteirinhas, 5 Minutos, Indicadores, Educação e Prescrições em desktop e celular, verificar as interações e o console e comparar as implementações com a referência em uma composição conjunta.
+A inspeção humana do modelo **Meu Próximo Atendimento** preenchido com data, hora, serviço e preparos continua pendente. A sessão autenticada expirou antes dessa prova e nenhuma senha foi solicitada ou manipulada. Contrato automatizado aprovado não deve ser apresentado como substituto dessa inspeção visual.
 
-final result: blocked
+## Resultado visual desktop
+
+- **P0:** nenhum problema bloqueador observado.
+- **P1:** nenhum problema grave de hierarquia, corte, sobreposição ou navegação observado no viewport auditado.
+- **P2:** telas de trabalho extensas dependem de rolagem para alcançar todos os campos e ações; isso é esperado, mas deve ser reavaliado no celular para evitar excesso de densidade.
+- O shell mantém navegação lateral, identificação de UBS/equipe/papel e ação de saída de forma consistente.
+- Títulos, faixas introdutórias, ações primárias, cartões e estados vazios apresentam hierarquia legível.
+- As declarações de privacidade e não persistência aparecem antes dos campos temporários nas superfícies correspondentes.
+- Educação e Guia de Cadastro apresentam o conteúdo inclusivo sem coletar respostas do cidadão.
+- Prescrições comunica que o apoio visual é complementar, temporário e exclusivo para Médico/Enfermeiro ativo.
+
+## Acessibilidade: evidência e limites
+
+Pelas capturas, há contraste visual consistente, indicação clara do item ativo no menu, títulos hierárquicos e botões distinguíveis de texto comum. Capturas não comprovam navegação por teclado, ordem de foco, nomes acessíveis, leitura por tecnologia assistiva, zoom, redução de movimento, alvos de toque ou contraste calculado. Esses pontos continuam cobertos pelos contratos automatizados, mas ainda exigem homologação humana quando houver dispositivo adequado.
+
+## Verificações técnicas já concluídas
+
+- `npm run check --offline`: aprovado integralmente no commit público `374828d9c47abb0e85aa10aff823d8f90449dbea`.
+- Contratos de Território, Carteirinhas, 5 Minutos, Indicadores, Educação e papéis clínicos: aprovados.
+- Sintaxe, arquitetura, segurança, migrations, Auth, papéis, concorrência, coordenadas, impressão e PDF: aprovados.
+- Migration de papéis clínicos: `20260827001020 — add_clinical_professional_roles`.
+- Migration territorial: `20260827180933 — add_microareas_and_population_counts`.
+- Tabela `microareas`: criada com RLS e políticas verificadas; totais populacionais oficiais continuam sem preenchimento até recebimento de fonte e data de referência.
+
+## Pendência móvel
+
+O navegador autenticado disponível para esta auditoria não oferece alteração real de viewport nem emulação de dispositivo. Recortar a captura desktop não produz reflow e não seria evidência válida. A validação em celular permanece pendente e deve cobrir, no mínimo:
+
+- menu e saída da conta;
+- empilhamento de faixas, cartões, filtros e formulários;
+- rolagem horizontal involuntária;
+- legibilidade e alvos de toque;
+- editor e prévia de Carteirinhas;
+- formulários de 5 Minutos, Indicadores, Prescrições e Tratamentos ilustrados;
+- Guia de Cadastro e aba Microáreas da gestão.
+
+final result: desktop approved for published routes; simple PDF approved; complex pictogram PDF pending; treatments visual QA pending; mobile pending

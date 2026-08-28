@@ -197,7 +197,7 @@ function mountEditor(dialog, body, template, state, opener) {
 
   function sheetHtml() {
     const sheetCount = Number(count.value);
-    const opts = options(body);
+    const opts = { ...options(body), showEditorPlaceholder: false };
     saveActive();
     persistDraft();
     if (!batchMode.checked) {
@@ -320,7 +320,13 @@ function renderField(field) {
   return `<label>${escapeHtml(field.label)}<input name="${escapeHtml(field.id)}" type="${escapeHtml(field.type || 'text')}" maxlength="240" ${required}></label>`;
 }
 
-function buildCardHtml(template, values, state, { easyRead = false, visualSupport = false, largePrint = false, economy = false } = {}) {
+function buildCardHtml(template, values, state, {
+  easyRead = false,
+  visualSupport = false,
+  largePrint = false,
+  economy = false,
+  showEditorPlaceholder = true
+} = {}) {
   const profile = state.profile || {};
   const context = state.context || {};
   const unit = context.unit?.short_name || profile.unit_name || 'Unidade de saúde';
@@ -328,13 +334,13 @@ function buildCardHtml(template, values, state, { easyRead = false, visualSuppor
   const fields = template.fields.map((field) => ({ field, label: field.label, value: displayValue(field, values[field.id]) })).filter((item) => item.value);
 
   if (template.id === 'appointment') {
-    return buildAppointmentCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy });
+    return buildAppointmentCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy, showEditorPlaceholder });
   }
 
-  return buildCollectionCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy });
+  return buildCollectionCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy, showEditorPlaceholder });
 }
 
-function buildCollectionCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy }) {
+function buildCollectionCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy, showEditorPlaceholder }) {
   const teamAndMicroarea = [team, profile.microarea ? `Microárea ${profile.microarea}` : ''].filter(Boolean).join(' • ');
   const reference = profile.full_name
     ? `Referência: ${escapeHtml(profile.full_name)}${profile.acs_phone ? ` • ${escapeHtml(profile.acs_phone)}` : ''}`
@@ -377,7 +383,7 @@ function buildCollectionCardHtml({ template, fields, profile, unit, team, easyRe
         ${teamAndMicroarea ? `<span class="collection-card-territory">${escapeHtml(teamAndMicroarea)}</span>` : ''}
         ${reference ? `<span class="collection-card-reference">${reference}</span>` : ''}
       </div>
-      <div class="generated-card-fields collection-card-fields">${fields.length ? fields.map((item) => renderCollectionCardField(item, visualSupport)).join('') : '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha.</p>'}</div>
+      <div class="generated-card-fields collection-card-fields">${fields.length ? fields.map((item) => renderCollectionCardField(item, visualSupport)).join('') : renderEditorPlaceholder(showEditorPlaceholder)}</div>
       <footer class="collection-card-note">${escapeHtml(template.note || '')}</footer>
     </article>`;
 }
@@ -395,7 +401,7 @@ function renderCollectionCardField(item, visualSupport) {
   return `<div class="${classes}">${visualSupport ? renderVisualSupports({ label: item.label, value: item.value, type: item.field.type }, { max: 3, className: 'field-pictogram' }) : ''}<span class="generated-card-field-copy"><small>${escapeHtml(item.label)}</small><p>${escapeHtml(item.value).replace(/\n/g, '<br>')}</p></span></div>`;
 }
 
-function buildAppointmentCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy }) {
+function buildAppointmentCardHtml({ template, fields, profile, unit, team, easyRead, visualSupport, largePrint, economy, showEditorPlaceholder }) {
   const teamAndMicroarea = [team, profile.microarea ? `Microárea ${profile.microarea}` : ''].filter(Boolean).join(' • ');
   const reference = profile.full_name
     ? `Referência: ${escapeHtml(profile.full_name)}${profile.acs_phone ? ` • ${escapeHtml(profile.acs_phone)}` : ''}`
@@ -432,9 +438,15 @@ function buildAppointmentCardHtml({ template, fields, profile, unit, team, easyR
         ${teamAndMicroarea ? `<span class="appointment-card-territory">${escapeHtml(teamAndMicroarea)}</span>` : ''}
         ${reference ? `<span class="appointment-card-reference">${reference}</span>` : ''}
       </div>
-      <div class="generated-card-fields appointment-card-fields">${fields.length ? fields.map((item) => `<div class="generated-card-field appointment-card-field appointment-card-field-${escapeHtml(item.field.id)}">${visualSupport ? renderVisualSupports({ label: item.label, value: item.value, type: item.field.type }, { max: 3, className: 'field-pictogram' }) : ''}<span class="generated-card-field-copy"><small>${escapeHtml(item.label)}</small><p>${escapeHtml(item.value).replace(/\n/g, '<br>')}</p></span></div>`).join('') : '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha.</p>'}</div>
+      <div class="generated-card-fields appointment-card-fields">${fields.length ? fields.map((item) => `<div class="generated-card-field appointment-card-field appointment-card-field-${escapeHtml(item.field.id)}">${visualSupport ? renderVisualSupports({ label: item.label, value: item.value, type: item.field.type }, { max: 3, className: 'field-pictogram' }) : ''}<span class="generated-card-field-copy"><small>${escapeHtml(item.label)}</small><p>${escapeHtml(item.value).replace(/\n/g, '<br>')}</p></span></div>`).join('') : renderEditorPlaceholder(showEditorPlaceholder)}</div>
       <footer class="appointment-card-note">${escapeHtml(template.note || '')}</footer>
     </article>`;
+}
+
+function renderEditorPlaceholder(showEditorPlaceholder) {
+  return showEditorPlaceholder
+    ? '<p class="placeholder-copy">Preencha os campos ao lado para montar a carteirinha.</p>'
+    : '';
 }
 
 function displayValue(field, raw) {

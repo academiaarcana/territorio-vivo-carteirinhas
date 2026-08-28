@@ -43,6 +43,26 @@
   .education-intro-metrics strong { color: var(--field-ink); font-size: 1.25rem; }
   .education-intro-metrics small { color: var(--field-muted); font-size: .72rem; line-height: 1.25; }
 
+  #app[data-route="/app/educacao"] .education-registration-callout {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding: 1.1rem 1.2rem;
+    border-color: #c9dcef;
+    border-left: 4px solid var(--field-blue);
+    border-radius: 0 10px 10px 0;
+    background: #f8fbfe;
+    box-shadow: none;
+  }
+  .education-registration-icon { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid #c9dcef; border-radius: 9px; background: #fff; }
+  .education-registration-icon img { width: 29px; height: 29px; object-fit: contain; }
+  .education-registration-callout .eyebrow { margin-bottom: .25rem; color: var(--field-blue); }
+  .education-registration-callout h2 { margin-bottom: .28rem; color: var(--field-ink); font-size: 1.2rem; }
+  .education-registration-callout p:last-child { margin: 0; color: var(--field-muted); font-size: .86rem; line-height: 1.48; }
+  .education-registration-callout .button { white-space: nowrap; background: var(--field-blue); border-color: var(--field-blue); }
+
   #app[data-route="/app/educacao"] .education-library-panel,
   #app[data-route="/app/educacao"] .education-resources-panel {
     padding: clamp(1.15rem, 2.4vw, 1.6rem);
@@ -193,6 +213,8 @@
     #app[data-route="/app/educacao"] .education-intro-panel { grid-template-columns: auto minmax(0, 1fr); padding: 1rem; }
     .education-intro-metrics { grid-column: 1 / -1; width: 100%; }
     .education-intro-metrics span { flex: 1; }
+    #app[data-route="/app/educacao"] .education-registration-callout { grid-template-columns: 42px minmax(0, 1fr); }
+    .education-registration-callout .button { grid-column: 1 / -1; width: 100%; }
     .education-section-heading { align-items: start; flex-direction: column; }
     #app[data-route="/app/educacao"] .field-education-grid { grid-template-columns: 1fr; }
     .education-card-meta { align-items: flex-start; flex-direction: column; }

@@ -4,6 +4,7 @@ import { visualSupportsFor } from '../src/lib/visual-support.js';
 const supports = (subject) => visualSupportsFor(subject);
 const ids = (subject) => supports(subject).map((item) => item.id);
 const iconId = (subject) => supports(subject)[0]?.flaticon?.iconId;
+const expectFirst = (subject, expected, message) => assert.equal(ids({ ...subject, max: 1 })[0], expected, message);
 
 assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Beber água' }), ['water']);
 assert.deepEqual(ids({ label: 'Pessoa / família / referência', value: 'Criança' }), ['child']);
@@ -15,6 +16,43 @@ assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Receita' }), ['prescr
 assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Acompanhante' }), ['companion']);
 assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Resultados' }), ['results']);
 assert.deepEqual(ids({ label: 'Recado ou preparo', value: 'Chegar cedo' }), ['early']);
+
+// Carteirinhas: data, hora, local, serviço, preparo e avisos concretos.
+for (const [subject, expected, message] of [
+  [{ label: 'Dia', value: '2026-08-28', type: 'date' }, 'calendar', 'Data precisa manter calendário como primeiro reforço.'],
+  [{ label: 'Hora', value: '08:30', type: 'time' }, 'clock', 'Hora precisa manter relógio como primeiro reforço.'],
+  [{ label: 'Local', value: 'UBS Madre Tereza de Calcutá' }, 'clinic', 'UBS precisa usar unidade de saúde, não localização genérica.'],
+  [{ label: 'Local', value: 'Escola' }, 'school', 'Escola precisa usar local específico.'],
+  [{ label: 'Com quem / serviço', value: 'Vacina' }, 'vaccine', 'Vacina precisa usar aplicação explícita.'],
+  [{ label: 'Com quem / serviço', value: 'Dentista' }, 'dentist', 'Dentista precisa usar saúde bucal.'],
+  [{ label: 'Com quem / serviço', value: 'Exame ou coleta' }, 'exam', 'Exame precisa usar coleta/laboratório.'],
+  [{ label: 'Recado ou preparo', value: 'Jejum' }, 'fasting', 'Jejum precisa usar não comer.'],
+  [{ label: 'Recado ou preparo', value: 'Levar Cartão SUS' }, 'susCard', 'Cartão SUS precisa usar o cartão de saúde.'],
+  [{ label: 'Aviso', value: 'Barreira de acesso' }, 'barrier', 'Barreira deve aparecer apenas quando o conteúdo a menciona.'],
+  [{ label: 'Aviso', value: 'Risco ambiental' }, 'warning', 'Risco explícito precisa usar alerta.']
+]) expectFirst(subject, expected, message);
+
+// 5 minutos: achado, articulação, decisão, responsável coletivo e revisão.
+for (const [subject, expected, message] of [
+  [{ label: 'Situação / onde', value: 'Casa' }, 'home', 'Casa precisa ser reconhecida como local concreto.'],
+  [{ label: 'Achado / mudança', value: 'Parceiro do território' }, 'partner', 'Parceiro precisa usar rede de apoio.'],
+  [{ label: 'Achado / mudança', value: 'Visita domiciliar' }, 'visit', 'Visita domiciliar precisa usar cuidado no domicílio.'],
+  [{ label: 'Próxima ação / decisão', value: 'Ação' }, 'action', 'Decisão precisa usar próximo passo.'],
+  [{ label: 'Responsável / articulação', value: 'Equipe 02' }, 'group', 'Equipe precisa ser reconhecida como responsável coletivo.'],
+  [{ label: 'Data de revisão', value: '2026-09-04', type: 'date' }, 'calendar', 'Revisão precisa manter calendário.']
+]) expectFirst(subject, expected, message);
+
+// Indicadores: termos reais da tela, inclusive plurais, devem prevalecer sobre o genérico.
+for (const [value, expected] of [
+  ['População ativa', 'population'],
+  ['Famílias', 'family'],
+  ['Pessoas idosas', 'elderly'],
+  ['Gestantes', 'pregnant'],
+  ['Hipertensão', 'hypertension'],
+  ['Diabetes', 'diabetes']
+]) expectFirst({ label: value, value }, expected, `${value} precisa usar o pictograma específico ${expected}.`);
+
+assert.deepEqual(ids({ label: 'Aviso', value: 'Orientação geral' }), [], 'Aviso genérico não pode criar risco sem conteúdo correspondente.');
 
 // Um conteúdo reconhecido sempre prevalece sobre o rótulo do campo.
 for (const label of ['Pessoa / família / referência', 'Motivo', 'Tentativa / contato realizado', 'Próximo passo']) {
