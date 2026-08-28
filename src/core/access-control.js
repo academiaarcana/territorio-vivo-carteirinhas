@@ -34,6 +34,7 @@ export const CAPABILITIES = Object.freeze({
   EDIT_REQUESTED_SCOPE: 'edit_requested_scope',
   ACCESS_INTERNAL: 'access_internal',
   USE_TEMPORARY_TOOLS: 'use_temporary_tools',
+  VIEW_TREATMENT_GUIDES: 'view_treatment_guides',
   USE_EXTERNAL_PRESCRIPTIONS: 'use_external_prescriptions',
   EDIT_OWN_PROFILE_DATA: 'edit_own_profile_data',
   READ_UNIT_TERRITORY: 'read_unit_territory',
@@ -61,6 +62,7 @@ export const CAPABILITIES = Object.freeze({
 const BASE_ACTIVE = [
   CAPABILITIES.ACCESS_INTERNAL,
   CAPABILITIES.USE_TEMPORARY_TOOLS,
+  CAPABILITIES.VIEW_TREATMENT_GUIDES,
   CAPABILITIES.READ_OWN_PROFILE,
   CAPABILITIES.EDIT_OWN_PROFILE_DATA,
   CAPABILITIES.READ_UNIT_TERRITORY,

@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const access = fs.readFileSync('src/core/access-control.js', 'utf8');
+const layout = fs.readFileSync('src/core/layout.js', 'utf8');
+const main = fs.readFileSync('src/main.js', 'utf8');
+const page = fs.readFileSync('src/pages/treatments.js', 'utf8');
+const data = fs.readFileSync('src/data/treatment-guides.js', 'utf8');
+const css = fs.readFileSync('src/styles/field-treatments.css', 'utf8');
+
+assert.match(access, /VIEW_TREATMENT_GUIDES: 'view_treatment_guides'/, 'Guias precisam de capacidade explícita.');
+assert.match(access, /BASE_ACTIVE[\s\S]*CAPABILITIES\.VIEW_TREATMENT_GUIDES/, 'Todo perfil ativo deve consultar os guias.');
+assert.match(layout, /\/app\/tratamentos', 'Tratamentos ilustrados', 'medicine'/, 'Menu deve incluir a nova página.');
+assert.match(main, /'\/app\/tratamentos'.*CAPABILITIES\.VIEW_TREATMENT_GUIDES/, 'Rota deve falhar fechada por capacidade.');
+
+assert.match(page, /CLINICAL_ROLES = \[ROLES\.PHYSICIAN, ROLES\.NURSE\]/, 'Somente médica(o) e enfermeira(o) personalizam campos clínicos.');
+assert.match(page, /profile\.role === ROLES\.ACS/, 'ACS precisa receber orientação própria.');
+assert.match(page, /Não defina dose, intervalo, troca de marca ou duração/, 'Limite do ACS deve ser explícito.');
+assert.match(page, /Laboratório \/ fabricante \*/, 'Laboratório deve ser campo profissional obrigatório.');
+assert.match(page, /Não escreva nome, CPF ou diagnóstico/, 'Fronteira de privacidade precisa aparecer na tela.');
+assert.match(page, /apenas na memória desta aba/, 'Duração do rascunho temporário deve ser explicada.');
+assert.match(page, /speechSynthesis/, 'Guias precisam oferecer leitura em voz alta.');
+assert.match(page, /Mostre com suas mãos como você vai fazer em casa/, 'Confirmação de entendimento deve usar demonstração.');
+assert.match(page, /printHtml/, 'Guia precisa permitir impressão local.');
+assert.match(page, /downloadPdf/, 'Guia precisa permitir PDF local.');
+assert.doesNotMatch(page, /name="(patient|patient_name|cpf|diagnosis)"/, 'Página não pode coletar identificação ou diagnóstico.');
+assert.doesNotMatch(page, /from ['"][^'"]*(supabase|repository)\.js['"]/, 'Página não pode importar persistência.');
+for (const forbidden of ['localStorage', 'sessionStorage', 'indexedDB']) assert.doesNotMatch(page, new RegExp(forbidden), `Página não pode usar ${forbidden}.`);
+
+for (const guide of [
+  'Bombinha com espaçador — plano para crise', 'Bombinha de controle — uso contínuo', 'Bombinha sem espaçador',
+  'Spray ou jato nasal', 'Pomada para os olhos', 'Creme vaginal com aplicador', 'Insulina NPH',
+  'Insulina Regular', 'Insulina glargina', 'Água segura para beber'
+]) assert.match(data, new RegExp(guide), `Catálogo deve incluir ${guide}.`);
+
+for (const safety of [
+  'Não coloque o frasco metálico na água', 'Não sacuda com força', 'Não compartilhe e não reutilize',
+  'não será calculada automaticamente', 'ponta do tubo não deve tocar'
+]) assert.match(data, new RegExp(safety, 'i'), `Conteúdo seguro ausente: ${safety}.`);
+
+for (const file of ['inhaler-spacer-steps.webp', 'insulin-steps.webp', 'eye-ointment-steps.webp']) {
+  assert.match(data, new RegExp(file.replace('.', '\\.')), `Catálogo deve referenciar ${file}.`);
+  assert.ok(fs.statSync(`src/assets/treatment-guides/${file}`).size > 35_000, `${file} precisa ser um ativo visual real.`);
+}
+
+assert.match(css, /#app\[data-route="\/app\/tratamentos"\]/, 'Estilos precisam ficar limitados à rota.');
+assert.match(css, /@media print/, 'Guias precisam ter contrato de impressão.');
+assert.match(css, /treatment-print-sheet/, 'Impressão precisa de folha própria.');
+
+console.log('Contrato dos Tratamentos Ilustrados OK: leitura fácil, papéis separados, imagens autorais e rascunho volátil.');

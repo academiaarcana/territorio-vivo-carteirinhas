@@ -1,14 +1,14 @@
-# Design QA — Território, Carteirinhas, 5 Minutos, Indicadores, Educação e Prescrições em Campo
+# Design QA — Território, Carteirinhas, 5 Minutos, Indicadores, Educação, Prescrições e Tratamentos Ilustrados
 
 ## Evidências
 
 - Fonte visual: `/workspace/scratch/47bc8ece9b5f/generated_images/exec-86adee3b-15ca-4c3c-ac9f-6a057afe5359.png`
 - Fonte visual aberta: sim; referência “Painel de Campo”, 1488 × 1058 px.
-- Implementação: `src/pages/territory.js`, `src/styles/field-territory.css`, `src/pages/cards.js`, `src/styles/field-cards.css`, `src/pages/five.js`, `src/styles/field-five.css`, `src/pages/indicators.js`, `src/styles/field-indicators.css`, `src/pages/education.js`, `src/styles/field-education.css`, `src/pages/prescriptions.js`, `src/data/prescription-support.js`, `src/assets/prescription-support/` e `src/styles/field-prescriptions.css`.
+- Implementação: `src/pages/territory.js`, `src/styles/field-territory.css`, `src/pages/cards.js`, `src/styles/field-cards.css`, `src/pages/five.js`, `src/styles/field-five.css`, `src/pages/indicators.js`, `src/styles/field-indicators.css`, `src/pages/education.js`, `src/styles/field-education.css`, `src/pages/prescriptions.js`, `src/data/prescription-support.js`, `src/assets/prescription-support/`, `src/styles/field-prescriptions.css`, `src/pages/treatments.js`, `src/data/treatment-guides.js`, `src/assets/treatment-guides/` e `src/styles/field-treatments.css`.
 - Captura da implementação: indisponível.
 - Tentativa atual de captura: em 27/08/2026 foi montada uma prévia temporária com estado de Médica(o) ativo; o servidor local respondeu na porta `4173`, mas o navegador em nuvem não alcançou a ponte e retornou `ERR_CONNECTION_REFUSED` antes da renderização. Os arquivos temporários foram removidos após a tentativa.
 - Viewport-alvo: desktop 1440 × 1024 CSS px, densidade 1×; reflow previsto em 760 px.
-- Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos`, `#/app/indicadores`, `#/app/educacao` e `#/app/prescricoes` com um perfil autenticado e vínculo territorial válido; a última exige papel Médico ou Enfermeiro ativo.
+- Estados-alvo: rotas `#/app/territorio`, `#/app/carteirinhas`, `#/app/5-minutos`, `#/app/indicadores`, `#/app/educacao`, `#/app/tratamentos` e `#/app/prescricoes` com um perfil autenticado e vínculo territorial válido; Prescrições exige papel Médico ou Enfermeiro ativo e Tratamentos diferencia ACS de perfil clínico.
 - Interações prioritárias: filtrar achados e rede, cadastrar e gerenciar achados conforme permissão; buscar e filtrar modelos, abrir o editor, preencher lote, ajustar acessibilidade e iniciar PDF/impressão; preencher a nota dos 5 minutos; selecionar escopo, informar indicadores, registrar a leitura contextual; abrir materiais educativos, imprimir, gerar PDF e acessar ferramentas externas identificadas; preservar os rascunhos durante a navegação e limpar quando aplicável.
 - Console do navegador: não verificado porque a página não chegou a renderizar no navegador em nuvem; tentativas anteriores também haviam retornado `ERR_BLOCKED_BY_CLIENT`.
 
@@ -35,6 +35,7 @@ Bloqueada. Não foi possível produzir uma composição conjunta contendo a refe
 - introdução, biblioteca interna e cartões de Educação em saúde;
 - ferramentas externas, detalhe do material, fontes, opções de impressão e estados desktop e móvel da Educação.
 - gerador local de orientações visuais, colagem temporária do PEC, seleção de via e período, biblioteca com dez categorias, busca, seleção de apoios, avisos de retirada de corticoide e validação cultural, prévia, lista, remoção, limpeza, impressão/PDF, fronteira de privacidade, orientação específica por papel e reflow móvel.
+- biblioteca de dez tratamentos ilustrados, busca, filtros, passos de leitura fácil, ilustrações de espaçador/insulina/pomada oftálmica, leitura em voz alta, confirmação por demonstração, personalização clínica temporária, modo ACS, impressão/PDF e reflow móvel.
 
 ## Superfícies de fidelidade
 
@@ -57,6 +58,7 @@ Não houve iteração visual válida porque não foi possível abrir a implement
 - Contrato “Indicadores em Campo”: aprovado.
 - Contrato “Educação em Campo”: aprovado.
 - Contrato clínico Médico/Enfermeiro: aprovado.
+- Contrato “Tratamentos Ilustrados”: aprovado.
 - Sintaxe JavaScript: aprovada.
 - Arquitetura, segurança, migrations, Auth, papéis, concorrência, coordenadas, impressão e PDF: aprovados.
 - Migration de papéis clínicos: versionada e pendente de aplicação; banco e contas de produção ainda não foram alterados.
