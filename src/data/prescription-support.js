@@ -72,7 +72,10 @@ const combined = [
   ['combined-topical-bedtime', 'Na pele — ao deitar', 'Uso na pele + antes de dormir', 'topical', 'bedtime', '', false]
 ].map(([id, label, hint, route, schedule, observation, featured]) => ({
   id, category: 'combined', label, hint, action: 'preset', route, schedule, observation, featured,
-  image: prescriptionRoutes.find((item) => item.id === route)?.image
+  images: [
+    prescriptionRoutes.find((item) => item.id === route)?.image,
+    prescriptionSchedules.find((item) => item.id === schedule)?.image
+  ].filter(Boolean)
 }));
 
 export const prescriptionQuickTemplates = Object.freeze(combined.filter((item) => item.featured));

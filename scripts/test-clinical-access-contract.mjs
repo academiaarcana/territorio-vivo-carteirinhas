@@ -60,9 +60,15 @@ assert.deepEqual(
 );
 assert.match(page, /café da manhã, almoço, jantar ou em jejum/, 'Opções ligadas às refeições precisam lembrar a conferência profissional.');
 assert.match(support, /prescriptionQuickTemplates/, 'Modelos frequentes precisam ter uma coleção própria.');
+assert.ok(
+  prescriptionSupportItemsFor('combined').every((item) => item.images?.length === 2 && item.images[0] !== item.images[1]),
+  'Cada modelo pronto precisa combinar dois pictogramas diferentes: via e período.'
+);
 assert.match(page, /Escolha um modelo frequente/, 'A tela precisa destacar modelos antes do preenchimento manual.');
 assert.match(page, /Modelo aplicado\. Agora informe medicamento e dose/, 'Aplicar um modelo deve lembrar os campos clínicos obrigatórios.');
 assert.match(page, /applyPrescriptionTemplate/, 'Modelos rápidos e biblioteca precisam usar a mesma aplicação segura.');
+assert.match(page, /prescription-combined-visual/, 'Modelos prontos precisam renderizar via e período como dois pictogramas reais.');
+assert.match(css, /prescription-combined-visual/, 'Composição de via e período precisa ter layout próprio e legível.');
 
 for (const file of [
   'morning.png', 'lunch.png', 'evening.png', 'bedtime.png', 'before-breakfast.png', 'after-breakfast.png', 'before-meal.png', 'after-meal.png', 'before-dinner.png', 'after-dinner.png', 'fasting.png', 'oral.png', 'injection.png', 'topical.png', 'drops.png',

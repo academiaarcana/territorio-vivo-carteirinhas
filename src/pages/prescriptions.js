@@ -314,6 +314,9 @@ function renderSupportLibrary(root, { category, query, values, selectedSupportId
 }
 
 function renderSupportVisual(item) {
+  if (Array.isArray(item?.images) && item.images.length) {
+    return `<span class="prescription-combined-visual" aria-hidden="true">${item.images.map((image) => `<img src="${escapeHtml(image)}" alt="">`).join('')}</span>`;
+  }
   if (item?.image) return `<img src="${escapeHtml(item.image)}" alt="" aria-hidden="true">`;
   if (item?.icon) return renderFlaticonIcon(item.icon);
   return '';

@@ -48,8 +48,8 @@
   .prescription-quick-templates button { display: grid; grid-template-rows: 58px auto auto; justify-items: center; gap: .2rem; min-width: 0; padding: .65rem .45rem; border: 1px solid #bfd2c7; border-radius: 10px; background: #fff; color: var(--field-ink); text-align: center; cursor: pointer; }
   .prescription-quick-templates button:hover { border-color: var(--field-green); background: #f8fcf9; }
   .prescription-quick-templates button:focus-visible { outline: 3px solid #efb93f; outline-offset: 2px; }
-  .prescription-quick-templates button span { display: grid; place-items: center; width: 58px; height: 58px; }
-  .prescription-quick-templates button img { width: 54px; height: 54px; object-fit: contain; }
+  .prescription-quick-templates button > span { display: grid; place-items: center; width: 76px; height: 58px; }
+  .prescription-quick-templates button > span > img { width: 54px; height: 54px; object-fit: contain; }
   .prescription-quick-templates button strong { font-size: .75rem; line-height: 1.25; }
   .prescription-quick-templates button small { color: var(--field-muted); font-size: .66rem; line-height: 1.25; }
 
@@ -70,6 +70,8 @@
   .prescription-support-card[aria-pressed="true"] { border-color: var(--field-green); outline: 2px solid rgba(35, 132, 84, .17); background: #eef8f2; }
   .prescription-support-card-visual { display: grid; place-items: center; width: 78px; height: 78px; }
   .prescription-support-card-visual img { width: 72px; height: 72px; object-fit: contain; }
+  .prescription-combined-visual { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 4px; width: 100%; height: 100%; }
+  .prescription-combined-visual img, .prescription-support-card-visual .prescription-combined-visual img { width: 100%; height: 100%; max-height: 64px; object-fit: contain; }
   .prescription-support-card strong { font-size: .76rem; line-height: 1.2; }
   .prescription-support-card small { color: var(--field-muted); font-size: .66rem; line-height: 1.25; }
   .prescription-support-card-action { margin-top: .15rem; color: var(--field-blue); font-size: .66rem; font-weight: 850; text-transform: uppercase; letter-spacing: .03em; }
