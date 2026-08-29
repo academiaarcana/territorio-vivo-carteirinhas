@@ -1,6 +1,7 @@
 -- Bootstrap operacional da primeira conta Master do projeto definitivo.
 -- Não contém e-mail/UUID e permanece seguro ao reaplicar em banco vazio
 -- ou em ambiente que já possua uma conta Master.
+-- Compatibilidade PostgreSQL 17: UUID é agregado via representação textual.
 
 do $bootstrap_master$
 declare
@@ -18,7 +19,7 @@ begin
     return;
   end if;
 
-  select count(*), min(p.id)
+  select count(*), min(p.id::text)::uuid
     into eligible_count, target_id
   from auth.users u
   join public.profiles p on p.id = u.id
