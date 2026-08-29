@@ -10,6 +10,7 @@ const expect = (content, needle, message) => {
 };
 
 const migration = read('supabase/migrations/20260827161226_add_microareas_and_population_counts.sql');
+const seed = read('supabase/migrations/20260829235605_seed_team_02_microareas_without_population.sql');
 const repository = read('src/services/repository.js');
 const admin = read('src/pages/admin.js');
 const databaseTest = read('supabase/tests/microareas_population_rls_test.sql');
@@ -33,6 +34,17 @@ expect(migration, 'create policy microareas_update_by_management_scope', 'Escrit
 expect(migration, 'with check (', 'Policy de atualização precisa validar também o estado novo da linha.');
 if (/\b(patient|citizen|cpf|cns|medical_record|diagnosis)_(id|name|number|text)\b/i.test(migration)) {
   errors.push('Migration não pode introduzir colunas de dados pessoais ou clínicos.');
+}
+
+expect(seed, "cross join (values ('08'), ('09'), ('10'))", 'Restauração precisa recriar somente as microáreas institucionais 08, 09 e 10 da Equipe 02.');
+expect(seed, "t.ine = '0002332566'", 'Seed precisa localizar a Equipe 02 pelo INE estável, não por UUID gerado.');
+expect(seed, "t.unit_cnes = '2496542'", 'Seed precisa limitar as microáreas à UBS correta pelo CNES.');
+expect(seed, "'not_informed'", 'Microáreas sem quantitativo confirmado precisam permanecer não informadas.');
+if (!/select[\s\S]*t\.id,[\s\S]*v\.code,[\s\S]*null,[\s\S]*null,[\s\S]*'not_informed'/i.test(seed)) {
+  errors.push('Seed das microáreas não pode inventar população ou data de referência.');
+}
+if (/population_count\s*=\s*\d+/i.test(seed)) {
+  errors.push('Seed estrutural não pode fixar quantidade populacional numérica.');
 }
 
 expect(repository, "supabase.from('microareas').select('*')", 'Camada de dados precisa listar microáreas.');
