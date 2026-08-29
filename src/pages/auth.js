@@ -5,9 +5,10 @@ import { signIn, signUp, signOut, sendPasswordReset, updatePassword } from '../s
 import { listMunicipalities, listUnits, listTeams } from '../services/repository.js';
 
 const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+const PASSWORD_SYMBOL_PATTERN = /[!@#$%^&*()_+\-=\[\]{};'\\:"|<>?,.\/`~]/;
+const PASSWORD_REQUIREMENT = `Use pelo menos ${PASSWORD_MIN_LENGTH} caracteres, com maiúscula, minúscula, número e símbolo.`;
 const PASSWORD_LEAKED_MESSAGE = 'Esta senha já apareceu em vazamentos conhecidos. Escolha outra senha exclusiva.';
-const PASSWORD_CHARACTERS_MESSAGE = 'Esta senha não atende aos requisitos de segurança. Tente combinar letras, números e símbolos.';
+const PASSWORD_CHARACTERS_MESSAGE = 'Inclua pelo menos 1 letra maiúscula, 1 minúscula, 1 número e 1 símbolo.';
 const PASSWORD_WEAK_MESSAGE = 'Esta senha é muito fácil de adivinhar. Escolha uma senha mais longa e menos previsível.';
 
 function passwordField({ id, name, label, autocomplete, describedBy = '', minimumLength = false }) {
@@ -28,7 +29,7 @@ function passwordField({ id, name, label, autocomplete, describedBy = '', minimu
 function passwordGuidance(id) {
   return `<aside id="${id}" class="clinical-disclaimer password-guidance" aria-label="Orientação para criar a senha">
     <strong>Crie sua senha</strong>
-    <p>Use ${PASSWORD_MIN_LENGTH} ou mais caracteres. Não é obrigatório misturar letras maiúsculas, números e símbolos.</p>
+    <p>Use ${PASSWORD_MIN_LENGTH} ou mais caracteres, com pelo menos 1 letra maiúscula, 1 minúscula, 1 número e 1 símbolo.</p>
     <small>Escolha algo que só você conheça e não reutilize a senha de outro serviço.</small>
   </aside>`;
 }
@@ -297,9 +298,17 @@ export function mountRecoveryPage({ root }) {
   });
 }
 
+function hasRequiredCharacters(value) {
+  return /[a-z]/.test(value)
+    && /[A-Z]/.test(value)
+    && /\d/.test(value)
+    && PASSWORD_SYMBOL_PATTERN.test(value);
+}
+
 function validatePassword(password) {
   const value = String(password || '');
   if (value.length < PASSWORD_MIN_LENGTH) return PASSWORD_REQUIREMENT;
+  if (!hasRequiredCharacters(value)) return PASSWORD_CHARACTERS_MESSAGE;
   return '';
 }
 
