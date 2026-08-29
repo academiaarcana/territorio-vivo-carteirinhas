@@ -69,6 +69,7 @@ Esses registros não foram reaplicados artificialmente no projeto restaurado por
 | `20260829234749_promote_initial_master_if_unambiguous.sql` | Aplicada; promove somente quando há zero Master e exatamente um perfil elegível; em restore vazio ou estado ambíguo é no-op. |
 | `20260829235025_suspend_unscoped_admin_created_test_profiles.sql` | Aplicada; suspende de forma reversível os cinco perfis vazios criados administrativamente durante a homologação, preservando os registros Auth para auditoria. |
 | `20260829235605_seed_team_02_microareas_without_population.sql` | Aplicada; registra as microáreas 08, 09 e 10 da Equipe 02 por INE/CNES, mantendo população, data de referência e fonte quantitativa como não informadas. |
+| `20260829235806_suspend_incomplete_new_profiles.sql` | Aplicada; novos perfis sem nome ou UBS validada passam a nascer suspensos, enquanto cadastros profissionais mínimos válidos continuam ACS pendentes para aprovação. |
 
 ## Microáreas e população acompanhada
 
@@ -103,7 +104,7 @@ Durante a homologação de 29/08/2026, cinco contas com nomes de papéis de test
 
 A origem não está no código publicado: os workflows do GitHub Pages utilizam somente a chave publicável e verificam que `service_role` não apareça em `src`, `config.js` ou `index.html`.
 
-Como contenção, os cinco perfis foram alterados para `access_status='suspended'`. Os usuários Auth não foram apagados, para preservar rastreabilidade e permitir investigação/remoção deliberada posterior. O perfil profissional real e a Master não foram atingidos.
+Como contenção, os cinco perfis foram alterados para `access_status='suspended'`. Os usuários Auth não foram apagados, para preservar rastreabilidade e permitir investigação/remoção deliberada posterior. O perfil profissional real e a Master não foram atingidos. Como defesa adicional, novos perfis incompletos passam automaticamente para `suspended` no momento do INSERT e não entram na fila normal de aprovação.
 
 ## Médico e Enfermeiro
 
