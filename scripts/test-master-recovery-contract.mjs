@@ -13,6 +13,12 @@ const hardenSql = fs.readFileSync(hardenPath, 'utf8');
 const bootstrapSql = fs.readFileSync(bootstrapPath, 'utf8');
 const containmentSql = fs.readFileSync(containmentPath, 'utf8');
 
+function assertExecutionRevoked(sql, role) {
+  const functionPattern = 'private\\.promote_initial_master\\(\\)';
+  const groupedOrSingle = new RegExp(`revoke\\s+(?:all|execute)\\s+on\\s+function\\s+${functionPattern}\\s+from\\s+[^;]*\\b${role}\\b`, 'i');
+  assert.match(sql.replace(/\s+/g, ' '), groupedOrSingle, `${role} não pode executar a recuperação.`);
+}
+
 for (const sql of [prepareSql, alignSql, hardenSql]) {
   assert.match(sql, /create or replace function private\.promote_initial_master\(\)/i, 'A recuperação precisa ficar no schema private.');
   assert.match(sql, /security definer/i, 'A operação administrativa precisa executar com autoridade controlada.');
@@ -29,10 +35,7 @@ for (const sql of [prepareSql, alignSql, hardenSql]) {
   assert.match(sql, /enable trigger profiles_enforce_role/i, 'A proteção de papel precisa ser restaurada.');
   assert.match(sql, /disable trigger profiles_enforce_scope_security/i, 'A operação precisa controlar temporariamente a proteção de escopo.');
   assert.match(sql, /enable trigger profiles_enforce_scope_security/i, 'A proteção de escopo precisa ser restaurada.');
-  assert.match(sql, /revoke all on function private\.promote_initial_master\(\) from public/i, 'PUBLIC não pode executar a recuperação.');
-  assert.match(sql, /revoke all on function private\.promote_initial_master\(\) from anon/i, 'anon não pode executar a recuperação.');
-  assert.match(sql, /revoke all on function private\.promote_initial_master\(\) from authenticated/i, 'authenticated não pode executar a recuperação.');
-  assert.match(sql, /revoke all on function private\.promote_initial_master\(\) from service_role/i, 'service_role não pode promover Master via API.');
+  for (const role of ['public', 'anon', 'authenticated', 'service_role']) assertExecutionRevoked(sql, role);
 }
 
 assert.match(alignSql, /microarea_id = null/i, 'A Master precisa remover explicitamente o vínculo microarea_id.');
