@@ -58,7 +58,7 @@ jobs:
             test "${CODE}" = "200"
           done
 
-          for PRIVATE_TABLE in profiles territory_points; do
+          for PRIVATE_TABLE in profiles territory_points microareas; do
             PRIVATE_CODE=$(curl --silent --show-error --output "/tmp/${PRIVATE_TABLE}.json" --write-out "%{http_code}" \
               "${SUPABASE_URL}/rest/v1/${PRIVATE_TABLE}?select=id&limit=1" \
               -H "apikey: ${SUPABASE_KEY}" \
@@ -73,7 +73,34 @@ jobs:
             esac
           done
 
-          echo "Catálogo público acessível; profiles e territory_points rejeitam acesso anônimo com status de autorização esperado."
+          echo "Catálogo público acessível; profiles, territory_points e microareas rejeitam acesso anônimo com status de autorização esperado."
+
+      - name: Validar configuração pública do Auth
+        shell: bash
+        run: |
+          set -euo pipefail
+          SUPABASE_URL=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabaseUrl:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+          SUPABASE_KEY=$(node -e "const s=require('fs').readFileSync('config.js','utf8'); const m=s.match(/supabasePublishableKey:\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+
+          AUTH_CODE=$(curl --silent --show-error --output /tmp/auth-settings.json --write-out "%{http_code}" \
+            "${SUPABASE_URL}/auth/v1/settings" \
+            -H "apikey: ${SUPABASE_KEY}")
+          test "${AUTH_CODE}" = "200"
+
+          node <<'NODE'
+          const fs = require('fs');
+          const settings = JSON.parse(fs.readFileSync('/tmp/auth-settings.json', 'utf8'));
+          if (settings.disable_signup !== false) {
+            throw new Error('Supabase Auth está com novos cadastros desabilitados.');
+          }
+          if (settings.external?.email !== true) {
+            throw new Error('Supabase Auth está com autenticação por e-mail desabilitada.');
+          }
+          if (settings.mailer_autoconfirm !== false) {
+            throw new Error('Supabase Auth precisa exigir confirmação de e-mail antes da homologação.');
+          }
+          console.log('Auth público OK: cadastro e e-mail habilitados; confirmação de e-mail obrigatória.');
+          NODE
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
