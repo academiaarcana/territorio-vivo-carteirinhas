@@ -112,8 +112,8 @@ export function renderSignupPage() {
       <label>Unidade de saúde<select name="unitCnes" id="signup-unit" required><option value="">Selecione o município</option></select></label>
       <label>Equipe<select name="teamId" id="signup-team"><option value="">Selecione a unidade</option></select></label>
       <label id="custom-team-wrap" hidden>Nome da equipe para confirmação<input name="teamName" maxlength="120" placeholder="Ex.: Equipe 03 ou eSF Rural"></label>
-      <label>Microárea<input name="microarea" id="signup-microarea" maxlength="40" placeholder="Ex.: 08" required></label>
-      <p class="field-hint">Toda nova conta profissional entra como ACS pendente. A gestão confirma o vínculo e libera o nível correto; o cadastro não permite escolher papel ou se autoaprovar.</p>
+      <label>Microárea (se aplicável)<input name="microarea" id="signup-microarea" maxlength="40" placeholder="Ex.: 08"></label>
+      <p class="field-hint">ACS pode informar a microárea se souber. Médicos, enfermeiros e gestão podem deixar esse campo em branco; a gestão confirma o vínculo e libera o nível correto. Toda nova conta começa pendente e o cadastro não permite escolher papel ou se autoaprovar.</p>
       ${passwordGuidance('signup-password-help')}
       ${passwordField({ id: 'signup-password', name: 'password', label: 'Senha', autocomplete: 'new-password', describedBy: 'signup-password-help', minimumLength: true })}
       ${passwordField({ id: 'signup-password-confirmation', name: 'password2', label: 'Repita a senha', autocomplete: 'new-password', describedBy: 'signup-password-help', minimumLength: true })}
@@ -228,7 +228,7 @@ export async function mountSignupPage({ root }) {
     const passwordError = validatePassword(values.password);
     if (passwordError) return setStatus(status, passwordError, 'error');
     if (values.password !== values.password2) return setStatus(status, 'As senhas não são iguais.', 'error');
-    if (!values.municipalityCode || !values.unitCnes || !values.microarea.trim()) return setStatus(status, 'Preencha município, unidade e microárea.', 'error');
+    if (!values.municipalityCode || !values.unitCnes) return setStatus(status, 'Preencha município e unidade.', 'error');
 
     let teamName = '';
     let teamId = values.teamId || null;
