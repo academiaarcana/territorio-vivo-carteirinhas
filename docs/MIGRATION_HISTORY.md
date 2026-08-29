@@ -68,6 +68,7 @@ Esses registros não foram reaplicados artificialmente no projeto restaurado por
 | `20260829234653_harden_initial_master_eligibility.sql` | Aplicada; exclui perfis vazios da elegibilidade, exige perfil pendente confirmado com UBS e equipe válidas/ativas e não usa `user_metadata` para autorização. |
 | `20260829234749_promote_initial_master_if_unambiguous.sql` | Aplicada; promove somente quando há zero Master e exatamente um perfil elegível; em restore vazio ou estado ambíguo é no-op. |
 | `20260829235025_suspend_unscoped_admin_created_test_profiles.sql` | Aplicada; suspende de forma reversível os cinco perfis vazios criados administrativamente durante a homologação, preservando os registros Auth para auditoria. |
+| `20260829235605_seed_team_02_microareas_without_population.sql` | Aplicada; registra as microáreas 08, 09 e 10 da Equipe 02 por INE/CNES, mantendo população, data de referência e fonte quantitativa como não informadas. |
 
 ## Microáreas e população acompanhada
 
@@ -77,7 +78,7 @@ A estrutura territorial normalizada é:
 
 A tabela `microareas` armazena somente código territorial e totais agregados opcionais. Quando a quantidade de pessoas não está confirmada, permanece `null`; o sistema não converte ausência de informação em zero. A leitura por `anon` é bloqueada e o acesso autenticado é limitado por RLS.
 
-Nenhuma microárea ou total populacional foi inventado durante a reconstrução. A conta Master não ocupa microárea; vínculos formais serão cadastrados/confirmados pela gestão a partir dos profissionais reais.
+As microáreas **08, 09 e 10** da Equipe 02 foram registradas estruturalmente sem inventar população, data de referência ou vínculo de ACS. Os três registros permanecem `data_status='not_informed'` e `population_count=null` até confirmação de fonte válida. A conta Master não ocupa microárea; vínculos formais serão confirmados pela gestão a partir dos profissionais reais.
 
 ## Gestor Municipal × Master
 
