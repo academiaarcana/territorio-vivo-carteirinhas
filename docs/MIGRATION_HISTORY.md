@@ -4,33 +4,33 @@
 
 Registrar a relação entre o histórico executado no projeto Supabase e os arquivos SQL mantidos na branch V2.
 
-O estado de schema está reconciliado. O histórico de execução do Supabase possui duas entradas históricas adicionais em relação à numeração V2 porque duas correções de segurança foram executadas como hotfixes antes da consolidação da arquitetura atual.
+O projeto Supabase original foi excluído acidentalmente em 29/08/2026. O backend foi reconstruído no projeto `vcgqzdaamwvcwxcuxsmo`, usando a sequência versionada desta branch como fonte de verdade. O estado efetivo do schema deve ser validado pelos Advisors e por consultas de contrato; diferenças históricas do projeto excluído são preservadas nesta documentação apenas para rastreabilidade.
 
-## Hotfixes históricos sem arquivo numerado próprio
+## Hotfixes históricos do projeto original
 
 1. `harden_profile_functions`
-   - aplicado logo após `auth_profiles`;
-   - fixou `search_path` de funções e revogou execução direta de funções de trigger para `public`, `anon` e `authenticated`;
+   - havia sido aplicado logo após `auth_profiles` no projeto original;
+   - fixava `search_path` de funções e revogava execução direta de funções de trigger para `public`, `anon` e `authenticated`;
    - o estado final dessas funções é novamente definido/protegido por migrations posteriores.
 
 2. `restrict_master_role_trigger_search_path`
-   - aplicado logo após `enforce_master_role`;
-   - restringiu o `search_path` da função responsável por proteger o papel master;
+   - havia sido aplicado logo após `enforce_master_role` no projeto original;
+   - restringia o `search_path` da função responsável por proteger o papel master;
    - a função foi redefinida posteriormente pelas migrations de papéis/escopo, preservando a proteção no estado final.
 
-Esses dois registros permanecem no histórico interno do Supabase e **não devem ser apagados, renomeados ou reaplicados artificialmente** apenas para igualar a quantidade de arquivos.
+Esses hotfixes pertencem ao histórico do projeto excluído e **não foram reaplicados artificialmente** no projeto reconstruído apenas para reproduzir a quantidade antiga de entradas. A segurança equivalente ou superior é garantida pelo estado final versionado e pelos Advisors.
 
 ## Mapeamento principal
 
 | Arquivo V2 | Execução registrada no Supabase |
 |---|---|
 | `001_auth_profiles.sql` | `auth_profiles` |
-| — hotfix histórico | `harden_profile_functions` |
+| — hotfix histórico original | `harden_profile_functions` |
 | `002_master_account_and_admin_policies.sql` | `master_account_and_admin_policies` |
 | `003_signup_profile_metadata.sql` | `signup_profile_metadata` |
 | `004_consolidate_profile_policies.sql` | `consolidate_profile_policies` |
 | `005_enforce_master_role.sql` | `enforce_master_role` |
-| — hotfix histórico | `restrict_master_role_trigger_search_path` |
+| — hotfix histórico original | `restrict_master_role_trigger_search_path` |
 | `006_multi_unit_pimenta_bueno.sql` | `multi_unit_pimenta_bueno` |
 | `007_index_profiles_by_unit.sql` | `index_profiles_by_unit` |
 | `008_municipalities_and_teams.sql` | `municipalities_and_teams` |
@@ -58,16 +58,17 @@ Esses dois registros permanecem no histórico interno do Supabase e **não devem
 | `030_optimize_gestor_profile_policy.sql` | `optimize_gestor_profile_policy` |
 | `031_enforce_management_scope_shape.sql` | `enforce_management_scope_shape` |
 | `032_noop_verify_management_scope_shape.sql` | `noop_verify_management_scope_shape` |
-| — correção operacional | `remove_legacy_territory_point_policies` |
-| — correção operacional | `revoke_anon_profiles_select` |
-| — correção operacional | `revoke_set_updated_at_client_execute` |
+| — correção operacional do projeto original | `remove_legacy_territory_point_policies` |
+| — correção operacional do projeto original | `revoke_anon_profiles_select` |
+| — correção operacional do projeto original | `revoke_set_updated_at_client_execute` |
 | `20260826135329_repair_reapplied_auth_objects.sql` | `036_repair_reapplied_auth_objects` |
 | `20260826145213_bootstrap_initial_master_account.sql` | `bootstrap_initial_master_account` |
-| `20260826234754_add_clinical_professional_roles.sql` | pendente — `add_clinical_professional_roles` |
+| `20260826234754_add_clinical_professional_roles.sql` | `add_clinical_professional_roles` |
+| `20260829172457_harden_restored_project_security.sql` | `harden_restored_project_security` |
 
 ### Nota sobre Gestor × Master
 
-A migration 029 mantém os três papéis de autorização (`acs`, `unit_admin`, `admin`) e passa a distinguir a conta técnica Master/Desenvolvimento por `profiles.is_master_account`. Assim, um perfil `admin/active` comum representa **Gestor Municipal**, enquanto a conta técnica existente permanece `admin/active` com `is_master_account=true`. Somente a conta Master pode promover outro perfil a Gestor Municipal ou administrar outra conta `admin`.
+A migration 029 mantém os três papéis administrativos/territoriais centrais (`acs`, `unit_admin`, `admin`) e passa a distinguir a conta técnica Master/Desenvolvimento por `profiles.is_master_account`. Assim, um perfil `admin/active` comum representa **Gestor Municipal**, enquanto a conta técnica Master permanece `admin/active` com `is_master_account=true`. Somente a conta Master pode promover outro perfil a Gestor Municipal ou administrar outra conta `admin`.
 
 A migration 030 preserva esse mesmo escopo e apenas otimiza a policy `profiles_update_by_scope`, avaliando `auth.uid()` uma única vez por consulta conforme recomendação do Performance Advisor.
 
@@ -77,40 +78,48 @@ A migration 031 reforça no PostgreSQL a forma canônica do vínculo por papel:
 
 - `admin` não mantém município, UBS, equipe ou microárea no próprio perfil;
 - `unit_admin` mantém município/UBS, mas não equipe nem microárea;
-- ACS mantém o vínculo territorial profissional completo conforme aprovação.
+- profissionais territoriais mantêm o vínculo institucional correspondente ao papel e à aprovação.
 
 A migration também limpa vínculos herdados incompatíveis já existentes, sem depender de IDs específicos.
 
-A migration 032 é deliberadamente um **no-op** versionado. Ela espelha no Git uma verificação operacional registrada no histórico remoto durante a homologação da 031, evitando falso diagnóstico de drift sem alterar schema ou dados.
+A migration 032 é deliberadamente um **no-op** versionado. Ela espelha uma verificação operacional registrada durante a homologação da 031, evitando falso diagnóstico de drift sem alterar schema ou dados.
 
 ### Nota sobre a reparação operacional 036
 
-Após as três correções operacionais posteriores à 032, as migrations históricas 002, 003, 004 e 005 foram registradas novamente por engano. A reaplicação restaurou versões antigas de `private.is_admin`, `public.handle_new_user`, `public.enforce_profile_role`, do trigger `profiles_enforce_role` e de duas policies permissivas de `profiles`.
+No projeto original, após correções operacionais posteriores à 032, migrations históricas 002, 003, 004 e 005 foram registradas novamente por engano. A reaplicação restaurou versões antigas de `private.is_admin`, `public.handle_new_user`, `public.enforce_profile_role`, do trigger `profiles_enforce_role` e de duas policies permissivas de `profiles`.
 
-A migration `20260826135329_repair_reapplied_auth_objects.sql`, criada pelo Supabase CLI, restaura somente as definições finais já versionadas nas migrations 016 e 029, remove as policies antigas reintroduzidas e não altera dados. As entradas duplicadas permanecem no histórico remoto para preservar a rastreabilidade e não devem ser apagadas ou reaplicadas.
+A migration `20260826135329_repair_reapplied_auth_objects.sql` restaura somente as definições finais já versionadas nas migrations 016 e 029, remove as policies antigas reintroduzidas e não altera dados. Ela foi reaplicada também no projeto reconstruído para garantir o estado final endurecido.
 
 ### Nota sobre o bootstrap da conta Master
 
-A migration `20260826145213_bootstrap_initial_master_account.sql` registra a promoção operacional da primeira conta confirmada do projeto definitivo para `admin/active` com `is_master_account=true`. O arquivo não contém e-mail ou UUID, exige que não exista Master anterior, recusa seleção ambígua e remove do perfil o escopo territorial incompatível com a administração global. Em banco vazio ou com Master já configurado, a migration é deliberadamente um no-op.
+A migration `20260826145213_bootstrap_initial_master_account.sql` registra a promoção operacional da primeira conta confirmada para `admin/active` com `is_master_account=true`. O arquivo não contém e-mail ou UUID, exige que não exista Master anterior, recusa seleção ambígua e remove do perfil o escopo territorial incompatível com a administração global. Em banco vazio ou com Master já configurado, a migration é deliberadamente um no-op.
+
+Durante a reconstrução em PostgreSQL 17, a seleção técnica do UUID foi ajustada de `min(uuid)` para `min(id::text)::uuid`, porque a agregação direta `min(uuid)` não existe nesse ambiente. A regra de negócio do bootstrap não foi alterada.
 
 ### Nota sobre Médico e Enfermeiro
 
-A migration `20260826234754_add_clinical_professional_roles.sql` acrescenta `physician` e `nurse` ao domínio fechado de papéis. Ambos permanecem perfis profissionais de menor privilégio, vinculados a UBS/equipe, sem poderes administrativos. A gestão da própria UBS pode visualizar, aprovar, suspender e manter esses perfis dentro do mesmo escopo aplicado ao ACS. O acesso a prescrições é uma capacidade exclusiva do frontend e abre um serviço externo; o banco do Território Vivo não recebe receitas nem dados clínicos.
+A migration `20260826234754_add_clinical_professional_roles.sql` acrescenta `physician` e `nurse` ao domínio fechado de papéis. Ambos permanecem perfis profissionais de menor privilégio, vinculados a UBS/equipe, sem poderes administrativos. A gestão da própria UBS pode visualizar, aprovar, suspender e manter esses perfis dentro do escopo local. O acesso a prescrições é uma capacidade do frontend e abre um serviço externo; o banco do Território Vivo não recebe receitas nem dados clínicos.
 
-O arquivo foi criado pela Supabase CLI e permanece **pendente de aplicação** no projeto Supabase. A aplicação deverá usar o nome `add_clinical_professional_roles`, seguida dos Advisors de segurança e desempenho, antes de integrar a PR.
+A migration foi aplicada com sucesso no projeto reconstruído em 29/08/2026.
+
+### Nota sobre o endurecimento do projeto reconstruído
+
+A migration `20260829172457_harden_restored_project_security.sql` foi criada após a auditoria do restore. Ela remove `territory_points_authenticated_select` e `territory_points_insert_own`, policies históricas permissivas que seriam combinadas por `OR` com as policies finais de escopo. Também revoga a execução direta de `public.rls_auto_enable()` para `PUBLIC`, `anon` e `authenticated`, preservando o event trigger interno `ensure_rls` que ativa RLS automaticamente em novas tabelas `public`.
+
+Após a aplicação, `territory_points` mantém uma única policy por ação para o papel `authenticated`, e a função de auto-RLS deixa de ser exposta como RPC de cliente.
 
 ## Regra para novas alterações
 
 A partir da V2, toda mudança DDL deve seguir o mesmo fluxo:
 
-1. criar um novo arquivo SQL com o Supabase CLI na branch;
+1. criar um novo arquivo SQL versionado na branch;
 2. aplicar a mesma alteração ao projeto Supabase;
 3. verificar Security Advisor e Performance Advisor;
 4. atualizar testes de contrato quando a alteração afetar segurança ou autorização;
-5. não editar migrations históricas já aplicadas para representar uma mudança nova.
+5. não alterar migrations históricas já aplicadas, salvo correção estritamente necessária para restaurabilidade documentada e sem mudança de regra de negócio.
 
-O CI também executa `scripts/test-migration-history-contract.mjs`, que exige sequência local contínua para as migrations numeradas e documentação de migrations com timestamp geradas pelo Supabase CLI.
+O CI também executa `scripts/test-migration-history-contract.mjs`, que exige sequência local contínua para as migrations numeradas e documentação de migrations com timestamp.
 
 ## Critério de drift
 
-Consideramos drift quando o **estado efetivo** do schema, funções, triggers, constraints ou RLS do Supabase difere do que a sequência versionada pretende produzir. Diferença de quantidade no histórico causada pelos dois hotfixes acima, já documentados e substituídos por definições posteriores, não é tratada como drift de schema.
+Consideramos drift quando o **estado efetivo** do schema, funções, triggers, constraints ou RLS do Supabase difere do que a sequência versionada pretende produzir. Diferenças de histórico exclusivas do projeto original excluído não são reproduzidas artificialmente; o critério de homologação do projeto reconstruído é o estado efetivo seguro, versionado e validado.
