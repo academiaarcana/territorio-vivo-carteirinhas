@@ -4,8 +4,8 @@ import fs from 'node:fs';
 const authService = fs.readFileSync('src/services/auth.js', 'utf8');
 const authPage = fs.readFileSync('src/pages/auth.js', 'utf8');
 const masterMigration = fs.readFileSync('supabase/migrations/029_separate_gestor_and_master_account.sql', 'utf8');
-const clinicalMigration = fs.readFileSync('supabase/migrations/20260826234754_add_clinical_professional_roles.sql', 'utf8');
 const microareaMigration = fs.readFileSync('supabase/migrations/20260827161226_add_microareas_and_population_counts.sql', 'utf8');
+const incompleteProfileMigration = fs.readFileSync('supabase/migrations/20260829235806_suspend_incomplete_new_profiles.sql', 'utf8');
 
 function blockBetween(source, start, end, label) {
   const startIndex = source.indexOf(start);
@@ -56,19 +56,22 @@ const handleNewUserBlock = blockBetween(
   'handle_new_user'
 );
 
-assert.match(handleNewUserBlock, /'acs'\s*,\s*'pending'\s*,\s*false/i, 'Banco deve forçar todo novo perfil para ACS pendente e não-Master.');
+assert.match(handleNewUserBlock, /'acs'\s*,\s*'pending'\s*,\s*false/i, 'Fluxo normal de signup deve solicitar ACS pendente e não-Master antes da defesa final do trigger.');
 assert.doesNotMatch(handleNewUserBlock, /raw_user_meta_data->>'(?:role|access_status|is_master_account)'/i, 'Autorização não pode depender de user_metadata.');
 assert.match(handleNewUserBlock, /where hu\.cnes = requested_unit and hu\.is_active = true/i, 'Unidade enviada no cadastro deve ser validada contra o catálogo ativo.');
 assert.match(handleNewUserBlock, /t\.unit_cnes = requested_unit/i, 'Equipe enviada no cadastro deve pertencer à unidade selecionada.');
 
 const enforceRoleBlock = blockBetween(
-  clinicalMigration,
+  incompleteProfileMigration,
   'create or replace function public.enforce_profile_role()',
   'revoke all on function public.enforce_profile_role()',
-  'enforce_profile_role clínico'
+  'enforce_profile_role final'
 );
 
-assert.match(enforceRoleBlock, /if tg_op = 'INSERT'[\s\S]*new\.is_master_account := false;[\s\S]*new\.role := 'acs';[\s\S]*new\.access_status := 'pending';/i, 'Trigger de defesa em profundidade deve rebaixar INSERT para ACS pendente e não-Master.');
+assert.match(enforceRoleBlock, /if tg_op = 'INSERT'[\s\S]*new\.is_master_account := false;[\s\S]*new\.role := 'acs';/i, 'Trigger final deve impedir INSERT privilegiado e forçar ACS não-Master.');
+assert.match(enforceRoleBlock, /nullif\(btrim\(coalesce\(new\.full_name, ''\)\), ''\) is null[\s\S]*or new\.unit_cnes is null[\s\S]*new\.access_status := 'suspended';/i, 'Perfil incompleto precisa nascer suspenso, fora da fila normal de aprovação.');
+assert.match(enforceRoleBlock, /else[\s\S]*new\.access_status := 'pending';/i, 'Perfil profissional mínimo válido precisa continuar pendente para aprovação humana.');
+assert.doesNotMatch(enforceRoleBlock, /raw_user_meta_data|user_metadata/i, 'Trigger de autorização não pode consultar metadados editáveis do Auth.');
 
 const microareaValidationBlock = blockBetween(
   microareaMigration,
@@ -80,4 +83,4 @@ const microareaValidationBlock = blockBetween(
 assert.match(microareaValidationBlock, /if new\.microarea_id is null then[\s\S]*return new;/i, 'Primeiro cadastro deve poder existir antes da normalização administrativa da microárea.');
 assert.match(microareaValidationBlock, /if new\.team_id is null or new\.team_id <> resolved_team_id then[\s\S]*raise exception/i, 'Microárea normalizada deve pertencer à equipe do perfil.');
 
-console.log('Contrato do cadastro OK: sem autoelevação, vínculo validado e microárea opcional conforme o perfil profissional.');
+console.log('Contrato do cadastro OK: sem autoelevação, perfil incompleto suspenso, vínculo validado e microárea opcional conforme o perfil profissional.');
