@@ -13,6 +13,12 @@ const hardenSql = fs.readFileSync(hardenPath, 'utf8');
 const bootstrapSql = fs.readFileSync(bootstrapPath, 'utf8');
 const containmentSql = fs.readFileSync(containmentPath, 'utf8');
 
+function stripSqlComments(sql) {
+  return sql
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/--.*$/gm, '');
+}
+
 function assertExecutionRevoked(sql, role) {
   const functionPattern = 'private\\.promote_initial_master\\(\\)';
   const groupedOrSingle = new RegExp(`revoke\\s+(?:all|execute)\\s+on\\s+function\\s+${functionPattern}\\s+from\\s+[^;]*\\b${role}\\b`, 'i');
@@ -45,7 +51,7 @@ assert.match(hardenSql, /p\.role = 'acs'[\s\S]*p\.access_status = 'pending'/i, '
 assert.match(hardenSql, /nullif\(btrim\(p\.full_name\), ''\) is not null/i, 'Perfil vazio não pode concorrer à promoção Master.');
 assert.match(hardenSql, /public\.health_units[\s\S]*hu\.cnes = p\.unit_cnes[\s\S]*hu\.is_active = true/i, 'UBS do perfil elegível precisa existir e estar ativa.');
 assert.match(hardenSql, /public\.teams[\s\S]*t\.id = p\.team_id[\s\S]*t\.unit_cnes = p\.unit_cnes[\s\S]*t\.active = true/i, 'Equipe do perfil elegível precisa existir, estar ativa e pertencer à UBS.');
-assert.doesNotMatch(hardenSql, /raw_user_meta_data|user_metadata/i, 'Autorização da Master não pode depender de metadados editáveis pelo usuário.');
+assert.doesNotMatch(stripSqlComments(hardenSql), /raw_user_meta_data|user_metadata/i, 'Autorização da Master não pode depender de metadados editáveis pelo usuário.');
 
 assert.match(bootstrapSql, /master_count = 0 and eligible_count = 1/i, 'Bootstrap versionado só pode agir em estado inequívoco.');
 assert.match(bootstrapSql, /perform private\.promote_initial_master\(\)/i, 'Bootstrap deve reutilizar a função privada endurecida.');
