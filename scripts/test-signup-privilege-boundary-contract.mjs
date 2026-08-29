@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const authService = fs.readFileSync('src/services/auth.js', 'utf8');
+const authPage = fs.readFileSync('src/pages/auth.js', 'utf8');
 const masterMigration = fs.readFileSync('supabase/migrations/029_separate_gestor_and_master_account.sql', 'utf8');
 const clinicalMigration = fs.readFileSync('supabase/migrations/20260826234754_add_clinical_professional_roles.sql', 'utf8');
 const microareaMigration = fs.readFileSync('supabase/migrations/20260827161226_add_microareas_and_population_counts.sql', 'utf8');
@@ -26,6 +27,27 @@ for (const allowedField of ['full_name', 'municipality_code', 'unit_cnes', 'team
   assert.match(signupBlock, new RegExp(`\\b${allowedField}\\b`), `Cadastro deve enviar somente vínculo esperado; campo ${allowedField} ausente.`);
 }
 assert.doesNotMatch(signupBlock, /\brole\s*:|\baccess_status\s*:|\bis_master_account\s*:/i, 'Frontend nunca pode escolher papel, status ou flag Master no cadastro.');
+
+const signupPageBlock = blockBetween(
+  authPage,
+  'export function renderSignupPage()',
+  'export async function mountSignupPage',
+  'tela de cadastro'
+);
+assert.match(signupPageBlock, /Microárea \(se aplicável\)/, 'Cadastro precisa explicar que microárea só se aplica a determinados vínculos.');
+assert.match(signupPageBlock, /name="microarea"[^>]*placeholder="Ex\.: 08"[^>]*>/, 'Campo de microárea precisa continuar disponível para ACS.');
+assert.doesNotMatch(signupPageBlock, /name="microarea"[^>]*\brequired\b/i, 'Microárea não pode ser obrigatória para médico, enfermeiro ou gestão.');
+assert.match(signupPageBlock, /Médicos, enfermeiros e gestão podem deixar esse campo em branco/i, 'A orientação precisa deixar explícito quem pode omitir microárea.');
+assert.doesNotMatch(signupPageBlock, /name="role"|name="access_status"|name="is_master_account"/i, 'Tela de cadastro não pode oferecer escolha de privilégio.');
+
+const mountSignupBlock = blockBetween(
+  authPage,
+  'export async function mountSignupPage',
+  'export function renderRecoveryPage()',
+  'montagem do cadastro'
+);
+assert.match(mountSignupBlock, /!values\.municipalityCode\s*\|\|\s*!values\.unitCnes/, 'Município e UBS devem continuar obrigatórios no cadastro.');
+assert.doesNotMatch(mountSignupBlock, /!values\.microarea\.trim\(\)/, 'Validação do cadastro não pode exigir microárea para todos os profissionais.');
 
 const handleNewUserBlock = blockBetween(
   masterMigration,
@@ -58,4 +80,4 @@ const microareaValidationBlock = blockBetween(
 assert.match(microareaValidationBlock, /if new\.microarea_id is null then[\s\S]*return new;/i, 'Primeiro cadastro deve poder existir antes da normalização administrativa da microárea.');
 assert.match(microareaValidationBlock, /if new\.team_id is null or new\.team_id <> resolved_team_id then[\s\S]*raise exception/i, 'Microárea normalizada deve pertencer à equipe do perfil.');
 
-console.log('Contrato do cadastro OK: sem autoelevação, vínculo validado e primeira conta compatível com microárea ainda não normalizada.');
+console.log('Contrato do cadastro OK: sem autoelevação, vínculo validado e microárea opcional conforme o perfil profissional.');
