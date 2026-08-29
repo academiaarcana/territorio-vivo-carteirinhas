@@ -6,6 +6,8 @@ O projeto Supabase original foi excluído acidentalmente em 29/08/2026. O backen
 
 O critério atual de consistência é o **estado efetivo do schema + migrations versionadas + Advisors**, e não a reprodução artificial de entradas históricas que pertenciam somente ao projeto excluído.
 
+A primeira conta profissional real foi confirmada e promovida de forma controlada para **Master / Desenvolvimento** em 29/08/2026. A conta Master permanece `admin + active + is_master_account=true` e sem município, UBS, equipe ou microárea vinculados ao próprio perfil.
+
 ## Hotfixes históricos do projeto original
 
 Dois hotfixes existiram no projeto anterior e permanecem documentados para rastreabilidade:
@@ -63,6 +65,9 @@ Esses registros não foram reaplicados artificialmente no projeto restaurado por
 | `20260829172457_harden_restored_project_security.sql` | Aplicada; remove policies territoriais permissivas herdadas e impede execução cliente de `rls_auto_enable()`. |
 | `20260829175027_prepare_safe_initial_master_promotion.sql` | Aplicada; cria operação privada, serializada e não exposta à API para promover a primeira conta real confirmada quando não houver Master. |
 | `20260829183355_align_initial_master_promotion_microareas.sql` | Aplicada; passa a limpar explicitamente também `microarea_id` durante a promoção da Master. |
+| `20260829234653_harden_initial_master_eligibility.sql` | Aplicada; exclui perfis vazios da elegibilidade, exige perfil pendente confirmado com UBS e equipe válidas/ativas e não usa `user_metadata` para autorização. |
+| `20260829234749_promote_initial_master_if_unambiguous.sql` | Aplicada; promove somente quando há zero Master e exatamente um perfil elegível; em restore vazio ou estado ambíguo é no-op. |
+| `20260829235025_suspend_unscoped_admin_created_test_profiles.sql` | Aplicada; suspende de forma reversível os cinco perfis vazios criados administrativamente durante a homologação, preservando os registros Auth para auditoria. |
 
 ## Microáreas e população acompanhada
 
@@ -72,7 +77,7 @@ A estrutura territorial normalizada é:
 
 A tabela `microareas` armazena somente código territorial e totais agregados opcionais. Quando a quantidade de pessoas não está confirmada, permanece `null`; o sistema não converte ausência de informação em zero. A leitura por `anon` é bloqueada e o acesso autenticado é limitado por RLS.
 
-No projeto restaurado a tabela foi criada com zero linhas porque não existem perfis Auth ainda. Nenhuma microárea ou total populacional foi inventado durante a reconstrução.
+Nenhuma microárea ou total populacional foi inventado durante a reconstrução. A conta Master não ocupa microárea; vínculos formais serão cadastrados/confirmados pela gestão a partir dos profissionais reais.
 
 ## Gestor Municipal × Master
 
@@ -81,7 +86,23 @@ No projeto restaurado a tabela foi criada com zero linhas porque não existem pe
 - `admin + is_master_account=false` → Gestor Municipal;
 - `admin + is_master_account=true` → Master / Desenvolvimento.
 
-A Master não mantém município, UBS, equipe ou microárea no próprio perfil. A função privada de recuperação exige exatamente uma conta confirmada quando ainda não existe Master, usa lock transacional e não pode ser executada por `PUBLIC`, `anon`, `authenticated` nem `service_role` via API.
+A Master não mantém município, UBS, equipe ou microárea no próprio perfil. A função privada de recuperação:
+
+- exige e-mail confirmado;
+- exige perfil `acs + pending + não-Master` durante o bootstrap;
+- exige nome não vazio e vínculo com UBS/equipe válidas e ativas do catálogo;
+- aborta se houver mais de um perfil completo elegível;
+- usa lock transacional;
+- não usa `raw_user_meta_data`/`user_metadata` para decisão de autorização;
+- não pode ser executada por `PUBLIC`, `anon`, `authenticated` nem `service_role` via API.
+
+## Contenção de contas administrativas de teste
+
+Durante a homologação de 29/08/2026, cinco contas com nomes de papéis de teste foram criadas diretamente pelo endpoint administrativo `POST /admin/users` com ator `service_role`. Elas não passaram pelo formulário público: não tiveram e-mail de confirmação enviado, nasceram confirmadas, não iniciaram sessão e geraram perfis vazios, sem UBS/equipe/microárea.
+
+A origem não está no código publicado: os workflows do GitHub Pages utilizam somente a chave publicável e verificam que `service_role` não apareça em `src`, `config.js` ou `index.html`.
+
+Como contenção, os cinco perfis foram alterados para `access_status='suspended'`. Os usuários Auth não foram apagados, para preservar rastreabilidade e permitir investigação/remoção deliberada posterior. O perfil profissional real e a Master não foram atingidos.
 
 ## Médico e Enfermeiro
 
@@ -91,7 +112,9 @@ A Master não mantém município, UBS, equipe ou microárea no próprio perfil. 
 
 Após a reconstrução, a auditoria encontrou policies antigas de `territory_points` que poderiam ser combinadas por `OR` com as policies finais de escopo. A migration de endurecimento removeu essas policies e revogou execução direta de `public.rls_auto_enable()` para papéis de cliente, preservando o event trigger interno que ativa RLS em novas tabelas públicas.
 
-O Security Advisor foi executado após as alterações e permaneceu sem lints de segurança. O Performance Advisor pode informar índices ainda sem uso enquanto a base está vazia; isso não é tratado como falha de segurança.
+Depois da promoção Master e das migrations de contenção, o Security Advisor informa um alerta hospedado de Auth: **Leaked Password Protection Disabled**. Essa configuração não é DDL e deve ser ativada no Auth quando o plano do projeto oferecer o recurso. O frontend já exige senha forte, mas isso não substitui a verificação contra senhas vazadas.
+
+O Performance Advisor informa apenas índices ainda sem uso na base recém-restaurada. Eles permanecem porque suportam consultas previstas de município, UBS, equipe, microárea e território; não são removidos apenas por falta de histórico de uso inicial.
 
 ## Regra para novas alterações
 
@@ -103,7 +126,9 @@ Toda nova alteração DDL deve:
 4. executar Security e Performance Advisors após mudanças de schema/autorização;
 5. atualizar testes de contrato quando necessário;
 6. ser documentada neste histórico quando usar nome com timestamp;
-7. nunca criar usuário Auth fictício nem inserir diretamente em `auth.users`.
+7. nunca criar usuário Auth fictício nem inserir diretamente em `auth.users`;
+8. nunca usar `user_metadata` como fonte de autorização;
+9. preservar trilha de auditoria em incidentes/contas anômalas antes de qualquer exclusão definitiva.
 
 ## Critério de drift
 
