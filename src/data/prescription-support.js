@@ -18,12 +18,19 @@ export const prescriptionSchedules = Object.freeze([
   { id: 'morning', label: 'Manhã', hint: 'No começo do dia', ...localVisual('morning.png') },
   { id: 'lunch', label: 'Almoço', hint: 'Próximo ao almoço', ...localVisual('lunch.png') },
   { id: 'evening', label: 'Noite', hint: 'No período da noite', ...localVisual('evening.png') },
-  { id: 'bedtime', label: 'Antes de dormir', hint: 'Na hora de deitar', ...localVisual('bedtime.png') }
+  { id: 'bedtime', label: 'Antes de dormir', hint: 'Na hora de deitar', ...localVisual('bedtime.png') },
+  { id: 'before-breakfast', label: 'Antes do café da manhã', hint: 'Antes de comer de manhã', ...localVisual('before-breakfast.png') },
+  { id: 'after-breakfast', label: 'Depois do café da manhã', hint: 'Depois de comer de manhã', ...localVisual('after-breakfast.png') },
+  { id: 'before-lunch', label: 'Antes do almoço', hint: 'Antes de almoçar', ...localVisual('before-meal.png') },
+  { id: 'after-lunch', label: 'Depois do almoço', hint: 'Depois de almoçar', ...localVisual('after-meal.png') },
+  { id: 'before-dinner', label: 'Antes do jantar', hint: 'Antes de jantar', ...localVisual('before-dinner.png') },
+  { id: 'after-dinner', label: 'Depois do jantar', hint: 'Depois de jantar', ...localVisual('after-dinner.png') },
+  { id: 'fasting', label: 'Em jejum', hint: 'Sem comer antes', ...localVisual('fasting.png') }
 ]);
 
 export const prescriptionSupportCategories = Object.freeze([
-  { id: 'combined', label: 'Combinados', description: 'Atalhos que preenchem via, período e observação.' },
-  { id: 'indigenous', label: 'Combinados Povos Indígenas', description: 'Cenas respeitosas que precisam ser validadas com cada comunidade.' },
+  { id: 'combined', label: 'Modelos prontos', description: 'Atalhos que preenchem somente via, período e observação. Medicamento, dose e duração continuam obrigatórios.' },
+  { id: 'indigenous', label: 'Combinados Povos Indígenas', description: 'Todos os períodos da lista geral em cenas respeitosas, que precisam ser validadas com cada comunidade.' },
   { id: 'routes', label: 'Via de uso', description: 'Formas de administração do medicamento.' },
   { id: 'reasons', label: 'Motivo do uso', description: 'Apoio para explicar a finalidade já definida na prescrição.' },
   { id: 'times', label: 'Horários', description: 'Períodos e intervalos; o horário exato continua escrito.' },
@@ -35,17 +42,43 @@ export const prescriptionSupportCategories = Object.freeze([
 ]);
 
 const combined = [
-  ['combined-oral-morning', 'Comprimido pela manhã', 'Via oral + manhã', 'oral', 'morning', ''],
-  ['combined-oral-lunch', 'Comprimido no almoço', 'Via oral + almoço', 'oral', 'lunch', ''],
-  ['combined-oral-evening', 'Comprimido à noite', 'Via oral + noite', 'oral', 'evening', ''],
-  ['combined-oral-bedtime', 'Comprimido antes de dormir', 'Via oral + hora de deitar', 'oral', 'bedtime', ''],
-  ['combined-before-meal', 'Antes da refeição', 'Via oral + 30 minutos antes de comer', 'oral', 'lunch', '30 minutos antes da refeição'],
-  ['combined-drops-morning', 'Gotas pela manhã', 'Gotas + manhã', 'drops', 'morning', ''],
-  ['combined-topical-night', 'Aplicar à noite', 'Uso na pele + noite', 'topical', 'evening', '']
-].map(([id, label, hint, route, schedule, observation]) => ({
-  id, category: 'combined', label, hint, action: 'preset', route, schedule, observation,
-  image: prescriptionRoutes.find((item) => item.id === route)?.image
+  ['combined-oral-morning', 'Remédio pela boca — manhã', 'Via oral + manhã', 'oral', 'morning', '', true],
+  ['combined-oral-lunch', 'Remédio pela boca — almoço', 'Via oral + almoço', 'oral', 'lunch', '', true],
+  ['combined-oral-evening', 'Remédio pela boca — noite', 'Via oral + noite', 'oral', 'evening', '', true],
+  ['combined-oral-bedtime', 'Remédio pela boca — ao deitar', 'Via oral + antes de dormir', 'oral', 'bedtime', '', true],
+  ['combined-before-breakfast', 'Antes do café da manhã', 'Somente quando estiver escrito na receita', 'oral', 'before-breakfast', '', false],
+  ['combined-after-breakfast', 'Depois do café da manhã', 'Somente quando estiver escrito na receita', 'oral', 'after-breakfast', '', false],
+  ['combined-before-lunch', 'Antes do almoço', 'Somente quando estiver escrito na receita', 'oral', 'before-lunch', '', false],
+  ['combined-after-lunch', 'Depois do almoço', 'Somente quando estiver escrito na receita', 'oral', 'after-lunch', '', false],
+  ['combined-before-dinner', 'Antes do jantar', 'Somente quando estiver escrito na receita', 'oral', 'before-dinner', '', false],
+  ['combined-after-dinner', 'Depois do jantar', 'Somente quando estiver escrito na receita', 'oral', 'after-dinner', '', false],
+  ['combined-fasting', 'Em jejum', 'Somente quando estiver escrito na receita', 'oral', 'fasting', '', false],
+  ['combined-with-food', 'Junto com alimento', 'Somente quando estiver escrito na receita', 'oral', 'lunch', 'tomar junto com alimento', false],
+  ['combined-drops-morning', 'Gotas — manhã', 'Gotas + manhã', 'drops', 'morning', '', true],
+  ['combined-drops-lunch', 'Gotas — almoço', 'Gotas + almoço', 'drops', 'lunch', '', false],
+  ['combined-drops-evening', 'Gotas — noite', 'Gotas + noite', 'drops', 'evening', '', false],
+  ['combined-drops-bedtime', 'Gotas — ao deitar', 'Gotas + antes de dormir', 'drops', 'bedtime', '', false],
+  ['combined-eye-morning', 'Colírio — manhã', 'Gotas nos olhos + manhã', 'eye-drops', 'morning', '', true],
+  ['combined-eye-evening', 'Colírio — noite', 'Gotas nos olhos + noite', 'eye-drops', 'evening', '', false],
+  ['combined-eye-bedtime', 'Colírio — ao deitar', 'Gotas nos olhos + antes de dormir', 'eye-drops', 'bedtime', '', false],
+  ['combined-ear-morning', 'Gotas no ouvido — manhã', 'Uso no ouvido + manhã', 'ear-drops', 'morning', '', false],
+  ['combined-ear-evening', 'Gotas no ouvido — noite', 'Uso no ouvido + noite', 'ear-drops', 'evening', '', false],
+  ['combined-nasal-morning', 'Spray nasal — manhã', 'Uso nasal + manhã', 'nasal-spray', 'morning', '', true],
+  ['combined-nasal-evening', 'Spray nasal — noite', 'Uso nasal + noite', 'nasal-spray', 'evening', '', false],
+  ['combined-inhalation-morning', 'Inalação — manhã', 'Via inalatória + manhã', 'inhalation', 'morning', '', true],
+  ['combined-inhalation-evening', 'Inalação — noite', 'Via inalatória + noite', 'inhalation', 'evening', '', false],
+  ['combined-topical-morning', 'Na pele — manhã', 'Uso na pele + manhã', 'topical', 'morning', '', false],
+  ['combined-topical-night', 'Na pele — noite', 'Uso na pele + noite', 'topical', 'evening', '', true],
+  ['combined-topical-bedtime', 'Na pele — ao deitar', 'Uso na pele + antes de dormir', 'topical', 'bedtime', '', false]
+].map(([id, label, hint, route, schedule, observation, featured]) => ({
+  id, category: 'combined', label, hint, action: 'preset', route, schedule, observation, featured,
+  images: [
+    prescriptionRoutes.find((item) => item.id === route)?.image,
+    prescriptionSchedules.find((item) => item.id === schedule)?.image
+  ].filter(Boolean)
 }));
+
+export const prescriptionQuickTemplates = Object.freeze(combined.filter((item) => item.featured));
 
 const routeItems = prescriptionRoutes.map((item) => ({ ...item, category: 'routes', action: 'route' }));
 const timeItems = [
@@ -59,9 +92,31 @@ const timeItems = [
   ].map(([id, label, hint, observation]) => ({ id, category: 'times', label, hint, action: 'observation', observation, ...attributedVisual('clock') }))
 ];
 
+const indigenousScheduleAssetById = Object.freeze({
+  morning: 'indigenous-morning.png',
+  lunch: 'indigenous-lunch.png',
+  evening: 'indigenous-evening.png',
+  bedtime: 'indigenous-night.png',
+  'before-breakfast': 'indigenous-before-breakfast.png',
+  'after-breakfast': 'indigenous-after-breakfast.png',
+  'before-lunch': 'indigenous-before-lunch.png',
+  'after-lunch': 'indigenous-after-lunch.png',
+  'before-dinner': 'indigenous-before-dinner.png',
+  'after-dinner': 'indigenous-after-dinner.png',
+  fasting: 'indigenous-fasting.png'
+});
+
+const indigenousScheduleItems = prescriptionSchedules.map((item) => ({
+  id: `indigenous-${item.id}`,
+  category: 'indigenous',
+  label: item.label,
+  hint: 'Validar com a comunidade',
+  action: 'support',
+  ...localVisual(indigenousScheduleAssetById[item.id])
+}));
+
 const supportItems = [
-  { id: 'indigenous-morning', category: 'indigenous', label: 'Manhã com alimento', hint: 'Validar com a comunidade', action: 'support', ...localVisual('indigenous-morning.png') },
-  { id: 'indigenous-night', category: 'indigenous', label: 'Noite e descanso', hint: 'Validar com a comunidade', action: 'support', ...localVisual('indigenous-night.png') },
+  ...indigenousScheduleItems,
 
   { id: 'pain', category: 'reasons', label: 'Dor ou desconforto', hint: 'Finalidade já prescrita', action: 'support', ...localVisual('pain.png') },
   { id: 'fever', category: 'reasons', label: 'Febre', hint: 'Finalidade já prescrita', action: 'support', ...localVisual('fever.png') },
@@ -79,7 +134,7 @@ const supportItems = [
   { id: 'family', category: 'characters', label: 'Família', hint: 'Rede de cuidado', action: 'support', ...attributedVisual('family') },
 
   { id: 'water', category: 'associations', label: 'Tomar com água', hint: 'Somente se estiver prescrito', action: 'support', ...attributedVisual('water') },
-  { id: 'fasting', category: 'associations', label: 'Jejum', hint: 'Somente se estiver prescrito', action: 'support', ...attributedVisual('fasting') },
+  { id: 'fasting-support', category: 'associations', label: 'Jejum', hint: 'Somente se estiver prescrito', action: 'support', ...attributedVisual('fasting') },
   { id: 'medicine', category: 'associations', label: 'Medicamento', hint: 'Apoio geral', action: 'support', ...attributedVisual('medicine') },
   { id: 'avoid-alcohol', category: 'associations', label: 'Evitar álcool', hint: 'Somente se estiver orientado', action: 'support', ...localVisual('avoid-alcohol.png') },
   { id: 'companion', category: 'associations', label: 'Pessoa acompanhante', hint: 'Rede de apoio', action: 'support', ...attributedVisual('companion') },

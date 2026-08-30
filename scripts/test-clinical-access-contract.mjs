@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { prescriptionSchedules, prescriptionSupportItemsFor } from '../src/data/prescription-support.js';
 
 const access = fs.readFileSync('src/core/access-control.js', 'utf8');
 const permissions = fs.readFileSync('src/core/permissions.js', 'utf8');
@@ -40,14 +41,41 @@ assert.doesNotMatch(page, /name="(patient|patient_name|cpf|diagnosis)"/, 'V1 nã
 assert.doesNotMatch(page, /from ['"][^'"]*(supabase|repository)\.js['"]/, 'Área clínica externa não pode importar persistência.');
 for (const forbidden of ['localStorage', 'sessionStorage', 'indexedDB']) assert.doesNotMatch(page, new RegExp(forbidden), `Área clínica não pode usar ${forbidden}.`);
 
-for (const category of ['Combinados', 'Combinados Povos Indígenas', 'Via de uso', 'Motivo do uso', 'Horários', 'Personagens', 'Associações', 'Retirada de corticoide(s)', 'Outros', 'Utilitários']) {
+for (const category of ['Modelos prontos', 'Combinados Povos Indígenas', 'Via de uso', 'Motivo do uso', 'Horários', 'Personagens', 'Associações', 'Retirada de corticoide(s)', 'Outros', 'Utilitários']) {
   assert.match(support, new RegExp(category.replace(/[()]/g, '\\$&'), 'u'), `Catálogo deve incluir a categoria ${category}.`);
 }
 
+for (const template of ['combined-oral-morning', 'combined-drops-morning', 'combined-eye-morning', 'combined-nasal-morning', 'combined-inhalation-morning', 'combined-topical-night']) {
+  assert.match(support, new RegExp(template), `Catálogo deve incluir o modelo frequente ${template}.`);
+}
+for (const schedule of ['Antes do café da manhã', 'Depois do café da manhã', 'Antes do almoço', 'Depois do almoço', 'Antes do jantar', 'Depois do jantar', 'Em jejum']) {
+  assert.match(support, new RegExp(schedule), `Períodos precisam incluir ${schedule}.`);
+}
+assert.match(support, /const indigenousScheduleItems = prescriptionSchedules\.map/, 'Períodos indígenas precisam permanecer sincronizados com a lista geral.');
+assert.equal(prescriptionSchedules.length, 11, 'Lista geral precisa conter onze períodos explícitos.');
+assert.deepEqual(
+  prescriptionSupportItemsFor('indigenous').map((item) => item.label),
+  prescriptionSchedules.map((item) => item.label),
+  'Catálogo indígena precisa espelhar todos os períodos e manter a mesma ordem.'
+);
+assert.match(page, /café da manhã, almoço, jantar ou em jejum/, 'Opções ligadas às refeições precisam lembrar a conferência profissional.');
+assert.match(support, /prescriptionQuickTemplates/, 'Modelos frequentes precisam ter uma coleção própria.');
+assert.ok(
+  prescriptionSupportItemsFor('combined').every((item) => item.images?.length === 2 && item.images[0] !== item.images[1]),
+  'Cada modelo pronto precisa combinar dois pictogramas diferentes: via e período.'
+);
+assert.match(page, /Escolha um modelo frequente/, 'A tela precisa destacar modelos antes do preenchimento manual.');
+assert.match(page, /Modelo aplicado\. Agora informe medicamento e dose/, 'Aplicar um modelo deve lembrar os campos clínicos obrigatórios.');
+assert.match(page, /applyPrescriptionTemplate/, 'Modelos rápidos e biblioteca precisam usar a mesma aplicação segura.');
+assert.match(page, /prescription-combined-visual/, 'Modelos prontos precisam renderizar via e período como dois pictogramas reais.');
+assert.match(css, /prescription-combined-visual/, 'Composição de via e período precisa ter layout próprio e legível.');
+
 for (const file of [
-  'morning.png', 'lunch.png', 'evening.png', 'bedtime.png', 'oral.png', 'injection.png', 'topical.png', 'drops.png',
+  'morning.png', 'lunch.png', 'evening.png', 'bedtime.png', 'before-breakfast.png', 'after-breakfast.png', 'before-meal.png', 'after-meal.png', 'before-dinner.png', 'after-dinner.png', 'fasting.png', 'oral.png', 'injection.png', 'topical.png', 'drops.png',
   'inhalation.png', 'eye-drops.png', 'ear-drops.png', 'nasal-spray.png', 'pain.png', 'fever.png', 'cough.png',
-  'stomach-discomfort.png', 'avoid-alcohol.png', 'gradual-reduction.png', 'indigenous-morning.png', 'indigenous-night.png'
+  'stomach-discomfort.png', 'avoid-alcohol.png', 'gradual-reduction.png', 'indigenous-morning.png', 'indigenous-lunch.png', 'indigenous-evening.png', 'indigenous-night.png',
+  'indigenous-before-breakfast.png', 'indigenous-after-breakfast.png', 'indigenous-before-lunch.png', 'indigenous-after-lunch.png',
+  'indigenous-before-dinner.png', 'indigenous-after-dinner.png', 'indigenous-fasting.png'
 ]) {
   assert.match(support, new RegExp(file.replace('.', '\\.')), `Catálogo deve referenciar ${file}.`);
   assert.ok(fs.statSync(`src/assets/prescription-support/${file}`).size > 10_000, `${file} precisa ser um ativo visual real.`);

@@ -37,7 +37,21 @@
   .prescription-choice small { color: var(--field-muted); font-size: .7rem; line-height: 1.25; }
   .prescription-choice > input:checked + span { border-color: var(--field-blue); outline: 2px solid rgba(24, 104, 164, .18); background: #f3f8fd; }
   .prescription-choice > input:focus-visible + span { outline: 3px solid #efb93f; outline-offset: 2px; }
+  .prescription-choice-help { margin: .65rem 0 0; padding: .7rem .8rem; border-left: 4px solid #b87916; background: #fff8e8; color: #594717; font-size: .78rem; line-height: 1.45; }
   .prescription-form-actions { margin-top: .2rem; }
+
+  .prescription-quick-templates { display: grid; gap: .8rem; padding: 1rem; border: 1px solid #bdd5c7; border-left: 4px solid var(--field-green); border-radius: 0 12px 12px 0; background: #f2faf5; }
+  .prescription-quick-templates > header { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1fr); gap: 1rem; align-items: end; }
+  .prescription-quick-templates h3 { margin: 0; color: var(--field-ink); font-size: 1.12rem; }
+  .prescription-quick-templates header > p, .prescription-quick-templates > p { margin: 0; color: var(--field-muted); font-size: .8rem; line-height: 1.45; }
+  .prescription-quick-templates > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; }
+  .prescription-quick-templates button { display: grid; grid-template-rows: 58px auto auto; justify-items: center; gap: .2rem; min-width: 0; padding: .65rem .45rem; border: 1px solid #bfd2c7; border-radius: 10px; background: #fff; color: var(--field-ink); text-align: center; cursor: pointer; }
+  .prescription-quick-templates button:hover { border-color: var(--field-green); background: #f8fcf9; }
+  .prescription-quick-templates button:focus-visible { outline: 3px solid #efb93f; outline-offset: 2px; }
+  .prescription-quick-templates button > span { display: grid; place-items: center; width: 76px; height: 58px; }
+  .prescription-quick-templates button > span > img { width: 54px; height: 54px; object-fit: contain; }
+  .prescription-quick-templates button strong { font-size: .75rem; line-height: 1.25; }
+  .prescription-quick-templates button small { color: var(--field-muted); font-size: .66rem; line-height: 1.25; }
 
   .prescription-support-library { display: grid; gap: .8rem; padding: 1rem; border: 1px solid #cddbdd; border-radius: 12px; background: #f9fbfc; }
   .prescription-support-library > header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .48fr); gap: 1rem; align-items: end; }
@@ -56,6 +70,8 @@
   .prescription-support-card[aria-pressed="true"] { border-color: var(--field-green); outline: 2px solid rgba(35, 132, 84, .17); background: #eef8f2; }
   .prescription-support-card-visual { display: grid; place-items: center; width: 78px; height: 78px; }
   .prescription-support-card-visual img { width: 72px; height: 72px; object-fit: contain; }
+  .prescription-combined-visual { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 4px; width: 100%; height: 100%; }
+  .prescription-combined-visual img, .prescription-support-card-visual .prescription-combined-visual img { width: 100%; height: 100%; max-height: 64px; object-fit: contain; }
   .prescription-support-card strong { font-size: .76rem; line-height: 1.2; }
   .prescription-support-card small { color: var(--field-muted); font-size: .66rem; line-height: 1.25; }
   .prescription-support-card-action { margin-top: .15rem; color: var(--field-blue); font-size: .66rem; font-weight: 850; text-transform: uppercase; letter-spacing: .03em; }
@@ -108,6 +124,9 @@
     .prescription-hero { grid-template-columns: auto 1fr; padding: 1rem; }
     .prescription-role-badge { grid-column: 1 / -1; justify-self: start; }
     .prescription-boundary, .prescription-fields-row { grid-template-columns: 1fr; gap: .55rem; }
+    .prescription-quick-templates > header { grid-template-columns: 1fr; }
+    .prescription-quick-templates > div { display: flex; overflow-x: auto; padding-bottom: .35rem; scroll-snap-type: x proximity; }
+    .prescription-quick-templates button { flex: 0 0 152px; scroll-snap-align: start; }
     .prescription-choice-group > div { grid-template-columns: 1fr 1fr; }
     .prescription-section-heading { align-items: flex-start; flex-direction: column; }
     .prescription-support-library > header { grid-template-columns: 1fr; }
