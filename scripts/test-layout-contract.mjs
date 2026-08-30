@@ -23,5 +23,8 @@ assert.match(router, /heading\.focus\(\{ preventScroll: true \}\)/, 'Roteador de
 assert.match(structural, /:where\(a,button,input,select,textarea,\[tabindex\]\):focus-visible\{outline:var\(--focus-ring\);outline-offset:var\(--focus-offset\)\}/, 'Controles e alvos navegáveis devem manter foco visível global.');
 assert.match(structural, /h1\[tabindex="-1"\]:focus,h1\[tabindex="-1"\]:focus-visible\{outline:none\}/, 'Heading focado apenas para anúncio programático não deve exibir contorno visual de controle interativo.');
 assert.match(structural, /\.skip-link:focus\{transform:translateY\(0\)\}/, 'Skip link deve continuar visível ao receber foco.');
+assert.match(layout, /class="nav-icon-tile nav-icon-tile--\$\{tone\}" aria-hidden="true"/, 'Navegação deve reservar uma área regular e decorativa para cada pictograma.');
+assert.match(layout, /'Carteirinhas', 'susCard', 'violet'/, 'Carteirinhas deve usar um pictograma de cartão de saúde semanticamente claro.');
+assert.match(layout, /'Objetivo e tutorial', 'document', 'cyan'/, 'Tutorial deve usar um pictograma de documento ou guia semanticamente claro.');
 
 console.log('Contrato do layout OK: logout, acessibilidade de tabs e foco programático do heading sem contorno visual indevido.');
